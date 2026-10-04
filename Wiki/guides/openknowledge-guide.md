@@ -71,29 +71,31 @@ local and deterministic. It does not call a model or an embedding service.
 
 ## 3. Commands
 
-### Installed CLI
+`okn` is at `~/.local/bin/okn`. It was rebuilt on 2026-10-04. `okn version`
+still prints `0.13.0`, so use `okn --help` to see what a build actually
+provides. The top-level commands are:
 
-`okn` 0.13.0 is at `~/.local/bin/okn`. These are the top-level commands it
-reports in `okn --help`:
+| Group | Commands | What they do |
+| --- | --- | --- |
+| Start here | `setup`, `check`, `search`, `view`, `review`, `publish`, `upgrade` | The day-to-day workflow. |
+| Advanced | `validate`, `agent`, `get`, `list`, `audit`, `claims`, `evidence`, `eval`, `quality`, `query`, `export`, `mcp`, `connect`, `disconnect`, `registry`, `automation`, `scaffold`, `prompt`, `ast`, `spec`, `version`, `telemetry` | Lower-level control, governance, and interchange. |
 
-| Group | Commands |
-| --- | --- |
-| Start here | `setup`, `search`, `validate`, `view` |
-| Work locally | `agent`, `get`, `list` |
-| Trust and govern | `audit`, `claims`, `evidence`, `eval`, `quality` |
-| Query and interchange | `query`, `export` |
-| Publish and operate | `mcp`, `connect`, `disconnect`, `registry`, `automation` |
-| Advanced | `scaffold`, `prompt`, `ast`, `spec`, `version`, `telemetry` |
+Commands in the main groups:
 
-Every command accepts `--help`. Example: `okn search --help`.
+* `okn check <path>` reports one status across five layers: Structure, Links,
+  Freshness, Retrieval, and Publication. Layers that have no config show
+  `NOT CONFIGURED`. The Wiki currently shows Structure and Links `READY`.
+  Overall `READY` returns exit `0`.
+* `okn validate --spec 0.2 <path>` runs only the OKF checks. `check` runs
+  `validate` as its Structure layer.
+* `okn review <path>` builds a content review task. It can run an installed
+  agent. Its findings are advisory and do not change the `check` status.
+* `okn publish <path> --plan` shows what would be built. Without `--plan`, it
+  builds the outputs in `release.outputs`. Unmanaged or blocked knowledge is
+  never published. The default config has no outputs, so nothing publishes yet.
+* `okn upgrade <path> --plan` shows an OKF version migration before it runs.
 
-### Commands the docs describe but 0.13.0 does not have
-
-The `ofk-tools` docs (`projects/ofk-tools/README.md`) describe a newer
-lifecycle. In that lifecycle, `okn check`, `okn review`, `okn publish`, and
-`okn upgrade` are the main entry points. This installed binary does not
-include them. Running `okn check` gives `unknown command`. Treat those
-docs as the target design. Check `okn --help` before you rely on them.
+Every command accepts `--help`. Example: `okn check --help`.
 
 ## 4. The two ofk projects
 
@@ -127,8 +129,8 @@ Use this loop for any change to the wiki:
    Use `okn search "<wiki path>" "<query>"` to find sections fast.
 2. **Edit.** Change or add Markdown pages. Keep the frontmatter valid. Update
    the section index when you add a page. Log the change in `log.md`.
-3. **Validate.** Run `okn validate --spec 0.2 "<wiki path>"`. Fix all errors
-   and avoidable warnings before you finish.
+3. **Check.** Run `okn check "<wiki path>"`. It validates the structure and
+   checks links. Fix all errors and avoidable warnings before you finish.
 4. **Search.** Run one query that should find the change. Confirm the result
    matches the intent.
 5. **Commit.** The wiki is plain files in the repo. Review the diff and commit
@@ -137,6 +139,7 @@ Use this loop for any change to the wiki:
 Concrete commands for this wiki:
 
 ```bash
+okn check /home/skogix/skogai/Wiki
 okn validate --spec 0.2 /home/skogix/skogai/Wiki
 okn search /home/skogix/skogai/Wiki "which routes point to homes outside this repo"
 okn list /home/skogix/skogai/Wiki
@@ -149,8 +152,8 @@ The managed block in the project skill includes a claims workflow. It says to
 run `openknowledge claims find` before a material factual change, and to
 propose, apply, and validate claims. This wiki does not use claims yet. No
 claim files exist, and the `claims` command is advanced. Skip that workflow
-until you need evidence-backed facts. If you add it, the installed CLI
-must have the `claims` subcommands. Check with `okn claims --help` first.
+until you need evidence-backed facts. If you add it, the CLI must
+have the `claims` subcommands. Check with `okn claims --help` first.
 
 Note: the wiki's `AGENTS.md` does not mention claims. The project skill does.
 Agents read both. Until claims are in use, the skill's claims section does

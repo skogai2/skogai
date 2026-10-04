@@ -16,3 +16,4 @@
 * **User guide added**: `guides/openknowledge-guide.md` and `guides/index.md`. The guide explains the setup, `okn`, and the `ofk-tools` and `ofk-claude` projects.
 * **Verified**: The installed `okn` is 0.13.0. It has no `check`, `review`, `publish`, or `upgrade` commands, which the `ofk-tools` README describes.
 * **Index**: Linked the guide from `index.md`.
+* **Guide updated**: Rebuilt `okn` now has `check`, `review`, `publish`, and `upgrade`. Updated the command section and the loop in the user guide. `okn version` still reports 0.13.0.
