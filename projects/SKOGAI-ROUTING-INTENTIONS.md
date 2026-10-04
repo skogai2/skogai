@@ -25,18 +25,3 @@ Guidance is a set of small, purposeful pieces connected by explicit pointers. Ea
 - **Navigation and knowledge are separate jobs.** This project answers "where should I look next?" Something else answers "what is true?" A knowledge bundle could sit underneath as the material the routes lead to.
 - **It formalizes what already happens informally.** Per-project starting points, a root entry, and pointers outward are already how the personal setup works. The project's job is to make that explicit and checkable.
 
-## Open questions
-
-1. **What does "owner" mean?** Does it mean the piece lives under something, or that the owner is responsible for keeping it accurate and approves changes? The answer changes what should be checked.
-2. **Who is the reader?** Mainly agents, or people too? This decides how much a human needs to understand without tooling.
-3. **What counts as success?** A question answered while loading fewer pieces? Fewer wrong answers? Less time spent maintaining the guidance?
-4. **Is the naming rule still needed?** Marking starting points by name was a deliberate choice. Does it survive if the content moves to a standard knowledge format that has its own reserved names?
-5. **Can routes form cycles?** Or should the graph be a strict tree, with every piece reachable one way?
-6. **What happens to a broken route?** Fail, warn, or fall back to something?
-7. **Who is this for?** A private tool that happens to be visible, or an example others could learn from?
-8. **Who decides where new guidance goes?** Is placement a human decision, an agent decision, or a rule?
-
-## Unclear to me
-
-- Whether the procedure, template and lesson types from the earlier version are still intended, or were dropped on purpose.
-- Whether automation is part of the intention: agents creating and maintaining pieces, or only reading them.
