@@ -12,3 +12,7 @@
 * **Agent instructions**: Rewrote `AGENTS.md` for this wiki's purpose, read/update/no-update boundaries, and validation. No skill or automation was created. Skill scope, harnesses, and observation are still open.
 * **Source**: Facts come from `SKOGAI.md`, `AGENTS.md`, `.gitmodules`, and the two `projects/SKOGAI-ROUTING-*.md` notes at commit `f619f07`.
 * **Handoff removed**: `SETUP.MD` was deleted after its decisions were written into the bundle.
+
+* **User guide added**: `guides/openknowledge-guide.md` and `guides/index.md`. The guide explains the setup, `okn`, and the `ofk-tools` and `ofk-claude` projects.
+* **Verified**: The installed `okn` is 0.13.0. It has no `check`, `review`, `publish`, or `upgrade` commands, which the `ofk-tools` README describes.
+* **Index**: Linked the guide from `index.md`.

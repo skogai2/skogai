@@ -18,6 +18,7 @@ Read this page first. Follow only the links that match your task.
 * [Overview](overview.md): what the repo contains and what it does not.
 * [Agent rules](AGENTS.md): how agents read and update this wiki.
 * [Log](log.md): dated history of changes to the wiki.
+* [Guides](guides/index.md): walkthroughs of the Open Knowledge tooling and this setup.
 
 ## Sections
 
