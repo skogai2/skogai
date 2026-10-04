@@ -4,3 +4,6 @@
 [submodule "projects/ofk-tools"]
 	path = projects/ofk-tools
 	url = https://github.com/skogai2/okf2
+[submodule "projects/openwiki"]
+	path = projects/openwiki
+	url = https://github.com/skogai/openwiki
