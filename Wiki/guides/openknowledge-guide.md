@@ -121,7 +121,78 @@ server. Its README lists install options.
 It is not the `okn` binary. It works with OKF bundles, including ones that
 `okn` created. The two projects share a format.
 
-## 5. The wiki loop
+## 5. Connecting bundles with `okn connect`
+
+`okn connect` adds a bundle to the user registry under a short key. Other
+commands then accept the key in place of a path. The registry file is
+`~/.config/openknowledge/registry.json`. Source: the official docs at
+`https://openknowledge.sh/wiki/features/commands/connect.html`, the repo copy
+`projects/ofk-tools/Wiki/features/commands/connect.md`, and `okn connect --help`.
+The three agree on the behavior below.
+
+### Forms
+
+```bash
+okn connect ./Wiki                                  # local folder, key "Wiki"
+okn connect ./Wiki --as skogai                      # explicit key
+okn connect ./Wiki --access write                   # allow CLI authoring
+okn connect <git-url> --git-ref <ref> --git-subdir <path>
+okn connect <manifest-or-tar-url>
+okn connect --help
+```
+
+### Sources
+
+| Source | What happens |
+| --- | --- |
+| Local folder | Registered in place. Nothing is copied. |
+| Registry key | Resolves to the registered path. |
+| Manifest URL | Downloads the manifest, checks its digest and the OKF spec, then caches it. |
+| `.tar`, `.tar.gz`, `.tgz` URL | Downloads and extracts safely, then caches it. |
+| Git URL | Shallow clone into the cache. `--git-ref` picks a branch, tag, or commit. `--git-subdir` picks the bundle root inside the repo. |
+| Website URL | Looks for `openknowledge.json` at the path, then under `/.well-known/`. |
+
+### Keys
+
+* A key starts with an ASCII letter or digit. It can contain letters, digits, dots, underscores, and dashes.
+* The default key is `okf_bundle_name` from the root `index.md`. If that is missing, it is the folder name.
+* An implicit collision adds a numeric suffix. An explicit `--as` collision stops the command.
+
+### Access
+
+* `read` is the default. It hides editor links and blocks maintenance rule writes.
+* `write` enables the CLI authoring commands for a local bundle.
+* This is a CLI setting, not an operating-system permission. Other tools can still write the files.
+* Remote sources are always read-only.
+
+### Validation status
+
+`connect` reports one of `valid`, `warnings`, `invalid`, or `unknown`. A failed
+status does not block registration. Use `--no-validate` to leave the status out
+of the output.
+
+### Cache and refresh
+
+Remote sources are staged in the Open Knowledge cache and published
+atomically after validation. The cache identity comes from the normalized
+source plus the Git selectors. A reused cache is not checked for upstream
+changes. Run `okn registry refresh <key>` to fetch a new generation. Use
+`--force` to refresh even when nothing changed.
+
+### The connection this setup made
+
+`okn setup complete` registered the wiki as `Wiki` with `write` access. Check
+it with:
+
+```bash
+okn registry list
+okn registry status Wiki
+okn registry where Wiki
+okn disconnect Wiki        # removes the connection, not the files
+```
+
+## 6. Wiki loop
+
 
 Use this loop for any change to the wiki:
 
@@ -146,20 +217,196 @@ okn list /home/skogix/skogai/Wiki
 okn registry list
 ```
 
-## 6. Claims and governance
+## 7. Claims: evidence-backed facts
 
-The managed block in the project skill includes a claims workflow. It says to
-run `openknowledge claims find` before a material factual change, and to
-propose, apply, and validate claims. This wiki does not use claims yet. No
-claim files exist, and the `claims` command is advanced. Skip that workflow
-until you need evidence-backed facts. If you add it, the CLI must
-have the `claims` subcommands. Check with `okn claims --help` first.
+A **claim** is one fact that a tool can check. It has a subject, a predicate,
+and an object. It also has evidence, a lifecycle status, and a record of who
+verified it. Use claims when a fact needs one of these: deterministic
+validation, conflict detection, provenance, impact analysis, or runtime
+policy. Explanations stay in ordinary Markdown. Source: the Typed Claims v1
+page (`projects/ofk-tools/Wiki/features/claim-profile.md`), the claims command
+page (`Wiki/features/commands/claims.md`), and `okn claims --help`.
 
-Note: the wiki's `AGENTS.md` does not mention claims. The project skill does.
-Agents read both. Until claims are in use, the skill's claims section does
-not apply, and agents should not run it for this wiki.
+**The Wiki does not use claims yet.** No claim is in any page. This section
+is for when you do want them.
 
-## 7. Glossary
+### 7.1 Anatomy of a claim
+
+Claims live in the YAML frontmatter of a Markdown page. This example comes from
+the docs (the `auth:` names are placeholders):
+
+```yaml
+claims:
+  - id: auth:claim/token-format/2026-08-22
+    slot: auth:slot/token-format
+    subject: auth:token-service
+    predicate: auth:tokenFormat
+    object:
+      value: JWT
+      datatype: xsd:string
+    evidence:
+      - id: auth:evidence/token-format/openapi
+        source_ref: identity-openapi
+        stance: supports
+        role: auth:contract
+        selector:
+          type: text_quote
+          exact: Access tokens use JWT.
+    status: verified
+    section_ref: "#token-format"
+```
+
+| Field | Meaning |
+| --- | --- |
+| `id` | One immutable occurrence. Never reuse it for a new value. |
+| `slot` | The question this claim answers. Several occurrences can share a slot. |
+| `subject` | What the fact is about. Usually an entity ID. |
+| `predicate` | The relationship, such as `tokenFormat`. Predicates are declared in `claim_ontology`. |
+| `object` | Exactly one of `value` (a literal) or `ref` (another entity). |
+| `scope` | Optional typed context, such as `environment: production`. |
+| `evidence` | A list of sources and what they show. Each item has a `stance`. |
+| `status` | The lifecycle state. See 7.3. |
+| `valid_time` | Optional time interval when the fact holds. |
+| `verification` | Required only for `verified`. Records the method, reviewer, time, and evidence observations. |
+| `section_ref` | Binds the claim to a Markdown heading for retrieval. It is not evidence. |
+
+### 7.2 Ontology, sources, and evidence
+
+**Ontology.** Declare terms in `claim_ontology` in the same frontmatter. You
+declare namespaces, entities (with labels and aliases), predicates (with
+object kind, datatype, and maximum count), and evidence roles. The built-in
+prefixes include `rdf`, `skos`, `prov`, and `xsd`. Predicates can require a
+datatype or a unit. A `maximum_count: 1` predicate can hold only one value per
+subject and scope. Two different values for it are a conflict.
+
+**Sources.** Each source names a file that holds the evidence. Its `observe`
+mode is one of:
+
+* `pinned`: the file is an immutable artifact with a SHA-256 digest. Required when
+  a source uses a selector.
+* `manual`: a reference with no digest check. Used by the docs for documents
+  that people review.
+
+Access labels (`profile:`, `agent:`, `team:`, `use_case:`) restrict which
+runtime clients can receive a claim. An empty label list means public.
+
+**Selectors.** A selector points to the exact text inside the artifact. The
+supported types are `text_quote` (an `exact` string that occurs once, with
+optional `prefix` and `suffix`), `text_position`, `fragment` (a heading or an
+ID), and `data_position`. `page` and `media_fragment` are in the spec but not
+resolved by the current validator. A selector that cannot be resolved locally
+is an `unverifiable` error. Validation never fetches a remote URL.
+
+**Stance.** Each evidence item says whether it `supports`, `opposes`, or
+`contextualizes` the claim.
+
+### 7.3 Lifecycle
+
+Statuses:
+
+| Status | Meaning | Runtime serves it? |
+| --- | --- | --- |
+| `extracted` | Pulled from a document by a tool. Not reviewed. | No |
+| `proposed` | Suggested and waiting for review. Agents always create claims here. | No |
+| `supported` | Evidence exists, but no human has verified it. | No |
+| `verified` | Reviewed by an authoritative source or a named human. Requires a `verification` record. | Yes |
+| `disputed` | Sources conflict or the owner has not decided. | No |
+| `rejected` | Reviewed and found wrong. Kept as history. | No (history only) |
+| `superseded` | Replaced by a successor that names it. Kept as history. | No (history only) |
+| `archived` | Retired after review. Kept as history. | No (history only) |
+
+The runtime blocks `extracted`, `proposed`, `supported`, and `disputed`
+claims. It can serve an active `verified` successor and keep the older
+history. Confidence on a proposal is not a truth score. It is metadata about
+the extraction.
+
+### 7.4 Occurrences, supersession, and relations
+
+Each claim `id` is one **occurrence**. When a value changes, you do not edit the
+old occurrence. You create a new one in the same slot and link it:
+
+```yaml
+relations:
+  supersedes: [auth:claim/token-format/2026-01-01]
+  contradicts: [auth:claim/token-format/vendor-report]
+  derived_from: [auth:claim/token-format/source-extraction]
+```
+
+The CLI does not guess which claim replaced which by date or by position in
+the file. The `supersedes` relation has to be written out. Supersession cycles
+and missing targets are validation errors. Rejecting, superseding, and
+archiving are recorded in a `decisions` event. The original `verification`
+record stays in place.
+
+### 7.5 Conflicts
+
+Two active claims conflict when they share the same slot, subject, predicate,
+scope, and an overlapping `valid_time`, and their objects differ. This only
+counts as a conflict when the predicate has `maximum_count: 1`. When the
+objects and evidence sources match, they are duplicates, not conflicts.
+
+**The CLI reports a conflict. It does not choose the true value.** Use
+`okn claims dispute <claim-id>` to mark the claim `disputed`, then send the
+decision to the owner named in the claim. Do not delete the evidence to make
+the conflict go away.
+
+### 7.6 Freshness and reconciliation
+
+Each verified claim stores the SHA-256 of its evidence at review time. The
+stored history is append-only. `okn claims stale` compares those digests
+with the live files. If a source has changed, the claim is marked `stale`,
+and the output names the evidence IDs.
+
+`okn claims reconcile` records the current observation after a person has
+checked the claim. It does not decide whether the claim is still true. If the
+evidence no longer supports the claim, correct the claim or supersede it first.
+
+```bash
+okn claims stale --path Wiki
+okn claims reconcile <claim-id> --document <path> \
+  --approved-by human:<id> --path Wiki
+```
+
+### 7.7 Commands
+
+| Step | Command | What it does |
+| --- | --- | --- |
+| Find | `okn claims find <query>` | Searches existing claims. Run it before adding a claim, to reuse slots and predicates. |
+| Propose | `okn claims propose --from <doc> --claim-json <obj> --reason <text> --confidence <0..1>` | Creates a proposal bound to the document's digest. |
+| Apply | `okn claims apply <proposal.json>` | Writes the proposal. Refuses if the document changed after the proposal. |
+| Link | `okn claims link <claim-id> <doc>` | Adds a `claim_refs` entry. Use it only for a critical dependency. |
+| Dispute | `okn claims dispute <claim-id>` | Marks a conflict as disputed. |
+| Verify | `okn claims verify <claim-id> --approved-by <id>` | Needs an authoritative source or explicit human approval. |
+| Supersede | `okn claims supersede <claim-id> --by <id> --approved-by <id>` | Replaces an occurrence with a named successor. |
+| Validate | `okn claims validate` | Checks the claim rules across the bundle. |
+| Impact | `okn claims impact <claim-id>` | Lists affected documents, shared sources, links, and eval cases. |
+| Stale | `okn claims stale` | Lists claims whose evidence changed. |
+
+Verification and archiving of a verified or disputed claim need a human's
+approval. Agents do not approve them.
+
+### 7.8 Runtime behavior
+
+Claims flow into `okn search` context, MCP output, the viewer, and audit
+output. A structured query (`okn query`) returns source-backed results.
+Production publication refuses unresolved active claims by default. A runtime
+serves an immutable accepted generation. It does not pick the newest value.
+
+### 7.9 Rules for agents working with claims
+
+The managed block in the project skill sets these rules. They apply when a
+change is a material factual change:
+
+1. Run `okn claims find` before you choose a predicate or slot.
+2. Give each new occurrence a unique ID. Reuse the existing slot, entity, and predicate.
+3. Create claims with `okn claims propose`. Keep them `proposed`.
+4. Apply the digest-bound proposal with `okn claims apply`.
+5. Run `okn claims impact` on the affected documents and eval questions.
+6. Supersede replaced occurrences explicitly. Keep the history.
+7. Run `okn claims validate` after each claim edit.
+8. Do not choose the true value between conflicting sources. Dispute it and send it to the owner.
+
+## 8. Glossary
 
 | Term | Meaning |
 | --- | --- |
