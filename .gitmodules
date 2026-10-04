@@ -1,0 +1,6 @@
+[submodule "projects/ofk-claude"]
+	path = projects/ofk-claude
+	url = https://github.com/skogai2/okf
+[submodule "projects/ofk-tools"]
+	path = projects/ofk-tools
+	url = https://github.com/skogai2/okf2
