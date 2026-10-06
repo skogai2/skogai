@@ -7,3 +7,6 @@
 [submodule "projects/openwiki"]
 	path = projects/openwiki
 	url = https://github.com/skogai/openwiki
+[submodule "projects/skogai-fleet"]
+	path = projects/skogai-fleet
+	url = https://github.com/skogai2/skogai-fleet
