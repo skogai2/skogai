@@ -5,12 +5,13 @@ type: router
 
 <routes>
 
-  - @~/.skogai/skills/skogai-routing/references/dot-skogai.md - dot-skogai: the `.skogai` convention (skogai2/dot-skogai), a bootstrap folder for any project
-  - @~/.skogai/skills/skogai-routing/references/dash-skogai.md - dash-skogai: `/skogai`, the root-level shared multi-agent workspace (not provisioned yet)
+  - @projects/dot-skogai - dot-skogai: the `.skogai` convention (skogai2/dot-skogai), the bootstrap folder for any project (repo now empty, the reference was removed in d6b9fac)
+  - @projects/dash-skogai/README.md - dash-skogai: the shared state. Holds `config.defaults.json` and `fish/config.fish`, which every repo installs from. `/skogai` itself is not provisioned yet
   - @~/claude/.skogai/messages/skogix.md - skogix: the skogfences manifesto — why agents get real homes instead of sandboxes
   - @~/claude/CLAUDE.md - claude: Claude Code's own agent home
   - @~/dot/AGENTS.md - dot: dot's own home (skogai2/dot)   
-  - @~/.config/skogai/SKOGAI.md - config: `$XDG_SKOGAI_CONFIG_DIR`, env vars/aliases/keybinding config (skogai2/config)
+  - @projects/config/SKOGAI.md - config: env vars/aliases/keybinding config (skogai2/config)
+  - @projects/skogai-cli/docs/CONFIG.md - skogai-cli: the `skogai` command. Config model: dash-skogai pins, the `.skogai` store, install. Env rules are in docs/ENV.md
   - skogai: this repo itself (skogai2/skogai) — the front-door index you're reading now
 
 </routes>
