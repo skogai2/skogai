@@ -19,3 +19,6 @@
 [submodule "projects/config"]
 	path = projects/config
 	url = https://github.com/skogai2/config
+[submodule "projects/skogai-cli"]
+	path = projects/skogai-cli
+	url = https://github.com/skogai2/skogai-cli
