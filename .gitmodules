@@ -16,3 +16,6 @@
 [submodule "projects/dash-skogai"]
 	path = projects/dash-skogai
 	url = https://github.com/skogai2/dash-skogai
+[submodule "projects/config"]
+	path = projects/config
+	url = https://github.com/skogai2/config
