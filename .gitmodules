@@ -22,3 +22,6 @@
 [submodule "projects/skogai-cli"]
 	path = projects/skogai-cli
 	url = https://github.com/skogai2/skogai-cli
+[submodule "projects/argc-completions"]
+	path = projects/argc-completions
+	url = https://github.com/skogai/argc-completions
