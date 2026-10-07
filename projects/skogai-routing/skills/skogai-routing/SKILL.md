@@ -1,13 +1,14 @@
 ---
 name: skogai-routing
 description: use this to *always* when trying to navigate any skogai projects, documentation or configuration. use when exploring the skogai ecosystem or anything skogai-related.
-permalink: dot-skogai/skills/skogai-routing/skill
+permalink: skogai-routing/skill
 ---
 
-<routing>
+<routes>
 
-  - ./references/dash-skogai.md - root-level shared workspace
-  - ./references/dot-skogai.md - project-specific configuration
+  - @./references/dash-skogai.md - root-level shared workspace
+  - @./references/dot-skogai.md - project-specific configuration
+  - @./references/skogfences.md - story behind dash-skogai and the concept of "skogfences" 
 
-</routing>
+</routes>
 

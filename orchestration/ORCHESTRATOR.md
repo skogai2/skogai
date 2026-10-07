@@ -19,6 +19,19 @@ Frontmatter: `id`, `repo` (a submodule path under `projects/`), `branch`,
 acceptance criteria, and anything the worker must not touch. Copy
 `orders/_template.md` to start one.
 
+## Context you already have
+
+Your own context came from `AGENTS.md -> @SKOGAI.md -> @TOOLS.md`: the
+router and the tool list, kept deliberately light. Anything else in
+`SKOGAI.md`'s routes is a plain reference, not `@`-linked, so read it when a
+task needs it instead of assuming it is already in context.
+
+A worker you dispatch gets the same treatment, scoped to its own repo: if
+the submodule has its own `AGENTS.md -> @SKOGAI.md`, the worker loads that
+chain the moment it starts, before you send the order. As of 2026-10-07 only
+`projects/config` and `projects/skogai-fleet` have that pair; a worker in
+any other submodule gets nothing for free and must read its own docs.
+
 ## Dispatch
 
 ```bash

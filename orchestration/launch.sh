@@ -8,10 +8,11 @@ cd "$root"
 
 [ "${HERDR_ENV:-}" = 1 ] || { echo "launch.sh: not inside a herdr pane (HERDR_ENV != 1)" >&2; exit 1; }
 
-# Project map: every SKOGAI.md in the tree, regenerated on each start so it
-# matches the submodules as they are now.
+# Project map: every submodule's SKOGAI.md, regenerated on each start so it
+# matches the submodules as they are now. The root SKOGAI.md is excluded: it
+# is already loaded natively, via AGENTS.md -> @SKOGAI.md -> @TOOLS.md.
 mkdir -p tmp
-find . -name SKOGAI.md -not -path '*/.git/*' -print0 | sort -z | xargs -0 cat > tmp/SKOGAI-PROJECTS
+find . -mindepth 2 -name SKOGAI.md -not -path '*/.git/*' -print0 | sort -z | xargs -0 cat > tmp/SKOGAI-PROJECTS
 
 # herdr --skill prints the agent skill; the rules and the project map follow it.
 prompt="$(herdr --skill)
