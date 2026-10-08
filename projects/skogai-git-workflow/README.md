@@ -1,7 +1,6 @@
 # skogai-git-workflow
 
-A turn-based editing protocol where `git diff` *is* the message, plus a
-small harness (`bin/skogai-turn`) that enforces it today.
+A turn-based editing protocol where a `git diff` *is treated and used as a part of the actual message itself*.
 
 ## Origin
 
@@ -12,6 +11,8 @@ describing a change in prose, you left it as a diff and handed the repo
 over. The idea still holds without the token pressure — it's a discipline
 for making disagreement and consensus visible in the same artifact you're
 already producing.
+
+[@skogix:"i should explain/we should focus on what a message is and how we re-defined literally the representation of state and context that is relevant"]
 
 ## The protocol
 
@@ -42,7 +43,9 @@ found nothing to add and left nothing unstaged. One quiet turn isn't
 enough (it might just be that side skimming); it has to hold twice, i.e.
 both sides independently had a turn with nothing left to contest.
 
-## Using it today: `bin/skogai-turn`
+[skogix:"obviously insanely simple concepts represented as examples and should be gone over many times to be even closely understood/before even touching something close to implementation"]
+
+## Minimal Viable Product proposal 
 
 ```
 skogai-turn status             staged vs. unstaged, plus the clean-pass streak
