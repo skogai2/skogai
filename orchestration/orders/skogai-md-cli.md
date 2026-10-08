@@ -3,7 +3,7 @@ id: skogai-md-cli
 repo: projects/skogai-cli
 branch: add-skogai-md
 base: master
-status: pr-open
+status: done
 pane: wP:p1
 worktree: /home/skogix/.herdr/worktrees/skogai-cli/add-skogai-md
 pr: https://github.com/skogai2/skogai-cli/pull/1

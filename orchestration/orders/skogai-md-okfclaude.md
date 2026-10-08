@@ -3,7 +3,7 @@ id: skogai-md-okfclaude
 repo: projects/ofk-claude
 branch: add-skogai-md
 base: main
-status: pr-open
+status: done
 pane: wY:p1
 worktree: /home/skogix/.herdr/worktrees/ofk-claude/add-skogai-md
 pr: https://github.com/skogai2/okf/pull/1

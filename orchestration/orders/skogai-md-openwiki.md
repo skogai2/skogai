@@ -3,7 +3,7 @@ id: skogai-md-openwiki
 repo: projects/openwiki
 branch: add-skogai-md
 base: main
-status: pr-open
+status: done
 pane: w12:p1
 worktree: /home/skogix/.herdr/worktrees/openwiki/add-skogai-md
 pr: https://github.com/skogai/openwiki/pull/1

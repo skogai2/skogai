@@ -3,7 +3,7 @@ id: skogai-md-okftools
 repo: projects/ofk-tools
 branch: add-skogai-md
 base: main
-status: pr-open
+status: done
 pane: w0:p1
 worktree: /home/skogix/.herdr/worktrees/ofk-tools/add-skogai-md
 pr: https://github.com/skogai2/okf2/pull/1
