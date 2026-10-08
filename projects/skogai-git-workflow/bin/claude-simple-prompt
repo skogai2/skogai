@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-# example of how claude could be called without anthropic-bloat:
-MAX_THINKING_TOKENS=0 claude -p --no-session-persistence --model=haiku --tools='' --safe-mode --setting-sources='user' --system-prompt='' "$@"
