@@ -1,6 +1,6 @@
 ---
 type: router
-permalink: skogai/AGENTS
+permalink: dot-skogai/AGENTS
 ---
 
 <routes>

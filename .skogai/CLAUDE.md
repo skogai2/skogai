@@ -1,6 +1,6 @@
 ---
 type: router
-permalink: skogai/AGENTS
+permalink: dot-skogai/CLAUDE
 ---
 
 <routes>
@@ -8,3 +8,4 @@ permalink: skogai/AGENTS
 - @SKOGAI.md
 
 </routes>
+
