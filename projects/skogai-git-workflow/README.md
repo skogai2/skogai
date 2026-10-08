@@ -42,29 +42,6 @@ found nothing to add and left nothing unstaged. One quiet turn isn't
 enough (it might just be that side skimming); it has to hold twice, i.e.
 both sides independently had a turn with nothing left to contest.
 
-## What a diff pair tells you, read this way
-
-Given `git diff --cached` and `git diff` together, without any other
-context:
-
-- **The split is a confidence boundary.** Staged is "where we landed
-  provisionally"; unstaged is "still being argued with." A file can be
-  `status: stable` in the index and have a line appended underneath, still
-  unstaged, saying it's too early to be stable — that tension is only
-  visible by reading both diffs, not the final file.
-- **Open questions can be written as diff content.** A `+` line that's a
-  question (`- should numbering be in the frontmatter instead?`) is a
-  question raised *in the turn*, not a side note. It's part of what you're
-  agreeing to or rejecting when you stage or don't.
-- **Softened language between the two diffs is a retraction in progress.**
-  "Rules:" becoming "Recommended rules and guidelines:" between what's
-  staged and what's not is the author hedging their own already-staged
-  claim, visible only by diffing the diffs against each other.
-
-None of this shows up in a short status summary (branch, dirty/clean
-per-file flags, commit subject lines) — it requires reading the actual
-diff bodies, on both sides of the index, as the message.
-
 ## Using it today: `bin/skogai-turn`
 
 ```

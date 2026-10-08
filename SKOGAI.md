@@ -12,7 +12,6 @@ type: router
   - ~/dot/AGENTS.md - dot: dot's own home (skogai2/dot)   
   - ./projects/config/SKOGAI.md - config: env vars/aliases/keybinding config (skogai2/config)
   - ./projects/skogai-cli/docs/CONFIG.md - skogai-cli: the `skogai` command. Config model: dash-skogai pins, the `.skogai` store, install. Env rules are in docs/ENV.md
-  - projects/skogai-git-workflow/README.md - skogai-git-workflow: turn-based git staging as the message channel (staged = consensus, unstaged = current turn), plus the `skogai-turn` harness that enforces it
   - @./TOOLS.md - the tools on this machine (herdr, wt, gh, gptodo, gptme-coordination, ...), what each is for, and how skogai uses it
   - ./SKOGAI.md: this repo itself (skogai2/skogai) — the front-door index you're reading now
 
