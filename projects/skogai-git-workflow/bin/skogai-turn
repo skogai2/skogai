@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+skogai-turn — turn-based git staging as a communication channel.
+
+  status             show staged (consensus) vs unstaged (current turn's message),
+                      and the clean-pass streak toward commit
+  pass [--as NAME]    end your turn
+  commit [-m MSG]     commit the staged tree, once two consecutive clean passes happened
+  reset               clear the turn state (streak, last author) without touching git
+
+Protocol:
+  - staged changes  = what's been agreed on so far
+  - unstaged diff   = the message you're handing to the other side right now
+  - a "clean" pass is one left with nothing unstaged
+  - two clean passes in a row -> ready to commit (both sides had a turn with nothing to add)
+
+State lives in .git/skogai-turn/state, local to this checkout, never committed.
+EOF
+}
+
+git_dir=$(git rev-parse --git-dir 2>/dev/null) || { echo "not a git repository" >&2; exit 1; }
+state_dir="$git_dir/skogai-turn"
+state_file="$state_dir/state"
+mkdir -p "$state_dir"
+
+streak=0
+last_author=""
+last_pass_hash=""
+
+load_state() {
+  streak=0
+  last_author=""
+  last_pass_hash=""
+  if [[ -f "$state_file" ]]; then
+    # shellcheck disable=SC1090
+    source "$state_file"
+  fi
+}
+
+save_state() {
+  cat >"$state_file" <<SAVE
+streak=$streak
+last_author=$last_author
+last_pass_hash=$last_pass_hash
+SAVE
+}
+
+staged_tree_hash() {
+  git write-tree 2>/dev/null || echo "none"
+}
+
+cmd_status() {
+  load_state
+  echo "== staged (consensus so far) =="
+  if git diff --cached --quiet; then
+    echo "  (nothing staged)"
+  else
+    git diff --cached --stat
+  fi
+  echo
+  echo "== unstaged (current turn's message) =="
+  if git diff --quiet; then
+    echo "  (nothing unstaged -- last pass was clean)"
+  else
+    git diff --stat
+  fi
+  echo
+  streak_line="clean-pass streak: $streak/2"
+  if [[ -n "$last_author" ]]; then
+    streak_line="$streak_line (last pass: $last_author)"
+  fi
+  echo "$streak_line"
+  if (( streak >= 2 )); then
+    echo "-> ready to commit: run 'skogai-turn commit'"
+  fi
+}
+
+cmd_pass() {
+  load_state
+  local author=""
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --as) author="$2"; shift 2 ;;
+      *) echo "unknown arg: $1" >&2; exit 1 ;;
+    esac
+  done
+  if [[ -n "$author" && -n "$last_author" && "$author" == "$last_author" ]]; then
+    echo "error: '$author' passed last turn too -- this is a two-sided protocol, the other side goes next" >&2
+    exit 1
+  fi
+  if git diff --quiet; then
+    streak=$((streak + 1))
+    echo "clean pass (nothing left unstaged) -- streak now $streak/2"
+  else
+    streak=0
+    echo "turn passed with an open proposal (unstaged diff below) -- streak reset"
+    git diff --stat
+  fi
+  last_author="${author:-unknown}"
+  last_pass_hash="$(staged_tree_hash)"
+  save_state
+  if (( streak >= 2 )); then
+    echo "-> two clean passes in a row: ready to commit"
+  fi
+}
+
+cmd_commit() {
+  load_state
+  if ! git diff --quiet; then
+    echo "error: unstaged changes present -- this isn't a clean pass yet" >&2
+    exit 1
+  fi
+  if (( streak < 2 )); then
+    echo "error: streak is $streak/2 -- needs two consecutive clean passes before committing" >&2
+    exit 1
+  fi
+  git commit "$@"
+  streak=0
+  last_author=""
+  last_pass_hash=""
+  save_state
+}
+
+cmd_reset() {
+  rm -f "$state_file"
+  echo "turn state cleared"
+}
+
+case "${1:-}" in
+  status) shift; cmd_status "$@" ;;
+  pass) shift; cmd_pass "$@" ;;
+  commit) shift; cmd_commit "$@" ;;
+  reset) shift; cmd_reset "$@" ;;
+  -h|--help|"") usage ;;
+  *) echo "unknown command: $1" >&2; usage; exit 1 ;;
+esac
