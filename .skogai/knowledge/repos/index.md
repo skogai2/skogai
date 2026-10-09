@@ -17,6 +17,7 @@ in `sources`, and goes stale 30 days after it was written (see
 ## Active orchestration-adjacent repos
 
 * [dash-skogai](dash-skogai.md) — source for the shared `/skogai` workspace.
+* [dot-skogai](dot-skogai.md) — source for the user-level `~/.skogai`, empty until an installer exists.
 * [marketplace](marketplace.md) — Claude Code plugin marketplace, supersedes skogai-docs.
 * [skogai-cli](skogai-cli.md) — the skogai CLI, mid-rework.
 * [okn](okn.md) — the Open Knowledge CLI, validates this bundle.

@@ -2,6 +2,11 @@
 
 ## 2026-10-10
 
+* **dash/dot-skogai**: Recorded [decisions/0005-dash-and-dot-skogai.md](decisions/0005-dash-and-dot-skogai.md)
+  (origin is the only source of truth; local checkouts are disposable; dispatch to whichever repo a change belongs in; dot-skogai stays and will be used).
+  Rewrote [repos/dash-skogai.md](repos/dash-skogai.md) and added [repos/dot-skogai.md](repos/dot-skogai.md)
+  from the workorder 0019 interview; both are human-verified by skogix.
+
 * **Repos section**: Added [repos/index.md](repos/index.md) and one
   `type: Repository` page per skogai2 repo, synthesized from survey
   workorders 0002–0014 and [decisions/0003-repo-roles.md](decisions/0003-repo-roles.md).

@@ -1,6 +1,6 @@
 ---
 id: 0019-interview-dash-and-dot-skogai
-status: open
+status: done
 created: 2026-10-10T00:00:00Z
 model: claude-opus-5-5
 add_dir: ~/.local/src/dash-skogai
@@ -42,3 +42,57 @@ add_dir: ~/.local/src/skogai-routing
 - `.skogai/knowledge/decisions/0003-repo-roles.md`. dot-skogai is currently untracked in gita, and skogix will sort it out later. This interview is part of sorting it out.
 - `.skogai/knowledge/decisions/0004-knowledge-lifecycle.md`
 - The `skogai-routing` repo's glossary also defines `/skogai`, `.skogai` and "skogfences". Read `~/.local/src/skogai-routing/SKOGAI-ROUTING-GLOSSARY.md` if the terms come up.
+
+## Report
+
+### What I did
+
+- Read `~/.local/src/dash-skogai`, `/skogai`, `~/.skogai`, the skogai-routing
+  glossary, and workorder 0007's report. Then I interviewed skogix.
+- Rewrote `.skogai/knowledge/repos/dash-skogai.md`. It has separate
+  sections for current state and vision.
+- Created `.skogai/knowledge/repos/dot-skogai.md` and linked it from
+  `repos/index.md`.
+- Recorded `.skogai/knowledge/decisions/0005-dash-and-dot-skogai.md` and
+  linked it from `decisions/index.md`.
+- Added a `log.md` entry.
+- All of these pages are `verified: human:skogix`, and skogix reviewed the
+  summary before the commit. `openknowledge validate .skogai/knowledge`
+  passes.
+
+### Questions asked
+
+1. Which checkout is the source of truth for dash-skogai, `/skogai` or the
+   gita clone? **Answered:** neither. The remote origin is the only source
+   of truth, and all local checkouts are disposable. The goal is to rebuild
+   the machine from the ground up, from archinstall, on each iteration.
+2. What is dot-skogai now? **Answered:** it is the old user-level layer,
+   the skogai counterpart of `~/.claude`. `/skogai` plus skogcli replaced it
+   as the shared layer. It is empty only because no installer exists yet,
+   and it *will* be used.
+3. The README's `755` permissions and sole-committer setup contradict
+   "agents have full access, and changes go through PRs every agent
+   approves". **Answered:** the second describes the goal, not the current
+   state.
+4. Where do dash-skogai workorders go? **Answered:** dispatch to whichever
+   repo a change belongs in, the same as for every repo. That includes
+   dot-skogai.
+5. Should decision 0005 be recorded? **Answered:** yes, with corrections
+   that are now applied: rebuild-per-iteration is a goal, git-state and
+   implementation details are left out, and there is no "don't dispatch to
+   dot-skogai" rule.
+6. Should I add a caveat about the secrets in the old ansible `roles/ssh`?
+   **Answered:** no. The files are vault-encrypted and the keys are
+   regenerated each time, so I recorded nothing.
+
+### Deferred / open
+
+- How the dot-skogai installer will work is undecided. skogix says only
+  the end goal, intent and vision matter at this stage.
+- dot-skogai is still untracked in gita, so `repo:` cannot target it until
+  it is added (decision 0003).
+- Following skogix's "no implementation details" direction, I dropped from
+  the pages two items in favor of the vision: the staged `openknowledge`
+  change to `mise.toml` that exists only in `/skogai`, and the
+  submodule/hardcoded-path caveats from 0007. They are still in 0007's
+  report.
