@@ -2,11 +2,13 @@
 # wo — workorder pipeline: wt owns worktrees, herdr owns panes/agents.
 #
 #   wo new <slug>          create .skogai/workorders/NNNN-<slug>.md from the template
-#   wo dispatch <id>       commit the workorder, create worktree, open herdr tab, start + prompt worker
+#   wo dispatch <id>       commit the workorder, create worktree(s), open herdr tab, start + prompt worker
 #   wo status              workorders, their worker agents and worktrees
-#   wo land <id>           merge a done workorder into master, close its tab, remove the worktree
+#   wo land <id>           merge a done workorder (and its target repo branch), close its tab, remove worktrees
 #
 # <id> is the 4-digit number or the full NNNN-slug stem.
+# `repo: <gita name>` in a workorder targets another repo: the worker runs in a worktree of that
+# repo (same branch name) and writes its report into the skogai worktree, which it gets via --add-dir.
 # Env: WO_KIND (default claude), WO_ARGS (native agent args; default per kind).
 set -euo pipefail
 
@@ -36,7 +38,14 @@ resolve() { # <id> -> NNNN-slug stem
 
 branch_of() { echo "wo/$1"; }
 agent_of() { echo "wo-${1%%-*}"; }
-path_of() { wt -C "$ROOT" list --format json | jq -r --arg b "$(branch_of "$1")" '.items[] | select(.branch == $b) | .worktree.path // empty'; }
+wt_path() { wt -C "$1" list --format json | jq -r --arg b "$2" '.items[] | select(.branch == $b) | .worktree.path // empty'; }
+path_of() { wt_path "$ROOT" "$(branch_of "$1")"; }
+repo_root() { # target repo root for a workorder; empty when it targets skogai itself
+  local r
+  r=$(sed -n 's/^repo: *//p' "$WO_DIR/$1.md" | head -1)
+  [[ -z $r || $r == skogai ]] && return 0
+  gita ls "$r" 2>/dev/null || die "repo '$r' is not tracked by gita"
+}
 # Workers update their workorder on their own branch, so prefer the worktree's copy.
 field() {
   local f="$WO_DIR/$1.md" wtp
@@ -67,10 +76,11 @@ cmd_new() {
 }
 
 cmd_dispatch() {
-  local stem branch agent path ws tab pane
+  local stem branch agent path target cwd ws tab pane dir
   stem=$(resolve "${1:?id required}")
   branch=$(branch_of "$stem"); agent=$(agent_of "$stem")
   [[ $(field "$stem" status) == "open" ]] || die "$stem is not status: open"
+  target=$(repo_root "$stem")
 
   # The worker's branch must contain the workorder, so it lands on master first.
   git -C "$ROOT" add "$WO_DIR/$stem.md"
@@ -80,27 +90,38 @@ cmd_dispatch() {
   wt -C "$ROOT" switch --create "$branch" --base master --no-cd --yes >/dev/null
   path=$(path_of "$stem")
   [[ -n $path ]] || die "worktree for $branch not found"
-
-  ws=$(workers_ws)
-  read -r tab pane < <(herdr tab create --workspace "$ws" --cwd "$path" --label "$agent" --no-focus |
-    jq -r '"\(.result.tab.tab_id) \(.result.root_pane.pane_id)"')
+  cwd=$path
 
   agent_args
+  if [[ -n $target ]]; then
+    wt -C "$target" switch --create "$branch" --no-cd --yes >/dev/null
+    cwd=$(wt_path "$target" "$branch")
+    [[ -n $cwd ]] || die "worktree for $branch in $target not found"
+    ARGS+=(--add-dir "$path")
+  fi
   # `add_dir: <path>` in the workorder grants the worker access to a directory outside its worktree.
-  local dir
   while read -r dir; do
     [[ -n $dir ]] && ARGS+=(--add-dir "${dir/#\~/$HOME}")
   done < <(sed -n 's/^add_dir: *//p' "$WO_DIR/$stem.md")
+
+  ws=$(workers_ws)
+  read -r tab pane < <(herdr tab create --workspace "$ws" --cwd "$cwd" --label "$agent" --no-focus |
+    jq -r '"\(.result.tab.tab_id) \(.result.root_pane.pane_id)"')
   herdr agent start "$agent" --kind "$KIND" --pane "$pane" --timeout 60000 -- "${ARGS[@]}" >/dev/null
-  herdr agent prompt "$agent" "$(worker_prompt "$stem")" >/dev/null
-  echo "dispatched $stem → agent $agent, tab $tab, worktree $path"
+  herdr agent prompt "$agent" "$(worker_prompt "$stem" "$path" "$cwd")" >/dev/null
+  echo "dispatched $stem → agent $agent, tab $tab, worktree $cwd"
 }
 
-worker_prompt() {
+worker_prompt() { # <stem> <skogai worktree> <worker cwd>
+  local wo=".skogai/workorders/$1.md" where="this worktree (your current directory)"
+  if [[ $2 != "$3" ]]; then
+    wo="$2/.skogai/workorders/$1.md"
+    where="this worktree (your current directory) for the work itself, and the skogai worktree $2 only for the workorder file"
+  fi
   cat <<EOF
-You are a skogai worker. Your workorder is .skogai/workorders/$1.md — read it first and do exactly what it asks, nothing outside its scope.
-Rules: work only in this worktree (your current directory) and edit files by paths inside it, never via $ROOT or any other checkout of this repo; commit your work on the current branch as you go; do not merge, push, rebase or touch other worktrees.
-When finished: append a "## Report" section to the workorder (what you did, anything left open, anything the orchestrator should know), set "status: done" in its frontmatter (or "status: blocked" with the reason if you cannot finish), and commit. Then stop.
+You are a skogai worker. Your workorder is $wo — read it first and do exactly what it asks, nothing outside its scope.
+Rules: work only in $where, editing files by paths inside them — never in $ROOT, the target repo's main checkout, or any other checkout; commit your work on the current branch as you go (in each worktree you changed); do not merge, push, rebase or touch other worktrees.
+When finished: append a "## Report" section to the workorder (what you did, anything left open, anything the orchestrator should know), set "status: done" in its frontmatter (or "status: blocked" with the reason if you cannot finish), and commit it. Then stop.
 EOF
 }
 
@@ -117,17 +138,25 @@ cmd_status() {
 }
 
 cmd_land() {
-  local stem branch agent path status tab
+  local stem branch agent path target tpath status tab
   stem=$(resolve "${1:?id required}")
   branch=$(branch_of "$stem"); agent=$(agent_of "$stem")
   path=$(path_of "$stem")
   [[ -n $path ]] || die "no worktree for $branch"
   status=$(sed -n 's/^status: *//p' "$path/.skogai/workorders/$stem.md" | head -1)
   [[ $status == "done" ]] || die "$stem is '$status' on its branch, not done"
+  target=$(repo_root "$stem")
 
+  # Target repo first: if its merge fails, the workorder stays unlanded too.
+  if [[ -n $target ]]; then
+    tpath=$(wt_path "$target" "$branch")
+    [[ -n $tpath ]] || die "no worktree for $branch in $target"
+    wt -C "$tpath" merge --yes --no-remove
+  fi
   wt -C "$path" merge master --yes --no-remove
   tab=$(herdr agent get "$agent" 2>/dev/null | jq -r '.result.agent.tab_id // empty') || true
   [[ -n $tab ]] && herdr tab close "$tab" >/dev/null
+  [[ -n $target ]] && wt -C "$target" remove "$branch" --yes
   wt -C "$ROOT" remove "$branch" --yes
   echo "landed $stem"
 }
@@ -137,5 +166,5 @@ case "${1:-}" in
   dispatch) shift; cmd_dispatch "$@" ;;
   status) cmd_status ;;
   land) shift; cmd_land "$@" ;;
-  *) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+  *) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
 esac

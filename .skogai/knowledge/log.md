@@ -1,5 +1,10 @@
 # Bundle Update Log
 
+## 2026-10-10
+
+* **Repos**: Recorded [decisions/0003-repo-roles.md](decisions/0003-repo-roles.md) (gita in `~/.local/src` replaces `projects/` submodules; repo roles, parked and superseded repos).
+* **Lifecycle**: Recorded [decisions/0004-knowledge-lifecycle.md](decisions/0004-knowledge-lifecycle.md) (workorders are the raw archive; pages cite them with `sources` and `stale_after`; deprecate, don't delete).
+
 ## 2026-10-09
 
 * **Orchestration**: Recorded [decisions/0002-orchestration-model.md](decisions/0002-orchestration-model.md):

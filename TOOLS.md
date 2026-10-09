@@ -17,7 +17,13 @@ bin/wo land <id>       # status: done → wt merge (pre-merge hooks) → close t
 To wait for or inspect a worker, use `herdr agent wait wo-NNNN` and
 `herdr agent read wo-NNNN --source recent-unwrapped --lines 120`.
 `WO_KIND=codex` switches the worker kind, and `WO_ARGS` overrides the
-agent's native arguments.
+agent's native arguments. Workers run in auto permission mode.
+
+Workorder frontmatter options:
+- `repo: <gita name>` makes another repo the target. The worker runs in a
+  `wo/<id>` worktree of that repo and writes its report into the skogai
+  worktree. `wo land` merges both.
+- `add_dir: <path>` gives the worker read and write access to a directory outside its worktree.
 
 ## herdr
 
@@ -38,9 +44,10 @@ with haiku. The project config `.config/wt.toml` runs
 ## gita
 
 **gita** (`~/.local/bin/gita`, v0.16.8.2) shows status and runs commands
-across many git repos at once. It is configured in `~/.config/gita/`.
-Note: the `projects` group still lists the old `skogai/projects/*`
-submodules, which no longer exist in this repo.
+across many git repos at once. It tracks every repo skogai manages, and its
+names are what `repo:` uses. The groups are `home`, `src`, `forks` and
+`parked`. New clones go in `~/.local/src/`. See
+[decision 0003](.skogai/knowledge/decisions/0003-repo-roles.md).
 
 - `gita ll [group]` shows a status dashboard.
 - `gita super <repo/group> <git-command>` and `gita shell <repo/group> <cmd>` run a command across repos.
