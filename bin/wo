@@ -17,12 +17,12 @@ KIND=${WO_KIND:-claude}
 
 die() { echo "wo: $*" >&2; exit 1; }
 
-# Workers edit freely and may run git/openknowledge without prompting; anything
-# else still blocks and shows up as "blocked" in `wo status`.
+# Workers run in auto mode (skogix's call, 2026-10-09): the classifier decides,
+# and anything it refuses shows up as "blocked" in `wo status`.
 agent_args() {
   if [[ -n ${WO_ARGS+x} ]]; then read -ra ARGS <<<"$WO_ARGS"; return; fi
   case "$KIND" in
-    claude) ARGS=(--permission-mode acceptEdits --allowedTools "Bash(git:*)" "Bash(openknowledge:*)") ;;
+    claude) ARGS=(--permission-mode auto) ;;
     codex) ARGS=(--full-auto) ;;
     *) ARGS=() ;;
   esac
