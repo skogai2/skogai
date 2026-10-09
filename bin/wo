@@ -37,7 +37,13 @@ resolve() { # <id> -> NNNN-slug stem
 branch_of() { echo "wo/$1"; }
 agent_of() { echo "wo-${1%%-*}"; }
 path_of() { wt -C "$ROOT" list --format json | jq -r --arg b "$(branch_of "$1")" '.items[] | select(.branch == $b) | .worktree.path // empty'; }
-field() { sed -n "s/^$2: *//p" "$WO_DIR/$1.md" | head -1; }
+# Workers update their workorder on their own branch, so prefer the worktree's copy.
+field() {
+  local f="$WO_DIR/$1.md" wtp
+  wtp=$(path_of "$1")
+  [[ -n $wtp && -f $wtp/.skogai/workorders/$1.md ]] && f=$wtp/.skogai/workorders/$1.md
+  sed -n "s/^$2: *//p" "$f" | head -1
+}
 
 workers_ws() {
   local ws
