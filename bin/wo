@@ -103,6 +103,10 @@ cmd_dispatch() {
   while read -r dir; do
     [[ -n $dir ]] && ARGS+=(--add-dir "${dir/#\~/$HOME}")
   done < <(sed -n 's/^add_dir: *//p' "$WO_DIR/$stem.md")
+  # `model: <id>` in the workorder picks the worker's model.
+  local model
+  model=$(sed -n 's/^model: *//p' "$WO_DIR/$stem.md" | head -1)
+  [[ -n $model ]] && ARGS+=(--model "$model")
 
   ws=$(workers_ws)
   read -r tab pane < <(herdr tab create --workspace "$ws" --cwd "$cwd" --label "$agent" --no-focus |

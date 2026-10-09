@@ -24,6 +24,7 @@ Workorder frontmatter options:
   `wo/<id>` worktree of that repo and writes its report into the skogai
   worktree. `wo land` merges both.
 - `add_dir: <path>` gives the worker read and write access to a directory outside its worktree.
+- `model: <id>` sets the worker's model, for example `claude-opus-5-5`.
 
 ## herdr
 
