@@ -29,8 +29,9 @@ Read this page first. Follow only the links that match your task.
 ## Source material
 
 * `SKOGAI.md` and `AGENTS.md` at the repo root.
-* `projects/SKOGAI-ROUTING-GLOSSARY.md` and `projects/SKOGAI-ROUTING-INTENTIONS.md`.
-* `.gitmodules` and the two submodules under `projects/`.
+* `projects/`, `.gitmodules`, and the two submodules it held were removed
+  2026-10-09 (commit `a99d6d2`). See [Submodules](projects/submodules.md)
+  for what they were.
 
 No raw imports exist yet. If raw material is added later, store it in a separate `raw/` folder.
 

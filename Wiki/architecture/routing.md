@@ -8,8 +8,9 @@ tags: [skogai, routing, glossary]
 # Routing Model
 
 Skogai uses a small set of terms to say which file is responsible for
-which context. The full narrative source is in the routing project, not in this repo.
-Source: `projects/SKOGAI-ROUTING-GLOSSARY.md`.
+which context. The full narrative source was `projects/SKOGAI-ROUTING-GLOSSARY.md`,
+in the `projects/` directory removed 2026-10-09 (commit `a99d6d2`). That source
+no longer exists in this repo; the terms below are this wiki's own record of it.
 
 ## Terms
 
@@ -35,9 +36,10 @@ Source: `projects/SKOGAI-ROUTING-GLOSSARY.md`.
 
 * Current: routing files list links with `@` imports inside a `<routes>` block.
   Source: `SKOGAI.md`, `AGENTS.md`.
-* Planned: the routing project is meant to prove the routing step first. Other
-  pieces, such as a knowledge bundle under the routes, come later.
-  Source: `projects/SKOGAI-ROUTING-INTENTIONS.md`.
+* Planned: the routing project was meant to prove the routing step first,
+  with other pieces (such as a knowledge bundle under the routes) coming
+  later. Source was `projects/SKOGAI-ROUTING-INTENTIONS.md`, removed
+  2026-10-09 along with `projects/`; whether this plan still holds is unverified.
 
 ## Related
 

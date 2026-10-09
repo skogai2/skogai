@@ -16,8 +16,9 @@ topic. It does not hold the detailed guidance itself.
 * `SKOGAI.md`: the routing file. It lists the homes and says what each one is for.
   Source: `SKOGAI.md`.
 * `AGENTS.md`: a router that imports `SKOGAI.md`. Source: `AGENTS.md`.
-* `projects/`: two git submodules and two routing design notes.
-  See [Submodules](projects/submodules.md).
+* `projects/` existed at setup time (two git submodules and two routing
+  design notes) but was removed 2026-10-09. See [Submodules](projects/submodules.md)
+  for what it held.
 
 ## What the repo does not contain
 

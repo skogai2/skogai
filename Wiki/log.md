@@ -18,3 +18,10 @@
 * **Index**: Linked the guide from `index.md`.
 * **Guide updated**: Rebuilt `okn` now has `check`, `review`, `publish`, and `upgrade`. Updated the command section and the loop in the user guide. `okn version` still reports 0.13.0.
 * **Guide expanded**: Added a connect section (official docs and CLI help agree on `--access` default `read`) and a full claims section with lifecycle, conflicts, freshness, and commands. The Wiki still has no claims.
+
+## 2026-10-09
+
+* **Skill repaired**: `.claude/skills/openknowledge/SKILL.md` and its `.agents/` and global (`~/.claude`, `~/.agents`) counterparts were deleted, then restored with `okn setup repair Wiki`. `opencode`'s global skill was left uninstalled; it has no project config on this machine yet.
+* **`openwiki` disconnected**: the registry had a second, unrelated entry (`openwiki` → `projects/openwiki/openwiki`) left `MISSING` after `projects/` was removed. Disconnected with `okn disconnect openwiki`; no other reference to it existed in the repo.
+* **Routing content caught up**: `projects/`, `.gitmodules`'s two submodule entries, and the routing design notes (`projects/SKOGAI-ROUTING-GLOSSARY.md`, `projects/SKOGAI-ROUTING-INTENTIONS.md`) were removed 2026-10-09 (commit `a99d6d2`), well before this wiki noticed. Updated to match current `SKOGAI.md` (now two routes: `TOOLS.md` and self) in `index.md`, `overview.md`, `architecture/front-door-routes.md`, `architecture/routing.md`, `projects/index.md`, and `projects/submodules.md` (marked `status: deprecated`, kept as history per [Submodules](projects/submodules.md)).
+* **Observation**: still disabled. Left that way deliberately — turning it on wires `okn automation insights run`, which lets an agent make unattended edits and leave an uncommitted diff; that needs an explicit decision when there's a concrete insight workflow to run, not a default.

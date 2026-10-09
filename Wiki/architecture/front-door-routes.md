@@ -13,16 +13,14 @@ follow the route. Source: `SKOGAI.md`.
 
 | Route | Home | Owns |
 | --- | --- | --- |
-| dot-skogai | `~/.skogai/skills/skogai-routing/references/dot-skogai.md` | The `.skogai` bootstrap folder convention (`skogai2/dot-skogai`). |
-| dash-skogai | `~/.skogai/skills/skogai-routing/references/dash-skogai.md` | `/skogai`, the shared multi-agent workspace. Not provisioned yet. |
-| skogix | `~/claude/.skogai/messages/skogix.md` | The skogfences manifesto. |
-| claude | `~/claude/CLAUDE.md` | Claude Code's agent home. |
-| dot | `~/dot/AGENTS.md` | The dot home (`skogai2/dot`). |
-| config | `~/.config/skogai/SKOGAI.md` | `$XDG_SKOGAI_CONFIG_DIR`: env vars, aliases, keybindings (`skogai2/config`). |
-| skogai | this repo | The front-door index itself. |
+| TOOLS.md | `./TOOLS.md` | The tools on this machine (herdr, wt, gh, gptodo, gptme-coordination, ...) and how skogai uses them. |
+| skogai | this repo | The front-door index itself (`SKOGAI.md` routes to itself). |
 
 ## Notes
 
-* The `~/` paths are outside this repo. Verify that a path exists before you
-  rely on it. The wiki does not copy their content.
-* `dash-skogai` is marked as not provisioned. Do not treat it as a live home.
+* This table was rewritten on 2026-10-09 to match the current `SKOGAI.md`,
+  which now lists only these two routes. The previous table (`dot-skogai`,
+  `dash-skogai`, `skogix`, `claude`, `dot`, `config`) is history, not current
+  behavior; see `log.md` for when it changed.
+* The `~/` paths a route may point to are outside this repo. Verify that a
+  path exists before you rely on it. The wiki does not copy their content.
