@@ -1,0 +1,122 @@
+{
+  "env": {
+    "ENABLE_CLAUDEAI_MCP_SERVERS": "false",
+    "CLAUDE_CODE_DISABLE_POLICY_SKILLS": "1",
+    "CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL": "1"
+  },
+  "permissions": {
+    "defaultMode": "auto"
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "atuin hook claude-code"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "atuin hook claude-code"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "atuin hook claude-code"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "^(startup|resume|clear|compact|fork)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/home/skogix/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/home/skogix/.claude/hooks/cc-memory-stop.sh'",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/home/skogix/.claude/hooks/cc-memory-prompt-submit.sh'",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/home/skogix/.claude/hooks/worktree-create.sh\"",
+            "timeout": 180
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "wt list statusline --format=claude-code"
+  },
+  "enabledPlugins": {
+    "cowork-plugin-management@synced": false,
+    "nelson@synced": false,
+    "worktrunk@worktrunk": true,
+    "okf@scaccogatto": true
+  },
+  "extraKnownMarketplaces": {
+    "worktrunk": {
+      "source": {
+        "source": "github",
+        "repo": "max-sixty/worktrunk"
+      },
+      "autoUpdate": true
+    }
+ },
+  "feedbackDrafts": "notify",
+  "dialogExpiry": "never",
+  "timeFormat": "24-hour",
+  "autoMemoryEnabled": true,
+  "autoMemoryDirectory": "/home/skogix/claude/.skogai/memory",
+  "theme": "dark-daltonized",
+  "editorMode": "vim",
+  "preferredNotifChannel": "auto",
+  "switchModelsOnFlag": true,
+  "remoteControlAtStartup": true,
+  "crossSessionInbound": "accept",
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true
+}
