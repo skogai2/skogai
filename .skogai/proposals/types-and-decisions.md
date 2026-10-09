@@ -95,22 +95,3 @@ Recommended rules and guidelines
     hand-maintained `DECISIONS.md` with summaries would be a bespoke
     thing living next to that, not an OKF-native alternative to it.
 
-# consequences
-
-- Decisions live under `.skogai/`, following the dot-skogai bootstrap
-  convention, instead of at the repo root.
-- A flat, root-level `DECISIONS.md` (with a `### Dn`/`On`/`Tn` heading
-  scheme reverse-engineered from `projects/skogai-cli/docs/DECISIONS.md`)
-  existed briefly before this directory did. See
-  `0002-root-decisions-file.md` for what happened to it and to its first
-  entry, which asked this same question.
-
-# routes
-
-- @0002-root-decisions-file.md
-- SPEC.md of the open knowledge format
-
-# discussion
-
-## superseding an earlier decision
-## one concept per file
