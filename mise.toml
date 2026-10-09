@@ -1,0 +1,3 @@
+[tools]
+argc = "latest"
+"github:openknowledge-sh/openknowledge" = { version = "latest", exe = "openknowledge" }
