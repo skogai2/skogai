@@ -99,7 +99,7 @@ cmd_dispatch() {
 worker_prompt() {
   cat <<EOF
 You are a skogai worker. Your workorder is .skogai/workorders/$1.md — read it first and do exactly what it asks, nothing outside its scope.
-Rules: work only in this worktree; commit your work on the current branch as you go; do not merge, push, rebase or touch other worktrees.
+Rules: work only in this worktree (your current directory) and edit files by paths inside it, never via $ROOT or any other checkout of this repo; commit your work on the current branch as you go; do not merge, push, rebase or touch other worktrees.
 When finished: append a "## Report" section to the workorder (what you did, anything left open, anything the orchestrator should know), set "status: done" in its frontmatter (or "status: blocked" with the reason if you cannot finish), and commit. Then stop.
 EOF
 }
