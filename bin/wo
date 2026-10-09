@@ -80,6 +80,11 @@ cmd_dispatch() {
     jq -r '"\(.result.tab.tab_id) \(.result.root_pane.pane_id)"')
 
   agent_args
+  # `add_dir: <path>` in the workorder grants the worker access to a directory outside its worktree.
+  local dir
+  while read -r dir; do
+    [[ -n $dir ]] && ARGS+=(--add-dir "${dir/#\~/$HOME}")
+  done < <(sed -n 's/^add_dir: *//p' "$WO_DIR/$stem.md")
   herdr agent start "$agent" --kind "$KIND" --pane "$pane" --timeout 60000 -- "${ARGS[@]}" >/dev/null
   herdr agent prompt "$agent" "$(worker_prompt "$stem")" >/dev/null
   echo "dispatched $stem → agent $agent, tab $tab, worktree $path"
