@@ -10,3 +10,6 @@ type: router
 
 </routes>
 
+```
+hi claude! we have just added open knowledge integration at .skogai/knowledge and id like to "wire it up" so you have the information needed about this already from the start. it looks like you should essentially have the index loaded from the start. if that is correct then the next step is to essentially start converting this whole repo to become a real orchestration setup where you can use wt, gita and herdr to pretty much only discuss higher level design and architecture with me and give workorders and use agents almost everything we need to do
+```
