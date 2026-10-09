@@ -1,6 +1,6 @@
 ---
 id: 0015-knowledge-repos-section
-status: open
+status: done
 created: 2026-10-10T00:00:00Z
 ---
 
@@ -47,3 +47,46 @@ Read these before you start:
 - `.skogai/knowledge/decisions/0004-knowledge-lifecycle.md` (sources, stale_after, deprecation)
 - the `## Report` sections of `.skogai/workorders/0002`–`0014`
 - `.skogai/knowledge/SPEC.md` §5 (frontmatter)
+
+## Report
+
+Created `.skogai/knowledge/repos/index.md` plus 14 `type: Repository`
+pages (`skogai`, `claude`, `config`, `dot`, `skogix`, `marketplace`,
+`dash-skogai`, `skogai-cli`, `skogai-docs`, `skogai-fleet`,
+`skogai-git-workflow`, `skogai-routing`, `okn`, `open-knowledge-plugin`),
+linked from `.skogai/knowledge/index.md`, with a `log.md` entry.
+
+Each page follows the required frontmatter (`type`, `title`,
+`description`, `tags`, `generated.by: "claude-code/claude-sonnet-5"`,
+`stale_after: 2026-11-10T00:00:00Z`, `sources`), and a `# Role` / `#
+Location` / `# State` / `# Workorder notes` / `# Open issues` body with
+markdown footnotes keyed to `sources[].id`. `sources` link each survey
+workorder as an absolute GitHub URL and decision 0003 as an internal
+bundle-relative link (`/decisions/0003-repo-roles.md`); `skogai`'s own
+page (no survey exists) cites decisions 0002–0004 instead. Role sections
+follow decision 0003 wherever it overrides the survey. Pages are 49–59
+lines each (index.md excluded, no frontmatter, matching
+`decisions/index.md`'s convention).
+
+Applied skogix's 2026-10-10 answers and dropped the questions they
+resolve: `open-knowledge-plugin`'s CI-broken finding is noted resolved
+(workflows folder renamed) and its "vendored in the monorepo" wording is
+noted as tracked by workorder 0017; `skogai-fleet` is marked parked, not
+a competing design to act on; `claude`/`dot` are marked future
+implementers, not dispatch targets yet, with a note that their
+`AGENTS.md` git/attribution conventions still conflict with skogai's
+should that change; `skogai-docs` is `status: deprecated`, superseded by
+`marketplace`; the global-git-hooks-dormant and
+`.skogai/logs`/`.skogai/worktrees`-gitignored items are reflected as
+resolved/non-issues across the affected pages (config, claude, dot,
+skogix, and others that had flagged hook-tap noise); `skogix` repo notes
+`old-skills` is a personal test repo, not a workorder target; `okn`'s
+`okf2` naming is noted as tracked by workorder 0016.
+
+`openknowledge validate .skogai/knowledge` passes (24 markdown files, 20
+concepts, 3 indexes, 1 log — all checks OK).
+
+Nothing left open from this workorder's own scope. Cross-repo items
+raised in the pages' own "Open issues" sections (e.g. config's
+master/origin divergence, skogai-fleet's half-deleted hook-tap plugin)
+are for skogix/the orchestrator to resolve later, not blockers here.

@@ -2,6 +2,12 @@
 
 ## 2026-10-10
 
+* **Repos section**: Added [repos/index.md](repos/index.md) and one
+  `type: Repository` page per skogai2 repo, synthesized from survey
+  workorders 0002–0014 and [decisions/0003-repo-roles.md](decisions/0003-repo-roles.md).
+  `skogai-docs` is `status: deprecated` (superseded by `marketplace`);
+  `skogai-fleet` is described as parked.
+
 * **Repos**: Recorded [decisions/0003-repo-roles.md](decisions/0003-repo-roles.md) (gita in `~/.local/src` replaces `projects/` submodules; repo roles, parked and superseded repos).
 * **Lifecycle**: Recorded [decisions/0004-knowledge-lifecycle.md](decisions/0004-knowledge-lifecycle.md) (workorders are the raw archive; pages cite them with `sources` and `stale_after`; deprecate, don't delete).
 
