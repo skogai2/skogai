@@ -1,9 +1,6 @@
 {
-  "env":{
-    "CLAUDE_CODE_SAFE_MODE": "1"
-  },
   "hooks": {
-    "Stop": [
+    "SessionEnd": [
       {
         "hooks": [
           {
