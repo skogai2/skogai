@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+# wo — workorder pipeline: wt owns worktrees, herdr owns panes/agents.
+#
+#   wo new <slug>          create .skogai/workorders/NNNN-<slug>.md from the template
+#   wo dispatch <id>       commit the workorder, create worktree, open herdr tab, start + prompt worker
+#   wo status              workorders, their worker agents and worktrees
+#   wo land <id>           merge a done workorder into master, close its tab, remove the worktree
+#
+# <id> is the 4-digit number or the full NNNN-slug stem.
+# Env: WO_KIND (default claude), WO_ARGS (native agent args; default per kind).
+set -euo pipefail
+
+ROOT=$(git -C "$(dirname "$0")/.." rev-parse --show-toplevel)
+WO_DIR="$ROOT/.skogai/workorders"
+WORKERS_LABEL=workers
+KIND=${WO_KIND:-claude}
+
+die() { echo "wo: $*" >&2; exit 1; }
+
+# Workers edit freely and may run git/openknowledge without prompting; anything
+# else still blocks and shows up as "blocked" in `wo status`.
+agent_args() {
+  if [[ -n ${WO_ARGS+x} ]]; then read -ra ARGS <<<"$WO_ARGS"; return; fi
+  case "$KIND" in
+    claude) ARGS=(--permission-mode acceptEdits --allowedTools "Bash(git:*)" "Bash(openknowledge:*)") ;;
+    codex) ARGS=(--full-auto) ;;
+    *) ARGS=() ;;
+  esac
+}
+
+resolve() { # <id> -> NNNN-slug stem
+  local m=("$WO_DIR"/"$1"*.md)
+  [[ ${#m[@]} -eq 1 && -f ${m[0]} ]] || die "no unique workorder matching '$1'"
+  basename "${m[0]}" .md
+}
+
+branch_of() { echo "wo/$1"; }
+agent_of() { echo "wo-${1%%-*}"; }
+path_of() { wt -C "$ROOT" list --format json | jq -r --arg b "$(branch_of "$1")" '.items[] | select(.branch == $b) | .worktree.path // empty'; }
+field() { sed -n "s/^$2: *//p" "$WO_DIR/$1.md" | head -1; }
+
+workers_ws() {
+  local ws
+  ws=$(herdr workspace list | jq -r --arg l "$WORKERS_LABEL" '.result.workspaces[] | select(.label == $l) | .workspace_id' | head -1)
+  if [[ -z $ws ]]; then
+    ws=$(herdr workspace create --cwd "$ROOT" --label "$WORKERS_LABEL" --no-focus | jq -r '.result.workspace.workspace_id')
+  fi
+  echo "$ws"
+}
+
+cmd_new() {
+  local slug=${1:?slug required}
+  [[ $slug =~ ^[a-z0-9-]+$ ]] || die "slug must be [a-z0-9-]"
+  local last n stem
+  last=$(find "$WO_DIR" -maxdepth 1 -name '[0-9][0-9][0-9][0-9]-*.md' -printf '%f\n' | sort | tail -1)
+  last=${last:0:4}
+  n=$(printf '%04d' $((10#${last:-0} + 1)))
+  stem="$n-$slug"
+  sed -e "s/{{id}}/$stem/g" -e "s/{{date}}/$(date -u +%FT%TZ)/" "$WO_DIR/TEMPLATE.md" >"$WO_DIR/$stem.md"
+  echo "$WO_DIR/$stem.md"
+}
+
+cmd_dispatch() {
+  local stem branch agent path ws tab pane
+  stem=$(resolve "${1:?id required}")
+  branch=$(branch_of "$stem"); agent=$(agent_of "$stem")
+  [[ $(field "$stem" status) == "open" ]] || die "$stem is not status: open"
+
+  # The worker's branch must contain the workorder, so it lands on master first.
+  git -C "$ROOT" add "$WO_DIR/$stem.md"
+  git -C "$ROOT" diff --cached --quiet -- "$WO_DIR/$stem.md" ||
+    git -C "$ROOT" commit -q -m "Add workorder $stem" -- "$WO_DIR/$stem.md"
+
+  wt -C "$ROOT" switch --create "$branch" --base master --no-cd --yes >/dev/null
+  path=$(path_of "$stem")
+  [[ -n $path ]] || die "worktree for $branch not found"
+
+  ws=$(workers_ws)
+  read -r tab pane < <(herdr tab create --workspace "$ws" --cwd "$path" --label "$agent" --no-focus |
+    jq -r '"\(.result.tab.tab_id) \(.result.root_pane.pane_id)"')
+
+  agent_args
+  herdr agent start "$agent" --kind "$KIND" --pane "$pane" --timeout 60000 -- "${ARGS[@]}" >/dev/null
+  herdr agent prompt "$agent" "$(worker_prompt "$stem")" >/dev/null
+  echo "dispatched $stem → agent $agent, tab $tab, worktree $path"
+}
+
+worker_prompt() {
+  cat <<EOF
+You are a skogai worker. Your workorder is .skogai/workorders/$1.md — read it first and do exactly what it asks, nothing outside its scope.
+Rules: work only in this worktree; commit your work on the current branch as you go; do not merge, push, rebase or touch other worktrees.
+When finished: append a "## Report" section to the workorder (what you did, anything left open, anything the orchestrator should know), set "status: done" in its frontmatter (or "status: blocked" with the reason if you cannot finish), and commit. Then stop.
+EOF
+}
+
+cmd_status() {
+  local f stem
+  printf '%-32s %-8s %-8s %s\n' WORKORDER STATUS AGENT WORKTREE
+  for f in "$WO_DIR"/[0-9][0-9][0-9][0-9]-*.md; do
+    [[ -f $f ]] || continue
+    stem=$(basename "$f" .md)
+    printf '%-32s %-8s %-8s %s\n' "$stem" "$(field "$stem" status)" \
+      "$(herdr agent get "$(agent_of "$stem")" 2>/dev/null | jq -r '.result.agent.agent_status' || echo -)" \
+      "$(path_of "$stem")"
+  done
+}
+
+cmd_land() {
+  local stem branch agent path status tab
+  stem=$(resolve "${1:?id required}")
+  branch=$(branch_of "$stem"); agent=$(agent_of "$stem")
+  path=$(path_of "$stem")
+  [[ -n $path ]] || die "no worktree for $branch"
+  status=$(sed -n 's/^status: *//p' "$path/.skogai/workorders/$stem.md" | head -1)
+  [[ $status == "done" ]] || die "$stem is '$status' on its branch, not done"
+
+  wt -C "$path" merge master --yes --no-remove
+  tab=$(herdr agent get "$agent" 2>/dev/null | jq -r '.result.agent.tab_id // empty') || true
+  [[ -n $tab ]] && herdr tab close "$tab" >/dev/null
+  wt -C "$ROOT" remove "$branch" --yes
+  echo "landed $stem"
+}
+
+case "${1:-}" in
+  new) shift; cmd_new "$@" ;;
+  dispatch) shift; cmd_dispatch "$@" ;;
+  status) cmd_status ;;
+  land) shift; cmd_land "$@" ;;
+  *) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+esac

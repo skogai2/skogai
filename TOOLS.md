@@ -1,54 +1,46 @@
 # Tools
 
-The tools available on this machine, what each is for, and how skogai uses it. 
+The tools available on this machine, what each is for, and how skogai uses it.
+
+## Orchestration (`bin/wo`)
+
+The main session orchestrates, and workers do the implementation. See
+[decision 0002](.skogai/knowledge/decisions/0002-orchestration-model.md).
+
+```
+bin/wo new <slug>      # .skogai/workorders/NNNN-<slug>.md from TEMPLATE.md
+bin/wo dispatch <id>   # commit workorder → wt worktree → herdr tab in "workers" → start + prompt agent wo-NNNN
+bin/wo status          # workorder status, worker agent state, worktree path
+bin/wo land <id>       # status: done → wt merge (pre-merge hooks) → close tab → remove worktree
+```
+
+To wait for or inspect a worker, use `herdr agent wait wo-NNNN` and
+`herdr agent read wo-NNNN --source recent-unwrapped --lines 120`.
+`WO_KIND=codex` switches the worker kind, and `WO_ARGS` overrides the
+agent's native arguments.
+
+## herdr
+
+**herdr** (`/usr/bin/herdr`, 0.9.3) is a terminal workspace manager for
+coding agents. It manages panes, tabs and workspaces, and tracks each
+agent's lifecycle state (`idle`/`working`/`blocked`/`done`). The agent
+skill is `.claude/skills/herdr` (also `herdr --skill`). skogai uses it only
+to host and drive workers. It does not create worktrees; `wt` does that.
+
+## wt (worktrunk)
+
+**wt** (`mise`, v0.80.0) manages git worktrees, one per branch, and
+provides the merge pipeline. The user config (`~/.config/worktrunk/config.toml`)
+puts worktrees in `.skogai/worktrees/<branch>` and generates commit messages
+with haiku. The project config `.config/wt.toml` runs
+`openknowledge validate` as a `pre-merge` hook.
 
 ## gita
 
-**gita** (`/home/skogix/.local/bin/gita`, v0.16.8.2): status/command runner
-across many git repos at once. Not worktree- or submodule-aware itself —
-just a flat list of repo paths it knows about.
+**gita** (`~/.local/bin/gita`, v0.16.8.2) shows status and runs commands
+across many git repos at once. It is configured in `~/.config/gita/`.
+Note: the `projects` group still lists the old `skogai/projects/*`
+submodules, which no longer exist in this repo.
 
-Already configured on this machine: `~/.config/gita/repos.csv` tracks 13
-repos, `~/.config/gita/groups.csv` defines three groups — `projects` (the
-9 `skogai/projects/*` submodules), `global` (config-skogai,
-dot-skogai-home, skogai itself), and `skogai-root`.
-
-Daily commands:
-- `gita ll [group]` — status dashboard across tracked repos (or one group).
-- `gita super <repo/group> <git-command>` — run a git command across repos.
-- `gita shell <repo/group> <shell-command>` — run a non-git shell command across repos.
-- `gita add`/`gita rm`, `gita group {add,rm,ls}` — manage what's tracked.
-
-## Herdr and worktrees
-
-- **herdr** (`/usr/bin/herdr`): terminal workspace manager for coding
-  agents — panes, tabs, workspaces and agent lifecycle state
-  (`idle`/`working`/`blocked`/`done`). Setup and conventions are in
-  `projects/config/herdr.md`; the agent skill is `herdr --skill`.
-  Daily agent-lifecycle commands: `herdr agent start <name> --kind <kind>
-  --pane <id>`, `herdr agent prompt <target> "<text>" [--wait]`,
-  `herdr agent wait <target> [--until STATUS]`, `herdr agent get
-  <target>`, `herdr agent read <target> --source recent-unwrapped --lines
-  N`, `herdr agent list`. herdr also has its own `herdr worktree create
-  [--cwd PATH] [--branch NAME] [--base REF] [--no-focus]`, which creates a
-  git worktree *and* opens it as a herdr pane in one call — this is what
-  the old (deleted) `orchestration/dispatch.sh` used exclusively, never `wt`.
-- **wt** (worktrunk, `mise`, v0.80.0): git worktree management, one
-  worktree per task/branch, with a merge pipeline. `wt switch --create
-  <branch> [--base <ref>]` creates a branch+worktree; `wt switch <branch>`
-  switches to one; `wt list` shows all worktrees with status; `wt merge
-  [target]` squashes, rebases onto target, runs `pre-merge` hooks, then
-  fast-forward-merges and removes the worktree (the primary worktree is
-  kept); `wt remove [branch]` deletes a worktree/branch directly. Config
-  and hooks: project `.config/wt.toml` (none exists yet in this repo) or
-  user `~/.config/worktrunk/config.toml` (currently only sets
-  `worktree-path` and an LLM commit-message generator). Full guidance in
-  worktrunk's own docs (`wt --help`).
-
-**Open question — not resolved here:** both `wt` and `herdr worktree
-create` make worktrees, differently. `wt` has the squash/rebase/hook
-merge pipeline; `herdr worktree create` gives you a ready herdr pane in
-the same call but no merge pipeline of its own. Which one owns worktree
-creation for daily orchestration (or whether they're used together
-somehow) is undecided.
-
+- `gita ll [group]` shows a status dashboard.
+- `gita super <repo/group> <git-command>` and `gita shell <repo/group> <cmd>` run a command across repos.

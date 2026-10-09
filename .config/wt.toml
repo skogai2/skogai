@@ -1,0 +1,4 @@
+# Worktrunk project config — see .skogai/knowledge/decisions/0002-orchestration-model.md
+
+[pre-merge]
+knowledge = "openknowledge validate .skogai/knowledge"

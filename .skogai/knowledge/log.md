@@ -2,6 +2,9 @@
 
 ## 2026-10-09
 
+* **Orchestration**: Recorded [decisions/0002-orchestration-model.md](decisions/0002-orchestration-model.md):
+  workorders in `.skogai/workorders/`, wt owns worktrees, herdr owns worker agents, `bin/wo` drives it.
+
 * **Initialization**: Created the Open Knowledge bundle scaffold.
 * **Rules**: Seeded lightweight starter agent rules in [AGENTS.md](AGENTS.md).
 * **Reference**: Stored a local pinned OKF spec copy in [SPEC.md](SPEC.md).
