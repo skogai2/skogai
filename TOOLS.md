@@ -11,7 +11,7 @@ The main session orchestrates, and workers do the implementation. See
 bin/wo new <slug>      # .skogai/workorders/NNNN-<slug>.md from TEMPLATE.md
 bin/wo dispatch <id>   # commit workorder → wt worktree → herdr tab in "workers" → start + prompt agent wo-NNNN
 bin/wo status          # workorder status, worker agent state, worktree path
-bin/wo land <id>       # status: done → wt merge (pre-merge hooks) → close tab → remove worktree
+bin/wo land <id>       # status: done → origin check → wt merge (pre-merge hooks) → close tab → remove worktree → push origin
 ```
 
 To wait for or inspect a worker, use `herdr agent wait wo-NNNN` and

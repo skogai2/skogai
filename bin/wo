@@ -141,6 +141,25 @@ cmd_status() {
   done
 }
 
+# A change only counts once it reaches origin (decision 0006), but only origins we own:
+# never push to a fork's upstream or anyone else's repo.
+PUSH_OWNERS='skogai2|skogix'
+default_branch() { # <repo root>
+  local b
+  b=$(git -C "$1" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null) || b=origin/master
+  echo "${b#origin/}"
+}
+check_origin() { # <repo root>: ours, and local default branch not behind origin
+  local root=$1 url branch
+  url=$(git -C "$root" remote get-url --push origin)
+  [[ ${url,,} =~ github\.com[:/]($PUSH_OWNERS)/ ]] || die "$root: origin $url is not ours; not landing"
+  branch=$(default_branch "$root")
+  git -C "$root" fetch -q origin "$branch"
+  git -C "$root" merge-base --is-ancestor "origin/$branch" "$branch" ||
+    die "$root: $branch is behind or diverged from origin/$branch; reconcile before landing"
+}
+push_origin() { git -C "$1" push -q origin "$(default_branch "$1")"; }
+
 cmd_land() {
   local stem branch agent path target tpath status tab
   stem=$(resolve "${1:?id required}")
@@ -150,6 +169,8 @@ cmd_land() {
   status=$(sed -n 's/^status: *//p' "$path/.skogai/workorders/$stem.md" | head -1)
   [[ $status == "done" ]] || die "$stem is '$status' on its branch, not done"
   target=$(repo_root "$stem")
+  [[ -n $target ]] && check_origin "$target"
+  check_origin "$ROOT"
 
   # Target repo first: if its merge fails, the workorder stays unlanded too.
   if [[ -n $target ]]; then
@@ -162,7 +183,9 @@ cmd_land() {
   [[ -n $tab ]] && herdr tab close "$tab" >/dev/null
   [[ -n $target ]] && wt -C "$target" remove "$branch" --yes
   wt -C "$ROOT" remove "$branch" --yes
-  echo "landed $stem"
+  [[ -n $target ]] && push_origin "$target"
+  push_origin "$ROOT"
+  echo "landed $stem (pushed)"
 }
 
 case "${1:-}" in

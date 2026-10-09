@@ -2,6 +2,7 @@
 
 ## 2026-10-10
 
+* **Push on land**: Recorded [decisions/0006-push-on-land.md](decisions/0006-push-on-land.md) (`wo land` pushes to owned origins only; unpushed work hasn't happened).
 * **dash/dot-skogai**: Recorded [decisions/0005-dash-and-dot-skogai.md](decisions/0005-dash-and-dot-skogai.md)
   (origin is the only source of truth; local checkouts are disposable; dispatch to whichever repo a change belongs in; dot-skogai stays and will be used).
   Rewrote [repos/dash-skogai.md](repos/dash-skogai.md) and added [repos/dot-skogai.md](repos/dot-skogai.md)
