@@ -5,10 +5,8 @@ permalink: dot-skogai/ROUTES
 
 # routes
 
-- @knowledge/DECISIONS.md
+- @knowledge/index.md
 
 # types
 
 ## router
-
-## decision
