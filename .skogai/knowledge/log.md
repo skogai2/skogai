@@ -2,6 +2,7 @@
 
 ## 2026-10-10
 
+* **Global knowledge**: dash-skogai now has `knowledge/` (glossary, `.skogai/` layout, named types) from interview workorder 0020; noted in [repos/dash-skogai.md](repos/dash-skogai.md). No principle moved: "write, commit, push" stays staged in [principles/](principles/index.md) until principle is defined.
 * **Knowledge and memory**: Recorded [decisions/0007-knowledge-and-memory.md](decisions/0007-knowledge-and-memory.md) (2×2 of scope × lifespan, maintained memory, skogfences, `/skogai` global state); added [principles/](principles/index.md) with [write, commit, push](principles/write-commit-push.md).
 * **Push on land**: Recorded [decisions/0006-push-on-land.md](decisions/0006-push-on-land.md) (`wo land` pushes to owned origins only; unpushed work hasn't happened).
 * **dash/dot-skogai**: Recorded [decisions/0005-dash-and-dot-skogai.md](decisions/0005-dash-and-dot-skogai.md)

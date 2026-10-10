@@ -10,6 +10,9 @@ sources:
   - id: interview
     resource: https://github.com/skogai2/skogai/blob/master/.skogai/workorders/0019-interview-dash-and-dot-skogai.md
     title: Interview workorder 0019
+  - id: interview-0020
+    resource: https://github.com/skogai2/skogai/blob/master/.skogai/workorders/0020-interview-skogai-glossary-and-layout.md
+    title: Interview workorder 0020
   - id: survey
     resource: https://github.com/skogai2/skogai/blob/master/.skogai/workorders/0007-survey-dash-skogai.md
     title: Survey workorder 0007
@@ -42,6 +45,10 @@ be self-contained and are not tied to one machine's home directory
   are `755`, so only the owner writes them, and only `coordination/` is
   group-writable.[^readme]
 - Changes do not go through an agent approval process yet.
+- `knowledge/` is the global knowledge bundle (`/skogai/knowledge/` once
+  pulled): the shared glossary, the `.skogai/` layout and the named types,
+  from interview workorder 0020. dash-skogai is the definition; every
+  `.skogai` (dot-skogai) is an instance of it.[^interview-0020]
 
 # Vision (not built yet)
 
@@ -75,4 +82,5 @@ be self-contained and are not tied to one machine's home directory
 
 [^interview]: Interview workorder 0019
 [^survey]: Survey workorder 0007
+[^interview-0020]: Interview workorder 0020
 [^readme]: dash-skogai README

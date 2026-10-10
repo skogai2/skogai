@@ -1,6 +1,6 @@
 ---
 id: 0020-interview-skogai-glossary-and-layout
-status: open
+status: done
 created: 2026-10-10T00:00:00Z
 repo: dash-skogai
 model: claude-opus-5-5
@@ -87,3 +87,86 @@ Older schemas skogix shared, to be considered for type definitions:
 - **principle**: a defeasible axiom, always in scope until argued out of place.
 
 skogix: "there is many types missing from my examples."
+
+## Report
+
+Interview held with skogix on 2026-10-10. Written and committed in both
+worktrees; nothing pushed.
+
+### What I did
+
+- **dash-skogai** (commit `9cb17fc`): created `knowledge/` as an OKF bundle
+  with `index.md`, `glossary.md`, `layout.md`, `types.md` and `log.md`, and
+  added one `knowledge/` row to the README's layout table.
+  `openknowledge validate knowledge` passes. The three concept pages carry
+  `verified: human:skogix`, no `stale_after`, and GitHub-URL `sources`. They
+  are `status: draft` because unsettled terms remain.
+- **skogai**: `knowledge/repos/dash-skogai.md` mentions `knowledge/`, and
+  `knowledge/log.md` has an entry.
+
+### Settled
+
+- **dash-skogai is the definition, dot-skogai is an instance.** skogix:
+  dash-skogai is "the template base", "globally shared", "a definition, a
+  concept, a global state, a singleton, a class, an interface"; dot-skogai is
+  "an implementation, a thing, an instance". "Everything in dot-skogai is by
+  definition also in dash-skogai if done correctly." So there is one layout,
+  not a global and a local one.
+- **dot-skogai is every `.skogai`**, "exactly like every other dotfolder":
+  `~/.skogai` and `<repo>/.skogai` alike.
+- **router** is the word. The `_avoid_` lists in skogai-routing's glossary
+  are ignored.
+- **bin**: "meant to be in PATH, no file ending and should be actively used
+  over most other alternatives."
+- **scripts**: "classic chmod +x scripts with a file ending such as .sh or
+  .py."
+- **config** and **state**: both kept; "contains configuration files/state".
+- **Tool slices**: a layout note lists the potential things "managed by wt"
+  (`./bin/wt`, `./scripts/wt/`, `./state/wt/`, `./config/wt/`), to be
+  defined later under something like `type: tool; name: wt`.
+- Taken from decisions 0002, 0006 and 0007 without objection: global, local,
+  knowledge, memory and their four combinations, event, read-marker,
+  best-before, promotion, rule, skogfences, orchestrator, worker, land, logs,
+  worktrees.
+
+### Deferred by skogix
+
+- **root**: unsolved; skogix will redefine it.
+- **workorder / action / raw layer**: to be defined. The glossary records
+  where each word was found (decision 0002, decision 0004, the layout draft
+  and decision 0007).
+- **All types**: none is defined. `types.md` names principle, pattern,
+  decision, list (each with skogix's older schema as the candidate), and
+  tool, router, event, rule, workorder (name only).
+- **agent home**: "an implementation/instance of a concept not yet defined."
+- **ownership, leaf**: left in skogai-routing, not adopted.
+
+### skogai-routing
+
+skogix: "leave skogai-routing for now / to be defined later." No
+recommendation to retire or redirect it. It was not edited.
+
+### For the orchestrator
+
+- **No principle moved.** skogix: "write, commit, push" is "a perfect
+  example of an instance of a principle", but "it is too early to move since
+  principle is not yet defined itself". Nothing in skogai's `principles/` is
+  deprecated.
+- **Decision 0007's wording is now off.** It says `/skogai` holds the global
+  state and dot-skogai holds the tools. skogix's framing in this interview is
+  definition versus instance, and `bin/` and `scripts/` are named on both
+  sides. Decisions 0005 and 0007 also use "dot-skogai" for `~/.skogai` only.
+  I did not edit decisions; a follow-up should.
+- **Your layout draft changed.** There is no separate `/skogai` tree, and
+  `scripts/wt/` became the general tool-slice note. `bin/` and `config/` were
+  added. `/skogai/scripts/wt/` does not exist today.
+- **Not in the layout, but present today.** skogai's `.skogai/` also has
+  `AGENTS.md`, `CLAUDE.md` (both route to `SKOGAI.md`) and `todo.list`.
+  `/skogai` also has `admin/`, `coordination/`, `tools/` and
+  `gptme-contrib/`. None was discussed, so none has a term.
+- **skogix did not say "done" or see a final summary before I wrote.** The
+  answers were terse and I had no questions left, so I wrote from the
+  answers as given. `verified: human:skogix` reflects those answers, not a
+  read-through of the pages.
+- dash-skogai's README still lists a `fish/` directory that no longer
+  exists; out of scope here.
