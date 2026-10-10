@@ -1,3 +1,6 @@
-- [ ] add ROUTES.md and similar "globally managed" files
-- [ ] git workflow in general 
-- [ ] start defining the workflow global->local with dash->dot explanations
+- [ ] dot;ROUTES.md and similar "globally managed" files
+- [ ] core;workflow in general 
+- [ ] config;start defining the workflow global->local with dash->dot explanations
+- [ ] cli;look over potential mise usage
+- [ ] cli;using git config for potential bootstrap and basic state    
+- [ ] skog;remake and set up a plugin for both orchestration and include cli
