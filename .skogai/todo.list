@@ -6,3 +6,6 @@
 - [ ] cli;look over potential mise usage
 - [ ] cli;using git config for potential bootstrap and basic state    
 - [ ] skog;remake and set up a plugin for both orchestration and include cli
+- [ ] setup wt hooks
+- [ ] setup concepts to actually add "hooks and events" essentially. example: ".skogai/knowledge/decisions/*.md -> .skogai/knowledge/DECISIONS.md" and git checks asap
+- [ ] add ".skogai/memory/" to claude code auto memory. may need a linked index.md->MEMORY.md to make everyone happy
