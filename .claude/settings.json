@@ -16,7 +16,9 @@
   "permissions": {
     "allow": [
       "Bash(gita *)",
+      "Bash(git *)",
       "Bash(herdr *)",
+      "Bash(openknowledge *)",
       "Bash(wt *)"
     ]
   }
