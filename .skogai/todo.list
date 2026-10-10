@@ -1,4 +1,6 @@
-- [ ] dot;ROUTES.md and similar "globally managed" files
+- [ ] dot;ROUTES.md for routing and similar "global definitions"
+  - [/] define .skogai/knowledge in practice 
+  - [/] define .skogai/memory in practice 
 - [ ] core;workflow in general 
 - [ ] config;start defining the workflow global->local with dash->dot explanations
 - [ ] cli;look over potential mise usage
