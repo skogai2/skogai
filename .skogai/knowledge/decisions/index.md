@@ -2,6 +2,7 @@
 
 Recorded decisions for the skogai repo, newest first.
 
+* [0007 — Knowledge and memory](0007-knowledge-and-memory.md)
 * [0006 — Push on land](0006-push-on-land.md)
 * [0005 — dash- and dot-skogai](0005-dash-and-dot-skogai.md)
 * [0004 — Knowledge lifecycle](0004-knowledge-lifecycle.md)

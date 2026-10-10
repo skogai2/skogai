@@ -20,4 +20,5 @@ context. This replaces the earlier ad-hoc `.skogai/proposals/` and
 ## Sections
 
 * [Decisions](decisions/index.md) - recorded decisions for this repo.
+* [Principles](principles/index.md) - global knowledge, staged here until `/skogai/knowledge/` exists.
 * [Repos](repos/index.md) - role, state, and workorder caveats for each skogai2 repo.

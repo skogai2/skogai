@@ -4,6 +4,7 @@
 #   wo new <slug>          create .skogai/workorders/NNNN-<slug>.md from the template
 #   wo dispatch <id>       commit the workorder, create worktree(s), open herdr tab, start + prompt worker
 #   wo status              workorders, their worker agents and worktrees
+#   wo prompt <id>         (re)send the worker brief, e.g. after a startup dialog swallowed it
 #   wo land <id>           merge a done workorder (and its target repo branch), close its tab, remove worktrees
 #
 # <id> is the 4-digit number or the full NNNN-slug stem.
@@ -111,9 +112,24 @@ cmd_dispatch() {
   ws=$(workers_ws)
   read -r tab pane < <(herdr tab create --workspace "$ws" --cwd "$cwd" --label "$agent" --no-focus |
     jq -r '"\(.result.tab.tab_id) \(.result.root_pane.pane_id)"')
-  herdr agent start "$agent" --kind "$KIND" --pane "$pane" --timeout 60000 -- "${ARGS[@]}" >/dev/null
+  # A startup dialog (e.g. folder trust) leaves the agent blocked and would swallow the brief.
+  if ! herdr agent start "$agent" --kind "$KIND" --pane "$pane" --timeout 60000 -- "${ARGS[@]}" >/dev/null 2>&1 ||
+    [[ $(herdr agent get "$agent" | jq -r .result.agent.agent_status) == blocked ]]; then
+    echo "wo: $agent is blocked at startup (folder trust?) in tab $tab; resolve it, then: wo prompt $stem" >&2
+    exit 1
+  fi
   herdr agent prompt "$agent" "$(worker_prompt "$stem" "$path" "$cwd")" >/dev/null
   echo "dispatched $stem → agent $agent, tab $tab, worktree $cwd"
+}
+
+cmd_prompt() {
+  local stem path target cwd
+  stem=$(resolve "${1:?id required}")
+  path=$(path_of "$stem"); [[ -n $path ]] || die "$stem is not dispatched"
+  target=$(repo_root "$stem"); cwd=$path
+  [[ -n $target ]] && cwd=$(wt_path "$target" "$(branch_of "$stem")")
+  herdr agent prompt "$(agent_of "$stem")" "$(worker_prompt "$stem" "$path" "$cwd")" >/dev/null
+  echo "prompted $(agent_of "$stem")"
 }
 
 worker_prompt() { # <stem> <skogai worktree> <worker cwd>
@@ -192,6 +208,7 @@ case "${1:-}" in
   new) shift; cmd_new "$@" ;;
   dispatch) shift; cmd_dispatch "$@" ;;
   status) cmd_status ;;
+  prompt) shift; cmd_prompt "$@" ;;
   land) shift; cmd_land "$@" ;;
-  *) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+  *) sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
 esac
