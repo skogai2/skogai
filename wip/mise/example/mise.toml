@@ -4,7 +4,7 @@
 
 [tools]
 age = "latest"
-fnox = "latest"
+"aqua:jdx/fnox" = "latest"  # not plain `fnox` (packslip, signer-pinned): see ../gotchas.md (cloud sessions)
 
 [env]
 # who: CLAUDECODE=1 in everything Claude Code spawns (Bash tool, hooks, MCP servers, IDE terminals)
