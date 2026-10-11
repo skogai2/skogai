@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+bash ./type/base/action/proof ./type/base/action/proof

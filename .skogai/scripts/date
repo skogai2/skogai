@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# @date:unix | @date:now
+case "$1" in
+  unix) date +%s ;;
+  now|"") date --iso-8601=seconds ;;
+  *) exit 2 ;;
+esac

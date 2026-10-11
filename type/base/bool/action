@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+cp ./type/base/bool/state ./config/bool

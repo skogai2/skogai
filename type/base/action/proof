@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+if [[ -x "$1" ]]; then
+  echo "append to the motherfucking state if the test is proven..."
+  # git config -f ./type/base/action/state --append action.path "$1"
+fi
