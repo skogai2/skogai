@@ -102,3 +102,9 @@ Bash tool, and `mise trust` / `mise install` act on whatever directory the
 script happens to start in. See `current-claude-code-setup-script.sh` for
 what persists: global mise settings, and a shims line at the top of
 `~/.bashrc` (above its non-interactive early return).
+
+**Shims give you the tools, not the `[env]`.** A plain Bash tool call sees
+none of the repo's `[env]` (`SKOGAI_*`, `FNOX_PROFILE`); only `mise run`,
+`mise x` and shimmed tools load it. To get it everywhere, export it to a
+file (`mise env -s bash > file`) and point Claude Code at it with
+`CLAUDE_ENV_FILE`, which is run before each Bash command.

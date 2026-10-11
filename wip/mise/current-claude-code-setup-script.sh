@@ -35,9 +35,11 @@ for cfg in "$PWD/mise.toml" /home/user/*/mise.toml; do
   (cd "$(dirname "$cfg")" && mise install) || echo "mise install failed in ${cfg%/*}" >&2
 done
 
-# fnox: no key setup needed here. Add FNOX_AGE_KEY as an environment
-# variable/secret in the environment settings and fnox reads it directly;
-# it overrides FNOX_AGE_KEY_FILE in wip/mise/example.
+# fnox: no key setup needed here. As a stopgap, an FNOX_AGE_KEY environment
+# variable is enough: fnox reads it directly and it overrides
+# FNOX_AGE_KEY_FILE in wip/mise/example. Environment variables are readable
+# by everyone who can use the environment, so the real setup gets the
+# identity from another provider.
 
 # SkogAI tools
 uv tool install "git+https://github.com/skogai/cli.git" --force --upgrade
