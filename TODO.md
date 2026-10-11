@@ -8,6 +8,8 @@
 - [ ] skog;remake and set up a plugin for both orchestration and include cli
 - [ ] setup wt hooks
 - [ ] setup concepts to actually add "hooks and events" essentially. example: ".skogai/knowledge/decisions/*.md -> .skogai/knowledge/DECISIONS.md" and git checks asap
-- [ ] add ".skogai/memory/" to claude code auto memory. may need a linked index.md->MEMORY.md to make everyone happy
+- [ ] add "./.skogai/memory/" to claude code auto memory.
 - [ ] check if "insights" actually have done anything ever?
 - [ ] cli; create a way to build SKOGAI_ENVs via mise
+- [ ] decisions; remove numbering
+
