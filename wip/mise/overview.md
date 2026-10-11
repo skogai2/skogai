@@ -158,6 +158,9 @@ a hostname-specific choice.
 
 ## Secrets
 
+For a worked setup see [who-and-mode.md](who-and-mode.md); for traps see
+[gotchas.md](gotchas.md).
+
 There are four approaches. The main difference is *who gets to see the
 plaintext*.
 
