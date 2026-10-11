@@ -1,4 +1,1 @@
-/.skogai/worktrees
-/plugins/hook-tap/log.jsonl
-log.jsonl
-tmp/
+/.skogai/logs
