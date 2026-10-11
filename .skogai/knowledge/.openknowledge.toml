@@ -5,3 +5,6 @@ outputs = []
 
 [rules]
 enabled = ["project", "writing", "decisions", "agents", "changelog"]
+
+[validation.rules]
+"okf-0.2-metadata" = "error"

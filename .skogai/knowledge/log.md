@@ -1,5 +1,9 @@
 # Bundle Update Log
 
+## 2026-10-11
+
+* **Closed type set**: Declared `corpus_schema` in [index.md](index.md): six document types (`Decision`, `Principle`, `Repository`, `Open Knowledge Insight`, `Specification`, `Agent Rules`), each with allowed paths and required fields, and a `supersedes` link between decisions. An undeclared type or a misplaced document now fails validation. Raised `okf-0.2-metadata` to an error in `.openknowledge.toml`, so an unknown `status` fails too.
+
 ## 2026-10-10
 
 * **Global knowledge**: dash-skogai now has `knowledge/` (glossary, `.skogai/` layout, named types) from interview workorder 0020; noted in [repos/dash-skogai.md](repos/dash-skogai.md). No principle moved: "write, commit, push" stays staged in [principles/](principles/index.md) until principle is defined.

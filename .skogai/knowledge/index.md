@@ -2,6 +2,32 @@
 okf_version: "0.2"
 okf_bundle_name: "skogai"
 okf_bundle_purpose: "Structured knowledge for the skogai repo: routing, decisions, and project context."
+corpus_schema:
+  version: "1"
+  document_types:
+    - id: Decision
+      aliases: [decision]
+      paths: ["decisions/**"]
+      required: [title, description, status, generated]
+    - id: Principle
+      paths: ["principles/**"]
+      required: [title, description, status, generated]
+    - id: Repository
+      paths: ["repos/**"]
+      required: [title, description, generated, stale_after]
+    - id: Open Knowledge Insight
+      paths: ["insights/**"]
+      required: [title, description, status, generated]
+    - id: Specification
+      paths: ["SPEC.md"]
+      required: [title, description, generated]
+    - id: Agent Rules
+      paths: ["AGENTS.md"]
+      required: [title, description, generated]
+  link_predicates:
+    - id: supersedes
+      source_types: [Decision]
+      target_types: [Decision]
 ---
 
 # Skogai Knowledge
