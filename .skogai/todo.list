@@ -9,3 +9,4 @@
 - [ ] setup wt hooks
 - [ ] setup concepts to actually add "hooks and events" essentially. example: ".skogai/knowledge/decisions/*.md -> .skogai/knowledge/DECISIONS.md" and git checks asap
 - [ ] add ".skogai/memory/" to claude code auto memory. may need a linked index.md->MEMORY.md to make everyone happy
+- [ ] check if "insights" actually have done anything ever?
