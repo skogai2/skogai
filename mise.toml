@@ -1,3 +1,19 @@
 [tools]
+age = "latest"
 argc = "latest"
+fnox = { version = "latest", workflow = "release.yml" }
 "github:openknowledge-sh/openknowledge" = { version = "latest", exe = "openknowledge" }
+watchexec = "latest"
+
+# SKOGIX EXPERIMENTS:
+# [env]
+# SKOGAI_DIR = { default = "{{config_root}}/.skogai" }
+# SKOGAI_SCRIPTS_DIR = "${SKOGAI_DIR}/scripts"
+# SKOGAI_BIN_DIR = "${SKOGAI_DIR}/bin"
+# SKOGAI_SCRIPTS_ENV_DIR = "${SKOGAI_SCRIPTS_DIR}/env"
+# SKOGAI_USER = "skogix"
+#
+# # directives
+# _.path = ["{{env.SKOGAI_BIN_DIR}}"]
+# _.source = "${SKOGAI_SCRIPTS_ENV_DIR}/atuin-export.sh"
+# _.python.venv = { path = ".venv", create = true }
