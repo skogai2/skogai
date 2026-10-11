@@ -6,6 +6,7 @@ Research and a working example for using mise (and fnox) in skogai.
 - [who-and-mode.md](who-and-mode.md) - giving different callers different secrets, derived from Claude Code's own env vars.
 - [gotchas.md](gotchas.md) - things that fail silently in mise and fnox.
 - [example/](example/) - the who-and-mode setup as a self-contained project.
+- [current-claude-code-setup-script.sh](current-claude-code-setup-script.sh) - the setup script for Claude Code cloud environments.
 
 ## Running the example
 

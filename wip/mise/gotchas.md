@@ -77,3 +77,28 @@ testing who can decrypt what.
 
 **`fnox remove` on a keychain secret leaves the keychain entry.** The config
 line goes; the OS keychain item stays until removed with `secret-tool clear`.
+
+## Claude Code cloud sessions
+
+Reproduced on 2026-10-11 with `mise 2026.10.7`.
+
+**The GitHub API only answers for repos attached to the session.** Calls to
+`api.github.com` for any other repo get a 403 ("GitHub access to this
+repository is not enabled for this session"); release *downloads* from
+`github.com` still work. `github:` tools log a WARN on version listing but
+still install. Plain `fnox` (the `packslip:` backend) does not: it fetches a
+skill through the contents API and fails the whole install with "declared
+skill(s) fnox are not installed". Use `"aqua:jdx/fnox"` or `"github:jdx/fnox"`.
+
+**A failed decryption still runs the task.** Without an identity, `mise run
+deploy` logs a WARN per secret and runs with the variables empty.
+
+**`mise secrets` needs `experimental = true`**, otherwise every task with
+`secrets = [...]` refuses to run.
+
+**The setup script's shell state is gone by the time Claude runs.** `export`,
+`eval "$(mise activate bash)"` and `cd` in the setup script don't reach the
+Bash tool, and `mise trust` / `mise install` act on whatever directory the
+script happens to start in. See `current-claude-code-setup-script.sh` for
+what persists: global mise settings, and a shims line at the top of
+`~/.bashrc` (above its non-interactive early return).
