@@ -39,8 +39,7 @@ to host and drive workers. It does not create worktrees; `wt` does that.
 **wt** (`mise`, v0.80.0) manages git worktrees, one per branch, and
 provides the merge pipeline. The user config (`~/.config/worktrunk/config.toml`)
 puts worktrees in `.skogai/worktrees/<branch>` and generates commit messages
-with haiku. The project config `.config/wt.toml` runs
-`openknowledge validate` as a `pre-merge` hook.
+with haiku. The project config `.config/wt.toml` defines no hooks.
 
 ## gita
 

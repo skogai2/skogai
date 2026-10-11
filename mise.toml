@@ -2,7 +2,6 @@
 age = "latest"
 argc = "latest"
 fnox = { version = "latest", workflow = "release.yml" }
-"github:openknowledge-sh/openknowledge" = { version = "latest", exe = "openknowledge" }
 watchexec = "latest"
 
 # SKOGIX EXPERIMENTS:

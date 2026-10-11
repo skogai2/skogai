@@ -1,24 +1,10 @@
 {
-  "hooks": {
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "openknowledge automation insights observe --runtime claude",
-            "timeout": 30,
-            "async": true
-          }
-        ]
-      }
-    ]
-  },
   "permissions": {
     "allow": [
       "Bash(gita *)",
       "Bash(git *)",
+      "Bash(okn *)",
       "Bash(herdr *)",
-      "Bash(openknowledge *)",
       "Bash(wt *)"
     ]
   }
