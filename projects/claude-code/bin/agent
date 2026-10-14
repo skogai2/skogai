@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# Run a one-shot Claude Code agent in a fully isolated sandbox:
+#   /tmp/claude-code/$SETUP/config  CLAUDE_CONFIG_DIR (transcripts, state, settings)
+#   /tmp/claude-code/$SETUP/work    working directory
+# The sandbox is wiped at the start of each run (KEEP=1 to reuse it), so
+# everything in it afterwards was produced by this run.
+#
+#   echo "say pong" | bin/agent
+#   echo "list files" | SETUP=tools TOOLS=Bash bin/agent
+#
+# Setup files come from setups/$SETUP/:
+#   settings.json     -> config/settings.json (user scope inside the sandbox)
+#   system-prompt.md  -> --system-prompt-file
+#   work/             -> copied into work/ (optional; e.g. CLAUDE.md, .claude/)
+set -euo pipefail
+root=$(cd "$(dirname "$0")/.." && pwd)
+
+: "${SETUP:=baseline}"
+: "${MODEL:=haiku}"
+: "${TOOLS:=}"
+: "${OUTPUT:=text}"
+: "${SANDBOX_ROOT:=/tmp/claude-code}"
+export MAX_THINKING_TOKENS="${MAX_THINKING_TOKENS:-0}"
+
+setup="$root/setups/$SETUP"
+[[ -d $setup ]] || { echo "no such setup: $setup" >&2; exit 1; }
+box="$SANDBOX_ROOT/$SETUP"
+
+if [[ ${KEEP:-0} != 1 || ! -d $box ]]; then
+  rm -rf "$box"
+  mkdir -p "$box/config" "$box/work"
+  ln -s "$HOME/.claude/.credentials.json" "$box/config/.credentials.json"
+  [[ -f $setup/settings.json ]] && cp "$setup/settings.json" "$box/config/settings.json"
+  [[ -d $setup/work ]] && cp -a "$setup/work/." "$box/work/"
+fi
+
+export CLAUDE_CONFIG_DIR="$box/config"
+cd "$box/work"
+
+args=(
+  -p
+  --model "$MODEL"
+  --tools "$TOOLS"
+  --strict-mcp-config
+  --disable-slash-commands
+  --output-format "$OUTPUT"
+)
+[[ -f $setup/system-prompt.md ]] && args+=(--system-prompt-file "$setup/system-prompt.md")
+[[ $OUTPUT == stream-json ]] && args+=(--verbose)
+
+exec claude "${args[@]}" "$@"
