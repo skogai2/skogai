@@ -8,7 +8,7 @@ A lab for learning exactly what Claude Code does. Start from an agent with every
 - `bin/inspect`, `bin/transcript`: show what a session exposes, or locate its transcript.
 - `bin/eval`, `bin/review`, `bin/compare`: batch-run cases, read all responses, diff two runs.
 - `setups/<name>/`: one configuration under test. It holds `settings.json` (becomes the sandbox's user settings), `system-prompt.md` and/or `append-system-prompt.md`, and optionally `work/` (copied into the working dir).
-- `FEATURES.md`: every setup feature, how `bin/agent` applies it, which setups use it, and what's planned. Update it when a feature lands.
+- `FEATURES.md`: what setups can do and how to use them, for users. No implementation details; those go in this file. Update both when a feature lands.
 - `cases/<setup>/`: input files for `bin/eval`, one prompt per file.
 - `tests/NN-*.sh`: pass/fail checks, run with `tests/run`.
 - `runs/`: eval output (gitignored). Each run folder contains `<case>.out`, `.json` and `.jsonl`, plus `meta.txt` and the system prompt used.
@@ -24,6 +24,25 @@ A lab for learning exactly what Claude Code does. Start from an agent with every
 - `bin/agent` exports `CLAUDE_CONFIG_DIR=/tmp/claude-code/<setup>/config` and runs in `.../work`. Nothing from `~/.claude` applies except the credentials.
 - The sandbox is wiped at the start of each run, so whatever is in it afterwards (transcripts, `.claude.json`, state) came from that run. Read those files rather than guessing.
 - The `init` event (`OUTPUT=stream-json`, first line) lists tools, skills, agents, plugins and MCP servers. Assert on it, never on the model describing itself.
+
+## How features are implemented
+
+A setup feature is a file in `setups/<name>/` that `bin/agent` checks for and turns into a flag. `bin/eval` copies the prompt files into the run folder, and a test in `tests/` proves the feature works.
+
+| Feature | `bin/agent` does | Verified by |
+|---|---|---|
+| `settings.json` | copies it to `config/settings.json` | `tests/00-surface.sh` |
+| `system-prompt.md` | `--system-prompt-file` | `tests/01-roundtrip.sh` |
+| `append-system-prompt.md` | `--append-system-prompt-file` | none yet |
+| `work/` | copies it into `work/` | none yet |
+| `MODEL`, `TOOLS`, `OUTPUT` | `--model`, `--tools`, `--output-format` (plus `--verbose` for `stream-json`) | `tests/00-surface.sh` (no tools) |
+| `KEEP`, `BOX`, `SANDBOX_ROOT` | skip the wipe / set the sandbox path | none |
+
+Always passed: `-p`, `--strict-mcp-config` (no MCP config), `--disable-slash-commands`, and `MAX_THINKING_TOKENS=0` unless it's set. Extra args go straight to `claude`.
+
+Stripping lives in the baseline `settings.json`: `syncClaudeAiSkills`, `syncClaudeAiPlugins` and `autoMemoryEnabled` set to `false`; the env vars `ENABLE_CLAUDEAI_MCP_SERVERS=false`, `CLAUDE_CODE_DISABLE_POLICY_SKILLS=1` and `CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL=1`; and the five `cc-plugin-*@builtin` plugins disabled.
+
+To add a feature: add the check to `bin/agent`, copy the file in `bin/eval` if it shapes the output, add a test, and update the table above and `FEATURES.md`. Planned features are in `../orchestration/TODO.md`.
 
 ## Gotchas found so far
 

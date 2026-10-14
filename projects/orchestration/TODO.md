@@ -7,3 +7,11 @@
 - [ ] tools;write `TOOLS.md`. It is mostly the list of setups: what each one is for and when to use it, plus the few non-setup tools (herdr, `wt`, ...), each verified before listing.
 - [ ] herdr;a herdr `claude` worker started with `acceptEdits` still stops for approval on every shell command. Decide what workers may run without asking.
 - [x] docs;`projects/claude-code/CLAUDE.md` layout still lists only `system-prompt.md` for a setup; add `append-system-prompt.md`.
+- [ ] feature;`model` file in a setup sets its default model (`MODEL` still overrides).
+- [ ] feature;`mcp.json` in a setup gives it MCP servers (`--mcp-config`, keeping `--strict-mcp-config`).
+- [ ] feature;`agents.json` in a setup defines its subagents (`--agents`). Needed for orchestrator workers.
+- [ ] feature;`plugins/` in a setup loads plugins (`--plugin-dir`). Lets us test the skog plugin.
+- [ ] feature;`env` in a setup is sourced before `claude` runs (per-setup `SKOGAI_*` and similar).
+- [ ] feature;`add-dirs` in a setup grants read access to repo paths (`--add-dir` per line).
+- [ ] feature;`schema.json` in a setup forces structured output (`--json-schema`; check `cli-reference.md` first).
+- [ ] test;`append-system-prompt.md` and `work/` have no test in `projects/claude-code/tests/`.
