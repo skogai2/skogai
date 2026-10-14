@@ -1,0 +1,143 @@
+diff --git a/.claude/settings.json b/.claude/settings.json
+index 68fff48..a8d3141 100644
+--- a/.claude/settings.json
++++ b/.claude/settings.json
+@@ -1,5 +1,125 @@
+ {
++  "syncClaudeAiSkills": false,
++  "env": {
++    "ENABLE_CLAUDEAI_MCP_SERVERS": "false",
++    "CLAUDE_CODE_DISABLE_POLICY_SKILLS": "1",
++    "CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL": "1"
++  },
++  "model": "opus",
++  "hooks": {
++    "PostToolUse": [
++      {
++        "matcher": "Bash",
++        "hooks": [
++          {
++            "type": "command",
++            "command": "atuin hook claude-code"
++          }
++        ]
++      }
++    ],
++    "PostToolUseFailure": [
++      {
++        "matcher": "Bash",
++        "hooks": [
++          {
++            "type": "command",
++            "command": "atuin hook claude-code"
++          }
++        ]
++      }
++    ],
++    "PreToolUse": [
++      {
++        "matcher": "Bash",
++        "hooks": [
++          {
++            "type": "command",
++            "command": "atuin hook claude-code"
++          }
++        ]
++      }
++    ],
++    "SessionStart": [
++      {
++        "matcher": "^(startup|resume|clear|compact|fork)$",
++        "hooks": [
++          {
++            "type": "command",
++            "command": "bash '/home/skogix/.claude/hooks/herdr-agent-state.sh' session",
++            "timeout": 10
++          }
++        ]
++      }
++    ],
++    "WorktreeCreate": [
++      {
++        "hooks": [
++          {
++            "type": "command",
++            "command": "\"/home/skogix/.claude/hooks/worktree-create.sh\"",
++            "timeout": 180
++          }
++        ]
++      }
++    ]
++  },
++  "statusLine": {
++    "type": "command",
++    "command": "wt list statusline --format=claude-code"
++  },
++  "enabledPlugins": {
++    "nelson@synced": false,
++    "worktrunk@worktrunk": true,
++    "cc-plugin-you-should-know@builtin": true,
++    "cc-plugin-diff@builtin": false,
++    "cc-plugin-telemetry@builtin": false
++  },
++  "extraKnownMarketplaces": {
++    "worktrunk": {
++      "source": {
++        "source": "github",
++        "repo": "max-sixty/worktrunk"
++      },
++      "autoUpdate": true
++    },
++    "skogai-marketplace": {
++      "source": {
++        "source": "git",
++        "url": "https://github.com/skogai2/marketplace.git"
++      },
++      "autoUpdate": true
++    },
++    "openai-codex": {
++      "source": {
++        "source": "git",
++        "url": "https://github.com/openai/codex-plugin-cc.git"
++      }
++    }
++  },
++  "outputStyle": "Concise",
++  "feedbackDrafts": "notify",
++  "dialogExpiry": "never",
++  "pluginConfigs": {
++    "cc-plugin-agents-md@builtin": {
++      "options": {
++        "instructionFiles": "claude-md-or-agents-md"
++      }
++    }
++  },
++  "timeFormat": "24-hour",
++  "autoMemoryEnabled": false,
++  "autoMemoryDirectory": "/home/skogix/claude/.skogai/memory",
++  "theme": "dark-daltonized",
++  "editorMode": "vim",
++  "preferredNotifChannel": "auto",
++  "switchModelsOnFlag": true,
++  "remoteControlAtStartup": true,
++  "crossSessionInbound": "accept",
++  "inputNeededNotifEnabled": true,
++  "agentPushNotifEnabled": true,
+   "permissions": {
++    "defaultMode": "auto",
+     "allow": [
+       "Bash(gita *)",
+       "Bash(git *)",
+diff --git a/.gitignore b/.gitignore
+index f0302c5..284b600 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,4 +1 @@
+-/.skogai/worktrees
+-/plugins/hook-tap/log.jsonl
+-log.jsonl
+-tmp/
++/.skogai/logs
+diff --git a/.gitmodules b/.gitmodules
+deleted file mode 100644
+index e69de29..0000000

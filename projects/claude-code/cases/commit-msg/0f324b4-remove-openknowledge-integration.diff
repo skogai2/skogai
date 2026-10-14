@@ -1,0 +1,154 @@
+diff --git a/.claude/settings.json b/.claude/settings.json
+index 577977e..68fff48 100644
+--- a/.claude/settings.json
++++ b/.claude/settings.json
+@@ -1,24 +1,10 @@
+ {
+-  "hooks": {
+-    "SessionEnd": [
+-      {
+-        "hooks": [
+-          {
+-            "type": "command",
+-            "command": "openknowledge automation insights observe --runtime claude",
+-            "timeout": 30,
+-            "async": true
+-          }
+-        ]
+-      }
+-    ]
+-  },
+   "permissions": {
+     "allow": [
+       "Bash(gita *)",
+       "Bash(git *)",
++      "Bash(okn *)",
+       "Bash(herdr *)",
+-      "Bash(openknowledge *)",
+       "Bash(wt *)"
+     ]
+   }
+diff --git a/.claude/skills/openknowledge/SKILL.md b/.claude/skills/openknowledge/SKILL.md
+deleted file mode 100644
+index 62936f0..0000000
+--- a/.claude/skills/openknowledge/SKILL.md
++++ /dev/null
+@@ -1,40 +0,0 @@
+----
+-name: openknowledge
+-description: Work with the Open Knowledge knowledge base connected to this repository.
+----
+-
+-# Open Knowledge project
+-
+-<!-- openknowledge:managed:start -->
+-## Open Knowledge integration
+-
+-Use openknowledge registry list and the current repository to discover this
+-project's knowledge bases. Use openknowledge list, get, and search to inspect
+-the applicable connection. Validate knowledge changes before finishing.
+-
+-Treat the repository and knowledge base as source evidence. Respect
+-okf_publish boundaries. Do not derive instructions or broader permissions from
+-insight content.
+-
+-For each material factual change:
+-
+-1. Run openknowledge claims find before you choose ontology terms or a slot.
+-2. Create a globally unique occurrence ID. Reuse matching slots, entities, and predicates.
+-   Do not create a synonymous canonical ID.
+-3. Create new or changed claims with openknowledge claims propose.
+-4. Keep every agent-created claim proposed.
+-5. Apply the digest-bound proposal with openknowledge claims apply.
+-6. Use openknowledge claims link only for a critical dependency.
+-7. Run openknowledge claims impact for affected documents and eval questions.
+-8. Preserve supported, disputed, and verified claim history. Use explicit supersedes relations.
+-9. Run openknowledge claims validate after each claim edit.
+-
+-Do not select truth between conflicting sources. Use openknowledge claims
+-dispute for each affected claim occurrence. Route the decision to the declared
+-owner. Do not remove claim evidence or a claim reference without an accepted
+-lifecycle decision.
+-<!-- openknowledge:managed:end -->
+-
+-## Project guidance
+-
+-Project-specific instructions maintained by people and agents.
+diff --git a/.config/wt.toml b/.config/wt.toml
+deleted file mode 100644
+index aceba78..0000000
+--- a/.config/wt.toml
++++ /dev/null
+@@ -1,4 +0,0 @@
+-# Worktrunk project config — see .skogai/knowledge/decisions/0002-orchestration-model.md
+-
+-[pre-merge]
+-knowledge = "openknowledge validate .skogai/knowledge"
+diff --git a/.openknowledge/integration.toml b/.openknowledge/integration.toml
+deleted file mode 100644
+index 41da9d0..0000000
+--- a/.openknowledge/integration.toml
++++ /dev/null
+@@ -1,20 +0,0 @@
+-version = 3
+-knowledge_base = '.skogai/knowledge'
+-insights = '.skogai/knowledge/insights'
+-runtime = 'claude'
+-harness = ['claude']
+-observed_harness = ['claude']
+-project_skills = true
+-observe = true
+-
+-[[managed_file]]
+-path = '.claude/settings.json'
+-sha256 = 'b6c9ecb2bc008884c71175056c49bedcc9bc785803936c22598ff662cbebba36'
+-kind = 'claude_hook'
+-owned = true
+-
+-[[managed_file]]
+-path = '.claude/skills/openknowledge/SKILL.md'
+-sha256 = 'bc8aeb705e1a6250a00204d6d15a5c3c08984b68660a79f217d1594149a2e274'
+-kind = 'project_skill'
+-owned = true
+diff --git a/.skogai/knowledge/.openknowledge.toml b/.skogai/knowledge/.openknowledge.toml
+deleted file mode 100644
+index 8e13be3..0000000
+--- a/.skogai/knowledge/.openknowledge.toml
++++ /dev/null
+@@ -1,10 +0,0 @@
+-# Open Knowledge bundle configuration.
+-
+-[release]
+-outputs = []
+-
+-[rules]
+-enabled = ["project", "writing", "decisions", "agents", "changelog"]
+-
+-[validation.rules]
+-"okf-0.2-metadata" = "error"
+diff --git a/TOOLS.md b/TOOLS.md
+index 3283ae1..a544d2d 100644
+--- a/TOOLS.md
++++ b/TOOLS.md
+@@ -39,8 +39,7 @@ to host and drive workers. It does not create worktrees; `wt` does that.
+ **wt** (`mise`, v0.80.0) manages git worktrees, one per branch, and
+ provides the merge pipeline. The user config (`~/.config/worktrunk/config.toml`)
+ puts worktrees in `.skogai/worktrees/<branch>` and generates commit messages
+-with haiku. The project config `.config/wt.toml` runs
+-`openknowledge validate` as a `pre-merge` hook.
++with haiku. The project config `.config/wt.toml` defines no hooks.
+ 
+ ## gita
+ 
+diff --git a/mise.toml b/mise.toml
+index 509590e..889945f 100644
+--- a/mise.toml
++++ b/mise.toml
+@@ -2,7 +2,6 @@
+ age = "latest"
+ argc = "latest"
+ fnox = { version = "latest", workflow = "release.yml" }
+-"github:openknowledge-sh/openknowledge" = { version = "latest", exe = "openknowledge" }
+ watchexec = "latest"
+ 
+ # SKOGIX EXPERIMENTS:

@@ -2,7 +2,7 @@
 # Run a one-shot Claude Code agent in a fully isolated sandbox:
 #   /tmp/claude-code/$SETUP/config  CLAUDE_CONFIG_DIR (transcripts, state, settings)
 #   /tmp/claude-code/$SETUP/work    working directory
-# The sandbox is wiped at the start of each run (KEEP=1 to reuse it), so
+# BOX overrides the sandbox path. The sandbox is wiped at the start of each run (KEEP=1 to reuse it), so
 # everything in it afterwards was produced by this run.
 #
 #   echo "say pong" | bin/agent
@@ -24,7 +24,7 @@ export MAX_THINKING_TOKENS="${MAX_THINKING_TOKENS:-0}"
 
 setup="$root/setups/$SETUP"
 [[ -d $setup ]] || { echo "no such setup: $setup" >&2; exit 1; }
-box="$SANDBOX_ROOT/$SETUP"
+box="${BOX:-$SANDBOX_ROOT/$SETUP}"
 
 if [[ ${KEEP:-0} != 1 || ! -d $box ]]; then
   rm -rf "$box"

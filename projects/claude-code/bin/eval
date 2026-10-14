@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Run every case in cases/<setup>/ through bin/agent and save the results.
+#   bin/eval commit-msg
+#   MODEL=sonnet bin/eval commit-msg
+#   bin/eval commit-msg cases/commit-msg/typo-fix.diff   # selected cases only
+# Output: runs/<setup>/<stamp>/
+#   <case>.out    the response
+#   <case>.json   result metadata (cost, tokens, duration, session id)
+#   <case>.jsonl  the session transcript
+# runs/<setup>/latest points to the newest run. Each case gets its own sandbox
+# under /tmp/claude-code/eval/<setup>/<stamp>/<case>/.
+set -euo pipefail
+root=$(cd "$(dirname "$0")/.." && pwd)
+cd "$root"
+
+setup=${1:?usage: bin/eval <setup> [case files...]}; shift
+cases=("$@")
+[[ ${#cases[@]} -gt 0 ]] || cases=(cases/"$setup"/*)
+[[ -e ${cases[0]} ]] || { echo "no cases in cases/$setup/" >&2; exit 1; }
+
+stamp=$(date +%Y%m%d-%H%M%S)
+out="runs/$setup/$stamp"
+mkdir -p "$out"
+ln -sfn "$stamp" "runs/$setup/latest"
+{ echo "setup=$setup model=${MODEL:-haiku} tools=${TOOLS:-}"; git -C "$root" rev-parse --short HEAD; } > "$out/meta.txt"
+cp "setups/$setup/system-prompt.md" "$out/" 2>/dev/null || true
+
+for f in "${cases[@]}"; do
+  name=$(basename "${f%.*}")
+  box="/tmp/claude-code/eval/$setup/$stamp/$name/sandbox"
+  if SETUP=$setup BOX=$box OUTPUT=json bin/agent < "$f" > "$out/$name.json"; then
+    jq -r '.result' "$out/$name.json" > "$out/$name.out"
+    cp "$(ls -t "$box"/config/projects/*/*.jsonl | head -1)" "$out/$name.jsonl"
+    printf '%-50s %6s tok  $%s\n' "$name" \
+      "$(jq '.usage | .input_tokens + .cache_creation_input_tokens + .cache_read_input_tokens + .output_tokens' "$out/$name.json")" \
+      "$(jq -r '.total_cost_usd' "$out/$name.json")"
+  else
+    echo "$name FAILED (see $out/$name.json)"
+  fi
+done
+echo "$out"
