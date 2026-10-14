@@ -15,10 +15,10 @@ reasons here.
 - **Tools:** the plan is all tools. In the harness, `TOOLS` still defaults
   to none, so runs need `TOOLS=default` until a setup can set its own (see
   [TODO.md](TODO.md)).
-- **Workers:** today the prompt points at the built-in `Agent` tool. The
-  direction (see [PLAN.md](PLAN.md)) is for workers to be other setups,
-  spawned with `SETUP=<name> bin/agent`. The prompt changes once spawning is
-  decided.
+- **Workers:** other setups, spawned with plain Bash:
+  `printf '%s\n' "$prompt" | SETUP=<name> projects/claude-code/bin/agent`.
+  The built-in `Agent` tool is only a fallback when no setup fits, and that
+  case gets reported as a missing setup.
 - **Case:** `cases/orchestration/research-summary.txt` asks for research
   without saying "delegate", to test whether the prompt alone makes it
   delegate. It hasn't been run yet.
@@ -28,6 +28,7 @@ reasons here.
 | Part | Reason |
 |---|---|
 | Role | States that delegating is the default, not a last resort. |
+| Workers are setups | Setups are focused and tested by evals. Spawning them keeps the orchestrator's context on the discussion. |
 | Delegation permission | The default Claude Code prompt says not to spawn agents unless the user asks. This line is the user asking, once, for the whole session. |
 | Tools rule | Earlier, tools we had were ignored. The prompt makes checking `TOOLS.md` a required step and makes skipping a tool something the orchestrator has to say and explain. |
 | Handoff contract | Keeps v0 small: one prompt out, one message back. |
@@ -38,5 +39,9 @@ reasons here.
 - `TOOLS.md` doesn't exist yet, so the tools rule points at nothing.
 - Should workers get their own appended prompt, or does each worker setup
   carry it?
-- When workers become setups, does the "Delegation" section switch from
-  the `Agent` tool to `bin/agent`, or keep both?
+- Workers can't see the repo (empty sandbox), so the prompt tells the
+  orchestrator to inline everything. That breaks down for large inputs and
+  for implementation work until the sandbox TODO is solved.
+- Inside the harness sandbox the orchestrator itself can't reach
+  `projects/claude-code/bin/agent` either, so the spawn path can't be
+  evaluated there yet.

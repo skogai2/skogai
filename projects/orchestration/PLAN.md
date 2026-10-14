@@ -66,5 +66,5 @@ worktrees and merging come later and build on it.
 - Which parts of `wip/dot-dash-skogai` decisions 0002 (orchestration model)
   and 0003 (repo roles) still hold? 0002's workorders and herdr/`wt`
   workers look like the long-running worker kind.
-- Does the orchestrator keep the `Agent` tool (in-session subagents) next
-  to spawning setups, or only spawn setups?
+- The `Agent` tool is kept as a fallback when no setup fits. Is that
+  enough, or should it be removed so missing setups are always noticed?
