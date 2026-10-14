@@ -1,0 +1,1 @@
+- @projects/orchestration/CLAUDE.md - included as the basic orchestration layer
