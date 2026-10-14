@@ -1,3 +1,6 @@
 - @ORCHESTRATOR.md
 - @PLAN.md
 - @TODO.md
+- ../claude-code/FEATURES.md
+- @append-system-prompt.md
+- settings.json
