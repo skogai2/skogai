@@ -7,7 +7,8 @@ A lab for learning exactly what Claude Code does. Start from an agent with every
 - `bin/agent`: one-shot `claude -p` in an isolated sandbox. The prompt comes on stdin. Everything else builds on it.
 - `bin/inspect`, `bin/transcript`: show what a session exposes, or locate its transcript.
 - `bin/eval`, `bin/review`, `bin/compare`: batch-run cases, read all responses, diff two runs.
-- `setups/<name>/`: one configuration under test. It holds `settings.json` (becomes the sandbox's user settings), `system-prompt.md`, and optionally `work/` (copied into the working dir).
+- `setups/<name>/`: one configuration under test. It holds `settings.json` (becomes the sandbox's user settings), `system-prompt.md` and/or `append-system-prompt.md`, and optionally `work/` (copied into the working dir).
+- `FEATURES.md`: every setup feature, how `bin/agent` applies it, which setups use it, and what's planned. Update it when a feature lands.
 - `cases/<setup>/`: input files for `bin/eval`, one prompt per file.
 - `tests/NN-*.sh`: pass/fail checks, run with `tests/run`.
 - `runs/`: eval output (gitignored). Each run folder contains `<case>.out`, `.json` and `.jsonl`, plus `meta.txt` and the system prompt used.
