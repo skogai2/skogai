@@ -15,4 +15,4 @@
 - [ ] feature;`add-dirs` in a setup grants read access to repo paths (`--add-dir` per line).
 - [ ] feature;`schema.json` in a setup forces structured output (`--json-schema`; check `cli-reference.md` first).
 - [ ] test;`append-system-prompt.md` and `work/` have no test in `projects/claude-code/tests/`.
-- [ ] setup;moving settings.json and append-system-prompt.md to something like `./setup/` or even `ln -s` the folder itself to better show what is actually implementation of the orchestration setup and what is not?
+- [x] setup;moving settings.json and append-system-prompt.md to something like `./setup/` or even `ln -s` the folder itself to better show what is actually implementation of the orchestration setup and what is not?

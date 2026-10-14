@@ -8,9 +8,11 @@ specific to the orchestrator.
 
 ## Where it lives
 
-`append-system-prompt.md` and `settings.json` here are hard links to
-`projects/claude-code/setups/orchestration/`. Both names point to the same
-file, so editing either one changes both.
+`setup/` here is a relative symlink to `../claude-code/setups/orchestration`,
+which holds the real `append-system-prompt.md` and `settings.json`. Editing
+through either path changes the same file. A folder symlink is used because
+git stores symlinks but not hard links: hard-linked copies became independent
+files on checkout.
 
 Why: the main session imports the same prompt the harness tests, so we
 iterate on our own setup by using it. A change shows up on the next

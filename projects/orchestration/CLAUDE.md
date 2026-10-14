@@ -2,5 +2,5 @@
 - @PLAN.md
 - @TODO.md
 - ../claude-code/FEATURES.md
-- @append-system-prompt.md
-- settings.json
+- @setup/append-system-prompt.md
+- setup/settings.json
