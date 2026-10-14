@@ -1,0 +1,8 @@
+- [ ] sandbox;workers run in an empty, wiped `/tmp/.../work`, so a real worker can't see this repo. Add a mode that points `bin/agent` at a real directory (or a `wt` worktree) while keeping the config isolated.
+- [ ] setup;a setup can't set its own tools or permissions. `TOOLS` comes from outside (default: none) and `-p` mode can't stop to ask, so each setup must carry its own tool and permission list.
+- [ ] spawn;decide how the orchestrator calls a setup: plain Bash (`SETUP=x bin/agent`), a small wrapper, or a skill. Plain Bash is simplest and easy to test.
+- [ ] kinds;one-shot workers (`bin/agent`, `claude -p`) fit reviews, commit messages and summaries; long or interactive implementation work fits herdr panes. Pick per setup.
+- [ ] eval;test the orchestrator itself: its cases check that it picks the right setup for a request ("uses its tools", measured).
+- [ ] tools;write `TOOLS.md`. It is mostly the list of setups: what each one is for and when to use it, plus the few non-setup tools (herdr, `wt`, ...), each verified before listing.
+- [ ] herdr;a herdr `claude` worker started with `acceptEdits` still stops for approval on every shell command. Decide what workers may run without asking.
+- [ ] docs;`projects/claude-code/CLAUDE.md` layout still lists only `system-prompt.md` for a setup; add `append-system-prompt.md`.

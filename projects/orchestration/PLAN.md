@@ -1,6 +1,7 @@
 # Orchestration — plan
 
-Status: draft, 2026-10-14. Nothing is implemented yet.
+Status: draft, 2026-10-14. The first pieces exist in `projects/claude-code`.
+Open work is tracked in [TODO.md](TODO.md).
 
 ## Goal
 
@@ -14,54 +15,56 @@ work: implementing, researching, reading and summarizing.
 active. `wip/` is temporary and still being tested. Something moves from
 `wip/` into here only after we discuss it and adopt it.
 
-## Lessons from earlier attempts
+## Big picture
 
-- **Tools we had went unused.** That made most of the earlier work useless
-  in the end. So every tool we rely on must be documented here: what it is
-  for, when to use it, and how to call it. If a tool isn't documented, we
-  don't count on it.
+`projects/claude-code` is the collection of Claude Code setups, and also
+the test bed for orchestration. The orchestrator is the agent that does
+what we have been doing by hand: it spawns other setups.
 
-- **First herdr handoff (2026-10-14).** A `claude` worker in a herdr
-  pane, started with `acceptEdits`, still stopped for approval on every
-  shell command. We need to decide what workers may run without asking.
-- **Harness gaps found by that worker.** A setup can't set its own tools,
-  so `TOOLS` defaults to none and the orchestration setup has no `Agent`
-  tool. The sandbox also doesn't contain `projects/orchestration/TOOLS.md`.
+| Orchestration idea | What it is in `projects/claude-code` |
+|---|---|
+| Worker kind or role | A setup, e.g. `commit-msg`, later `reviewer` or `implementer` |
+| Handoff contract v0 | `bin/agent`: prompt in on stdin, one message out on stdout |
+| Proof that a worker is good | Its cases and evals. A setup is tested before it is relied on |
+| The orchestrator | A setup too (`orchestration`). Its main tool is "run setup X with this prompt" |
+| `TOOLS.md` | Mostly the list of setups: what each one is for and when to use it |
+
+Example from 2026-10-14: instead of the orchestrator reading a worker's
+diff and writing the commit message, it should spawn a `reviewer` setup and
+the existing `commit-msg` setup, then read only their replies. Its context
+stays on the discussion.
+
+This also addresses the "tools went unused" problem. The orchestrator has
+few tools, spawning setups is the main one, and each setup is improved on
+its own through its evals.
 
 ## The handoff contract (v0)
-
-The minimum we must get working before anything else:
 
 ```
 input:  a prompt (plain text)
 output: a message back (plain text)
 ```
 
-One prompt goes in and one message comes back. The worker kind, workorder
-files, worktrees and merging all come later and build on this.
+`bin/agent` already does this for one-shot workers. Workorder files,
+worktrees and merging come later and build on it.
 
-## Plan
+## Lessons
 
-1. **Tool inventory.** Write `TOOLS.md` with one entry per tool: purpose,
-   when to use it, how to invoke it, and a known-good example. Candidates
-   from earlier work: `claude`, herdr, `wt` (worktrunk), `okn`
-   (openknowledge), gita, mise, and the harness in `projects/claude-code`.
-   Each one gets checked before it's listed.
-2. **Handoff v0.** Get prompt → message working with one worker kind, and
-   check it end to end.
-3. **Orchestrator vs worker.** Write down what the orchestrator does itself
-   (discuss, decide, review) and what it delegates (implement, research,
-   read, summarize).
-4. **Verification.** Decide how results get checked: review by the
-   orchestrator, or evals in `projects/claude-code`.
-5. **Real tasks.** Try the setup on one or two real tasks before writing
-   more design docs.
+- **Tools we had went unused.** That made most of the earlier work useless
+  in the end. Every tool we rely on is documented in `TOOLS.md`, and if a
+  tool isn't documented, we don't count on it.
+- **First herdr handoff (2026-10-14).** A `claude` worker in a herdr pane
+  made the `append-system-prompt.md` change in `projects/claude-code`. It
+  worked, but with `acceptEdits` it still stopped for approval on every
+  shell command.
+- **Harness gaps found by that worker.** `TOOLS` defaults to none, so the
+  orchestration setup has no `Agent` tool. The sandbox doesn't contain
+  `TOOLS.md` or the repo.
 
 ## Open questions
 
-- Which worker kind comes first for v0: an in-session subagent, `claude -p`,
-  or a herdr pane?
 - Which parts of `wip/dot-dash-skogai` decisions 0002 (orchestration model)
-  and 0003 (repo roles) still hold?
-- How do we make sure documented tools actually get used: a router file,
-  `CLAUDE.md`, skills, or hooks?
+  and 0003 (repo roles) still hold? 0002's workorders and herdr/`wt`
+  workers look like the long-running worker kind.
+- Does the orchestrator keep the `Agent` tool (in-session subagents) next
+  to spawning setups, or only spawn setups?
