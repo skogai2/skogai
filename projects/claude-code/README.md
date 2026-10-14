@@ -15,6 +15,7 @@ A setup is `setups/<name>/` containing:
 
 - `settings.json`: copied into the sandbox as its user settings.
 - `system-prompt.md`: replaces the default system prompt.
+- `append-system-prompt.md`: optional. Appended to the default system prompt (or to `system-prompt.md` if both exist).
 - `work/`: optional. Copied into the working dir (for CLAUDE.md, `.claude/`, fixtures).
 
 ## Commands

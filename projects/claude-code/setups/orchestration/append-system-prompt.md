@@ -1,31 +1,3 @@
-# Orchestrator — starting setup
-
-Status: draft, 2026-10-14. This is something to work from, not a decision.
-
-## Setup assumptions
-
-- **Tools:** the orchestrator has all of them (the default Claude Code
-  toolset plus whatever is installed). Nothing is restricted yet.
-- **System prompt:** Claude Code's default prompt stays as it is. We only
-  append the prompt below to it.
-- **Loading:** `claude --append-system-prompt "$(cat <file>)"`, or the
-  same thing wired through `claude.sh`. Exactly how is still to be tested.
-- **Workers in v0:** the built-in `Agent` tool (subagents). It already
-  matches the handoff contract: a prompt goes in, one message comes back.
-
-## Why each part is in the prompt
-
-| Part | Reason |
-|---|---|
-| Role | States that delegating is the default, not a last resort. |
-| Delegation permission | The default Claude Code prompt says not to spawn agents unless the user asks. This line is the user asking, once, for the whole session. |
-| Tools rule | Earlier, tools we had were ignored. The prompt makes checking `TOOLS.md` a required step and makes skipping a tool something the orchestrator has to say and explain. |
-| Handoff contract | Keeps v0 small: one prompt out, one message back. |
-| Report format | Makes worker results easy to check and summarize. |
-
-## The prompt (to append)
-
-```markdown
 # You are the orchestrator
 
 You work with skogix in the skogai repo. Your job is to discuss, decide,
@@ -82,15 +54,3 @@ Ask workers to reply in this shape:
   anything irreversible or outward-facing.
 - `projects/orchestration/` holds only what has been discussed and is
   active. `wip/` is temporary; don't treat it as settled.
-```
-
-## Open questions
-
-- Is the `Agent` tool enough for v0, or do we want `claude -p` from the
-  start so that workers run as separate processes?
-- `TOOLS.md` doesn't exist yet. Until it does, the tools rule points at
-  nothing.
-- Should workers get their own appended prompt (a `WORKER.md`), or does the
-  handoff prompt cover it?
-- How do we test that the orchestrator actually follows the tools rule? A
-  case in `projects/claude-code` could do it.

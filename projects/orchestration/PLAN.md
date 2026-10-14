@@ -21,6 +21,13 @@ active. `wip/` is temporary and still being tested. Something moves from
   for, when to use it, and how to call it. If a tool isn't documented, we
   don't count on it.
 
+- **First herdr handoff (2026-10-14).** A `claude` worker in a herdr
+  pane, started with `acceptEdits`, still stopped for approval on every
+  shell command. We need to decide what workers may run without asking.
+- **Harness gaps found by that worker.** A setup can't set its own tools,
+  so `TOOLS` defaults to none and the orchestration setup has no `Agent`
+  tool. The sandbox also doesn't contain `projects/orchestration/TOOLS.md`.
+
 ## The handoff contract (v0)
 
 The minimum we must get working before anything else:

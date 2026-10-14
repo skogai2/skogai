@@ -23,7 +23,7 @@ out="runs/$setup/$stamp"
 mkdir -p "$out"
 ln -sfn "$stamp" "runs/$setup/latest"
 { echo "setup=$setup model=${MODEL:-haiku} tools=${TOOLS:-}"; git -C "$root" rev-parse --short HEAD; } > "$out/meta.txt"
-cp "setups/$setup/system-prompt.md" "$out/" 2>/dev/null || true
+cp "setups/$setup/system-prompt.md" "setups/$setup/append-system-prompt.md" "$out/" 2>/dev/null || true
 
 for f in "${cases[@]}"; do
   name=$(basename "${f%.*}")

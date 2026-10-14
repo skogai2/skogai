@@ -9,9 +9,10 @@
 #   echo "list files" | SETUP=tools TOOLS=Bash bin/agent
 #
 # Setup files come from setups/$SETUP/:
-#   settings.json     -> config/settings.json (user scope inside the sandbox)
-#   system-prompt.md  -> --system-prompt-file
-#   work/             -> copied into work/ (optional; e.g. CLAUDE.md, .claude/)
+#   settings.json            -> config/settings.json (user scope inside the sandbox)
+#   system-prompt.md         -> --system-prompt-file (replaces the default prompt)
+#   append-system-prompt.md  -> --append-system-prompt-file (appended to the default prompt)
+#   work/                    -> copied into work/ (optional; e.g. CLAUDE.md, .claude/)
 set -euo pipefail
 root=$(cd "$(dirname "$0")/.." && pwd)
 
@@ -46,6 +47,7 @@ args=(
   --output-format "$OUTPUT"
 )
 [[ -f $setup/system-prompt.md ]] && args+=(--system-prompt-file "$setup/system-prompt.md")
+[[ -f $setup/append-system-prompt.md ]] && args+=(--append-system-prompt-file "$setup/append-system-prompt.md")
 [[ $OUTPUT == stream-json ]] && args+=(--verbose)
 
 exec claude "${args[@]}" "$@"
