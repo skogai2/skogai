@@ -22,7 +22,11 @@ A setup is `setups/<name>/` containing:
 - `bin/agent`: a one-shot agent. The prompt comes on stdin. Env vars: `SETUP` (baseline), `MODEL` (haiku), `TOOLS` (none), `OUTPUT` (text), `KEEP`. Extra args are passed to `claude`.
 - `bin/inspect`: prints the session surface and the context size of a trivial turn.
 - `bin/transcript`: prints the path of the latest transcript in the sandbox.
+- `bin/eval <setup>`: runs `cases/<setup>/*` and saves results to `runs/<setup>/<stamp>/`.
+- `bin/review <setup>`: prints every response in the latest run. `bin/compare <setup>` diffs the last two runs.
 - `tests/run`: runs `tests/NN-*.sh`.
+
+See CLAUDE.md for workflows and gotchas.
 
 Note: `CLAUDE_CONFIG_DIR` only takes effect from the process environment. Putting it under `env` in settings.json does nothing, because settings are read from the config dir.
 
