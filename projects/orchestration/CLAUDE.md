@@ -1,3 +1,3 @@
-- @ORCHESTATOR.md
+- @ORCHESTRATOR.md
 - @PLAN.md
 - @TODO.md
