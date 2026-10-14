@@ -1,6 +1,6 @@
 # Features
 
-What a setup can do and how to use it. For how each feature is wired, see
+What a setup can do and how to use it. For how each feature is implemented, see
 CLAUDE.md.
 
 ## Setup files
@@ -48,7 +48,6 @@ The prompt goes in on stdin and the reply comes out on stdout:
 | `commit-msg` | replaced: commit-message writer | a diff in, a commit message out |
 | `orchestration` | appended: orchestrator role | the orchestrator, which hands work to other setups |
 
-None of them uses `work/`, and all three use the baseline `settings.json`.
 
 ## Commands
 
