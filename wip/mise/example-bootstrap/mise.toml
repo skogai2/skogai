@@ -60,10 +60,6 @@ system_packages.sudo = false   # belt and braces: anything needing root fails in
 "aur:spotifast-bin" = "latest"
 "aur:tailtui" = "latest"
 
-# flatpak, installed in the user scope. shows as "missing" on 2026.10.9: this
-# app has no version, flatpak then prints no tab, and mise's parser drops the line.
-"flatpak-user:com.nvidia.geforcenow" = "latest"
-
 # --- services -----------------------------------------------------------------
 # system services: only units a package already provides; mise starts/enables
 # them (via sudo) only when they differ. these four are user-added and running.
@@ -100,8 +96,3 @@ enabled = true
 [bootstrap.user]
 login_shell = "/usr/bin/fish"
 
-# today activation lives in ~/.config/fish/conf.d/00_mise_activate.fish, which
-# mise doesn't know about; "auto" targets config.fish, so this is the one
-# expected diff. set `fish = false` for a zero-diff mirror.
-[bootstrap.mise_shell_activate]
-fish = "auto"
