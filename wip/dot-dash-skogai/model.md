@@ -1,8 +1,5 @@
 # dash and dot — the model
 
-Draft, 2026-10-11. Written from a discussion between skogix and the
-orchestrator. Nothing here is a recorded decision yet.
-
 ## In one paragraph
 
 dash-skogai defines a closed set of types. A dot-skogai (any `.skogai/`) is

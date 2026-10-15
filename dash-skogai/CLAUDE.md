@@ -1,0 +1,3 @@
+- @tmp/TOOLS.md
+- @tmp/TYPES.md
+- @tmp/functional-discussion.md

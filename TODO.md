@@ -12,4 +12,20 @@
 - [ ] check if "insights" actually have done anything ever?
 - [ ] cli; create a way to build SKOGAI_ENVs via mise
 - [ ] decisions; remove numbering
+- [x] dash;pin the okn version dash-skogai relies on. installed is 0.13.0, `tmp/okn` source has `check`, `review`, `publish` that the binary lacks
+- [x] dash;set `DO_NOT_TRACK=1` for okn (telemetry is on by default)
+- [ ] dash;make `okf-0.2-metadata` an error in `.openknowledge.toml` (`status` enum + `generated` format, warning by default)
+- [ ] dash;add a `supersedes` link predicate (Decision → Decision) to `corpus_schema` and use `typed_links`
+- [ ] dash;skogix adds `verified: [{by: human:skogix, at}]` to the decisions he confirms (sets okn trust tier)
+- [ ] dash;commit `projects/dash-skogai` so `okn connect --git-ref` + `registry refresh` can name it by ref (decision 0003)
+- [ ] dash;make `decisions/index.md` a derived file via an agentless `okn automation jobs` job: first derived file and first plan (`--dry-run`) / apply (`run`)
+- [ ] dash;jobs gotcha: hook-tap writes `.skogai/logs/` into okn's cwd and `dirty_policy: fail` counts untracked files
+- [ ] dash;skogai checker v0: pure `(okn export json, okn ast) -> [issue]` in okn's `{path, line, rule, severity, message}` shape. start with required body sections for Decision
+- [ ] dash;checker: value types and enums on frontmatter fields (corpus_schema `required` only means non-empty)
+- [ ] dash;patch rules: base via `git archive <ref>`, compare sections. first rule: a stable decision's `# Decision` is not rewritten and `status` never moves backwards
+- [ ] dash;layers: write `fold(merge, [base, global, local])` ourselves. the okn registry has no precedence, use it only for the layer paths (`registry where`)
+- [ ] dash;use `audit --fail-on high` as the freshness gate (`validate` / `claims stale` miss cases)
+- [ ] dash;before adopting any okn feature with its own page type (rules, insights, claims), declare its type in `corpus_schema`
+- [ ] dash;never run `okn setup ci|github|observe` from the repo: they write to the git root and `.claude/settings.json`
+- [ ] dash;later: claims, evidence, insights. skip: query (claims only), `okn agent` (duplicates `bin/agent`), rules/ (prose, not checks)
 
