@@ -631,3 +631,23 @@ Here is the mapping using only what's in the two files:
 
 The discussion ends on one open question: what does one type definition have to state? That is the `## type` header in TYPES.md, and so far it only says that `type` is the required frontmatter key.
 
+## 2026-10-15 23:13 · turn ddfbbf57
+
+**User**
+
+> please write down you thoughts and what to handover in CLAUDE.md so i can help you out some with clearing some context :)
+
+**Assistant**
+
+I wrote the handover into `dash-skogai/CLAUDE.md` below your three `@tmp/...` includes, which I kept. It has three parts:
+
+- **How to work here:** stick to the files you give me, one thing at a time, and wait for your direction.
+- **The model:** taken only from `functional-discussion.md`.
+- **The open question:** what one type definition has to state, which is the `## type` header in TYPES.md. The proposed minimum is still marked as not decided.
+
+**Actions**
+
+- Bash: `ls -la /home/skogix/skogai/dash-skogai/`
+- Read `dash-skogai/CLAUDE.md`
+- Edit `dash-skogai/CLAUDE.md`
+
