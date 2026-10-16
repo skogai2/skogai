@@ -1647,3 +1647,21 @@ Is the next step feeding those diffs back into context automatically, say via `a
 
 - Bash: `cd .skogai/tmp && for f in .gitignore git-diff git-diff-cached wt-step-diff; do echo "== $f ($(wc -l < $f) lines)"; head…`
 
+## 2026-10-16 12:13 · turn b87db73b
+
+**User**
+
+> now do you see the idea of it yet?
+
+**Assistant**
+
+Yes. It's the dash design goals running for real:
+
+- **Git is the immutability model.** Every turn is a patch and the history is the append-only log. Nothing a session does is ever lost or overwritten.
+- **Refs resolve to commits.** Every turn has a commit, so every result can name the exact state it came from and be reproduced, rewound to, or branched from with `wt`.
+- **Git is the bus.** With merge and push every turn, every session, agent, machine and your own editor all write to one shared log. There's no coordination layer: sync is just git.
+- **The conversation is part of the state.** The journal sits in the same commit as the file changes it caused, so the "why" travels with the "what".
+- **Derived views come for free.** The journal, the tmp diffs and the log are all functions of the history, so anything else (stats, replay, handover, context for the next agent) is just one more fold over the same commits.
+
+So `.skogai/tmp` isn't about catching up. The diff exists the moment a turn is committed, so any reader at any later point gets the same patch from the history.
+
