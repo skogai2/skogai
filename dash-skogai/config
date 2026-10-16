@@ -1,0 +1,11 @@
+# base layer: defaults every dot starts from.
+# key `a.b-c` maps to env `SKOGAI_A_B_C`, which overrides every layer.
+[stage]
+	on-user-prompt-submit = false
+	on-stop = false
+[commit]
+	on-user-prompt-submit = false
+	on-stop = false
+[merge]
+	on-user-prompt-submit = false
+	on-stop = false

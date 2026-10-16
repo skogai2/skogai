@@ -10,5 +10,7 @@
 - [ ] rule: `watches: [<applies_to>]` points a path at a field value. allowed, or keep paths literal?
 - [ ] trigger: `when` mixes paths and events. what is an event, and where does it come from?
 - [ ] skogai cli: where does a dot record its dash ref?
-- [ ] skogai cli: merge semantics per field when folding layers (replace, append, deep merge?)
+- [ ] skogai cli: merge semantics per field when folding layers. config is replace-only for now; append for multi-valued keys?
+- [ ] config: should `dash.ref` live in the local config?
+- [ ] config: strict keys declared by types, or free-form?
 - [ ] skogai cli: how does a type declare that a file is derived, and by what function?

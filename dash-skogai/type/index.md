@@ -12,3 +12,4 @@ one file per type. a type defines its instances and the files each instance owns
 - [memory](memory.md)
 - [repo](repo.md)
 - [spec](spec.md)
+- [config](config.md)
