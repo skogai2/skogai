@@ -21,6 +21,8 @@ The settings file is an ordinary markdown document with frontmatter, not json or
 
 ## Layers
 
+Superseded by the concrete proposal in `~/marketplace/plugins/skogai-core/CONFIG.md`, which drops the project layer in favour of `--file X.md` plus its `X.local.md` overlay. The sketch below is kept as the original idea.
+
 The filename is the layer, as with `settings.json` and `settings.local.json`:
 
 | layer   | file                                     |
