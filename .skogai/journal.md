@@ -1500,3 +1500,36 @@ The hooks in this session still see the old values, so the new settings apply fr
 
 Hi skogix. Where we left off in `tmp/functional-discussion.md`: should I draft `router` as the first case definition (tag, required frontmatter fields with their types, allowed location in the layout)? Or do you want to work on something else?
 
+## 2026-10-16 09:15 · turn 05280db9
+
+**User**
+
+> Read workflows/skogai.md and run its check section with <dot> = src.
+
+**Assistant**
+
+```text
+error   src/index.md: untyped
+error   src/index.md: unknown tag "index"
+warning type/task.md: stub, no frontmatter
+warning type/knowledge.md: stub, no frontmatter
+warning type/memory.md: stub, no frontmatter
+warning type/repo.md: stub, no frontmatter
+warning type/spec.md: stub, no frontmatter
+warning type/index.md: stub, no frontmatter
+skipped derived files: not specified
+dash    5edd7be542cc0dcea27554b5063fc9338248cd22
+result  errors=2 warnings=6
+```
+
+**Actions**
+
+- Read `dash-skogai/workflows/skogai.md`
+- Bash: `git rev-parse HEAD`
+- Bash: `git status --porcelain type/`
+- Bash: `okn validate src`
+- Bash: `git ls-files --cached --others --exclude-standard src`
+- Glob: type/*.md
+- Bash: `head -n 30 type/type.md type/decision.md type/rule.md type/trigger.md type/tool.md type/task.md type/knowledge.md type/m…`
+- Read `dash-skogai/src/index.md`
+
