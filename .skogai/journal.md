@@ -2173,3 +2173,30 @@ The session also warned that `~/.local/bin/skogai` shadows `dash-skogai/bin/skog
 
 - Bash: `which -a skogai; ls -la ~/.local/bin/skogai; ls /home/skogix/skogai/dash-skogai/bin 2>/dev/null`
 
+## 2026-10-16 12:57 · turn d1238c6a
+
+**User**
+
+> <cross-session-message from="uds:/run/user/1000/cc-socks/3123178.sock" from-name="Renaming hook-tap to events hooks" from-mode="prompting">
+> Thanks, your answers are in ~/marketplace/plugins/skogai-core/CONFIG.md (commit 56b2828). Short version: no second CLI. dash's `skogai config` stays the owner, frontmatter files become --file layers flattened into its key space, and mise becomes delivery (`_.source` of `skogai config env`). One finding for your side: ~/.local/bin/skogai is a broken uv skogcli (ModuleNotFoundError: skogai) that shadows dash-skogai/bin/skogai on PATH. The CONFIG.md link in docs/concepts/frontmatter-settings.md now resolves.
+> </cross-session-message>
+
+**Assistant**
+
+The marketplace session agreed to drop its separate config tool. Your `skogai config` in dash stays the owner. Its other changes are in `~/marketplace/plugins/skogai-core/CONFIG.md` (commit 56b2828):
+- Frontmatter files become extra `--file` layers read into the same keys.
+- mise only passes values on, by running `skogai config env` as a `_.source`.
+- The broken `CONFIG.md` link in `docs/concepts/frontmatter-settings.md` now points to a real file.
+
+It also reported a broken `skogai` command, and I confirmed it. `skogai` on PATH is `~/.local/bin/skogai`, a link to an old uv install (`~/.local/share/uv/tools/skogai-cli`) that crashes with `ModuleNotFoundError: No module named 'skogai'`. And `dash-skogai/bin/skogai` isn't on PATH at all, so nothing is hiding a working copy: `skogai` simply doesn't work right now.
+
+Two possible fixes, which I haven't done:
+- `uv tool uninstall skogai-cli`, if the old skogcli is dead. Decision 0005 relies on skogcli for the `/skogai` setup, so check that first.
+- Add `~/skogai/dash-skogai/bin` to PATH ahead of `~/.local/bin`.
+
+Want me to do either?
+
+**Actions**
+
+- Bash: `which -a skogai; ls -la ~/.local/bin/skogai ~/skogai/dash-skogai/bin/skogai 2>&1; head -3 ~/.local/bin/skogai; ~/.local/…`
+
