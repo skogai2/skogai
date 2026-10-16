@@ -1690,3 +1690,31 @@ That makes the remaining design pretty small:
 
 Want me to add these to TODO.md, or start with #1?
 
+## 2026-10-16 12:17 · turn ed89f053
+
+**User**
+
+> now this is for example things we would use @../../.claude/skogai-core.local.md to manage. simply switch / change the file and the turn after it simply fixed. no "restart" or other annoying things. could be simple automation from the start even
+
+**Assistant**
+
+Yes. Every hook call re-reads that file, so editing it takes effect on the next event. No restart needed, and because the file is committed like everything else, every mode switch is itself a turn in the history.
+
+The env toggles would move into the frontmatter like this:
+
+```yaml
+git:
+  user_prompt_submit: { stage: true, commit: true, merge: false }
+  stop:               { stage: true, commit: true,  merge: false }
+```
+
+Settings would resolve as `fold(merge, [defaults, env, local.md])`: env acts as the global layer, the file as the local one, and local wins. A missing file means the env vars and defaults apply, so nothing changes.
+
+The automation is cheap from the start because the switch is just a file edit:
+
+- **Review mode**: set `stop.commit: false`, which gives the concept doc's flow, where you review my staged turn.
+- **Autopilot**: commit on both events, plus `merge: true`.
+- **Self-switching**: I, or a hook, can flip modes by editing the file. Say "review mode" and the next turn already behaves that way, with the switch recorded in git.
+
+Where does the skogai-core source live? I'll find it and wire the frontmatter keys into the stage/commit/merge steps, if you want that as the first thing.
+
