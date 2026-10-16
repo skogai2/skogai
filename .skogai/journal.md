@@ -2399,3 +2399,42 @@ One rough edge remains: `set --file` writes the key exactly as typed. `b_c` and 
 - Bash: `cd dash-skogai && sed -i 's|    local env line resolved key="${argc_key,,}"|    local env line resolved key="${argc_key,…`
 - SendMessage: uds:/run/user/1000/cc-socks/3123178.sock
 
+## 2026-10-16 17:28 · turn f3f9d71e
+
+**User**
+
+> hello claude! could you check your "automemory" and see if it works as expected?
+
+**Assistant**
+
+Auto memory is off in this session. Your global setup is fine, but the project settings override it.
+
+- **`~/.claude/settings.json`** has `autoMemoryEnabled: true` and points at `/home/skogix/skogai/.skogai/memory`. That folder exists and holds a valid `MEMORY.md` index plus 3 entries.
+- **`.claude/settings.json`** (project, committed in `330bb9b`) has `autoMemoryEnabled: false` and points at `/home/skogix/claude/.skogai/memory`, which doesn't exist. Project settings win over user settings, so auto memory is disabled here.
+- **What I actually got:** no `MEMORY.md` was loaded into my context at session start, which matches it being off.
+
+To fix it, delete those two keys from the project `.claude/settings.json` so the user-level values apply. Or, if the project override is meant to be there, set it to `true` and point it at the right folder. Which do you want?
+
+Separately, `openknowledge-insights-are-memory.md` has `stale_after: 2026-10-25`, so it expires in 9 days.
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai; ls -la .skogai/memory/; echo ---; for f in .skogai/memory/*; do echo "== $f"; cat "$f"; done; ec…`
+- Bash: `cd /home/skogix/skogai; sed -n 105,115p .claude/settings.json; ls .claude/settings.local.json 2>/dev/null && grep -n -i …`
+
+## 2026-10-16 17:28 · turn a6ec74f5
+
+**User**
+
+> humor me, read a file :)
+
+**Assistant**
+
+I read `.skogai/memory/MEMORY.md` with the Read tool, and nothing extra came back. No hook output, no system reminder and no memory context got attached, only the file's own 9 lines. Earlier I only read it through `cat` in Bash.
+
+So that also points to auto memory being off. If this read was supposed to trigger something (a hook, or memory loading on Read), it didn't. What were you expecting to happen?
+
+**Actions**
+
+- Read `.skogai/memory/MEMORY.md`
+
