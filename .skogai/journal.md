@@ -1876,3 +1876,17 @@ There's one rough edge. Object-valued refs come back as `{"type": "string", "val
 
 - Bash: `echo '[$ json, true, 52, $ eid]' | SKOGAI_CONFIG_DIR=/tmp/claude-1000/-home-skogix-skogai/1db9721f-e8e7-4a6f-a1b3-c6bada…`
 
+## 2026-10-16 12:29 · turn 8a75d05f
+
+**User**
+
+> oh no! burn this fucking shit to the ground! useless fucking shit. thanks for finding that so we won't have to waste more time on this...
+
+**Assistant**
+
+Ha. I won't actually burn anything without a clear go-ahead.
+
+Most of it is worth keeping, though. The notation, the `$` section and the resolve-by-substitution model all work. The broken part is small: wherever a ref lands on a dict, it calls `str()` instead of wrapping the value in a typed node. That's probably one function in the executor. The recursion bug in `get_config_dir` is a few lines too.
+
+So the choice is fix or drop. A fix is probably small: I'd find the `str()` and make object values recurse into `{"type": "object", ...}`. Dropping it means `skogparse` goes away and something else (okn, jq or the frontmatter) carries the notation. What do you want?
+
