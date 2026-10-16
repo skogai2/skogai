@@ -1805,3 +1805,29 @@ The skogcli recursion bug is still there for anyone who doesn't have the variabl
 
 - Bash: `d=/tmp/claude-1000/-home-skogix-skogai/1db9721f-e8e7-4a6f-a1b3-c6bada325b41/scratchpad/skogcli; mkdir -p $d && mv /home/…`
 
+## 2026-10-16 12:25 · turn 909d401c
+
+**User**
+
+> and when you ran it?.......
+
+**Assistant**
+
+I'm not sure which part you're hinting at, so here's what that run actually printed: your whole notation as config.
+
+- **The `$` section is a type system.** `*` is a product (`id = $ int * $ unique`), `|` is choice, `@` is intent, `.` is belonging, `:` is continuation, `_` is anything, and `$` defines or references. `json.*` grounds it in primitives.
+- **`message` is a turn.** `eid`, `content`, `created_at` and `parent: $ eid` describe a commit: content plus a pointer to its parent. The diff-as-communication idea is already typed here.
+- **`[@file:"…"]` resolves to markdown.** `claude.readme` and `skogix.notation` are config values that point at markdown files, which connects to the frontmatter discussion.
+- **`get_setting` reads `SKOGAI_<KEY>` env vars first** (`settings.py:300`). So `SKOGAI_COMMIT_ON_STOP` and the others are already skogcli settings (`commit_on_stop` and so on): env is a layer above the file.
+
+One more thing from the run: the hooks also logged inside `~/.config/skogai` while I worked there. It has its own `.skogai/logs/` (a `hook-tap/log.jsonl`), so the logging works across repos, not just this one. The stray `config.json` never got committed there, because I moved it out before any commit happened.
+
+Which of these were you pointing at?
+
+**Actions**
+
+- Bash: `SKOGAI_CONFIG_DIR=/tmp/claude-1000/-home-skogix-skogai/1db9721f-e8e7-4a6f-a1b3-c6bada325b41/scratchpad/skogcli COLUMNS=2…`
+- Bash: `cd /home/skogix/.config/skogai && git log --oneline -5 --stat -- config.json; git log --oneline -3; ls .skogai/logs/*`
+- Bash: `jq -c '{ts, event, tool: .input.tool_name, cmd: (.input.tool_input.command // "" | .[0:80])}' /home/skogix/.config/skoga…`
+- Bash: `find /home/skogix/.config/skogai/.skogai/logs -type f | head; `
+
