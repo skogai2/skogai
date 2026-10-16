@@ -8,7 +8,7 @@ owns: [type/tool/<name>.md, bin/<name>, scripts/<name>/, workflows/<name>.md]
 
 # tool
 
-instances: [herdr](tool/herdr.md), [wt](tool/wt.md), [gita](tool/gita.md), [mise](tool/mise.md), [okn](tool/okn.md).
+instances: [herdr](tool/herdr.md), [wt](tool/wt.md), [gita](tool/gita.md), [mise](tool/mise.md), [okn](tool/okn.md), [skogai](tool/skogai.md).
 
 a tool `<name>` owns:
 

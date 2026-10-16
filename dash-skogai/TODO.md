@@ -9,3 +9,6 @@
 - [ ] tool: `docs/tools/<name>.md` folded into `type/tool/<name>.md`, and `workflow/` made `workflows/`. confirm
 - [ ] rule: `watches: [<applies_to>]` points a path at a field value. allowed, or keep paths literal?
 - [ ] trigger: `when` mixes paths and events. what is an event, and where does it come from?
+- [ ] skogai cli: where does a dot record its dash ref?
+- [ ] skogai cli: merge semantics per field when folding layers (replace, append, deep merge?)
+- [ ] skogai cli: how does a type declare that a file is derived, and by what function?

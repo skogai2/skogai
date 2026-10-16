@@ -1490,3 +1490,13 @@ The hooks in this session still see the old values, so the new settings apply fr
 
 - Bash: `mise set -g SKOGAI_STAGE_ON_USER_PROMPT_SUBMIT=true SKOGAI_COMMIT_ON_USER_PROMPT_SUBMIT=true SKOGAI_STAGE_ON_STOP=true S…`
 
+## 2026-10-16 07:02 · turn 0ffd3bd4
+
+**User**
+
+> hi claude
+
+**Assistant**
+
+Hi skogix. Where we left off in `tmp/functional-discussion.md`: should I draft `router` as the first case definition (tag, required frontmatter fields with their types, allowed location in the layout)? Or do you want to work on something else?
+
