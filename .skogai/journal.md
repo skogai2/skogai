@@ -2253,3 +2253,41 @@ Gap 1 is yours to decide. `~/.local/bin/skogai` is a symlink into the uv `skogai
 
 Which one should I do?
 
+## 2026-10-16 13:52 · turn a69ac951
+
+**User**
+
+> uninstall what'd not in use. where is the tool documented overall and integration with the plugin in general?
+
+**Assistant**
+
+`skogai` now runs dash's CLI: `~/.local/bin/skogai` is a symlink to `~/skogai/dash-skogai/bin/skogai`, and `skogai config get stage.on-stop --show-origin` works by name.
+
+There was nothing to uninstall. The uv `skogai-cli` was already gone before I got there. The only other uv tool is `skogcli`, which you used earlier, so I left it.
+
+I also told the marketplace session the PATH problem is fixed, since step 1 of `CONFIG.md` still lists it as open.
+
+**Where it's documented:**
+
+- **The tool:**
+  - `dash-skogai/type/config.md` is the spec: format, layers, commands, merge rules and keys.
+  - `dash-skogai/type/tool/skogai.md` documents the `skogai` tool itself.
+  - `dash-skogai/workflows/skogai.md` covers the check, plan and apply workflow.
+  - The implementation is `dash-skogai/bin/skogai`, with defaults in `dash-skogai/config`.
+- **How the plugin uses it**, all under `~/marketplace/plugins/skogai-core/`:
+  - `CONFIG.md` is the design and migration plan; the marketplace session rewrote it around `skogai config`.
+  - `FEATURES.md` (line 7) and `README.md` (`## Config`) link to it.
+  - `scripts/git-steps.sh` is the only real integration so far. It reads `skogai config list` from the git root and falls back to the env vars.
+
+Still open from that plan:
+
+- `settings.sh` and `register.ts` still use their own parsers.
+- The `SKOGAI_*_ON_*` values are still set in mise. They override every config file, so a `.skogai/config` setting has no effect until they move into `~/.skogai/config`.
+
+**Actions**
+
+- Bash: `uv tool list 2>/dev/null | grep -A5 -i skogai-cli; ~/.local/bin/skogai --help 2>&1 | head -5; rg -l --hidden -g '!**/.gi…`
+- Bash: `ls -la ~/.local/bin/skogai; ls ~/.local/share/uv/tools/ | grep -i skog; which -a skogai` (failed)
+- Bash: `ln -s /home/skogix/skogai/dash-skogai/bin/skogai ~/.local/bin/skogai && which skogai && cd /home/skogix/skogai && skogai…`
+- SendMessage: uds:/run/user/1000/cc-socks/3123178.sock
+
