@@ -1718,3 +1718,29 @@ The automation is cheap from the start because the switch is just a file edit:
 
 Where does the skogai-core source live? I'll find it and wire the frontmatter keys into the stage/commit/merge steps, if you want that as the first thing.
 
+## 2026-10-16 12:18 · turn 2c78f0f1
+
+**User**
+
+> eeey! there you said something" i had NOT taken that into consideration! its literally a settings file, local layer. any markdownfile file without .local. is. you get it! perfect
+
+**Assistant**
+
+Exactly. The filename is the layer, the same pattern as Claude Code's `settings.json` and `settings.local.json`:
+
+| layer | file | shared? |
+|---|---|---|
+| base | plugin defaults | ships with the plugin |
+| global | `$XDG_SKOGAI_CONFIG_DIR/skogai-core.md` (env as fallback) | per machine |
+| project | `.claude/skogai-core.md` | committed |
+| local | `.claude/skogai-core.local.md` | yours |
+
+Resolution is `fold(merge, [base, global, project, local])`, re-read on every hook call. No layer knows about the others. That's the dash rule as it stands, now applied to plugin settings.
+
+Two things follow from it:
+
+- `.claude/skogai-core.local.md` is tracked right now (it showed as `M` at session start). If "local" means "not shared", it belongs in `.gitignore`, and the shared defaults move to `skogai-core.md`. If you want local edits recorded in history too, that's a deliberate choice, but worth deciding explicitly.
+- This answers two TODO items in practice. "config: should `dash.ref` live in the local config?" and "merge semantics per field when folding layers" are the same mechanism, so skogai-core can be the first real implementation of the layering.
+
+Should I add the layering to TODO.md as its own item, or go straight to finding the plugin source?
+
