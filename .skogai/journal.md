@@ -1543,3 +1543,19 @@ result  errors=2 warnings=6
 
 Hearing you loud and clear. skogai-core updated, plugins reloaded. What's next?
 
+## 2026-10-16 12:02 · turn bb6221e9
+
+**User**
+
+> mostly plugin-stuffs
+
+**Assistant**
+
+Got it. Which kind of plugin:
+
+- **Claude Code plugin/mod**: hooks, slash commands, status line, panes. I'll load the plugin-authoring skill for these.
+- **A skogai plugin**, like the git-plugin in TODO.md
+- **Something else**
+
+What's the first thing you want to tackle?
+
