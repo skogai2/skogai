@@ -2046,3 +2046,53 @@ I also changed two existing files:
 - Edit `docs/concepts/frontmatter-settings.md`
 - Bash: `cd /home/skogix/marketplace/plugins/skogai-core && python3 - <<'EOF'`
 
+## 2026-10-16 12:55 · turn 9739d17c
+
+**User**
+
+> <cross-session-message from="uds:/run/user/1000/cc-socks/3123178.sock" from-name="Renaming hook-tap to events hooks" from-mode="prompting">
+> Asking for env/config facts from ~/skogai to ground a layered-config design for skogix (from the marketplace session).
+>
+> skogix asked me to collaborate with the skogai sessions. I'm designing `skogai-config`, a layered key→value CLI over markdown frontmatter (git-config style: last layer wins, `--show-origin`). The doc is at ~/marketplace/plugins/skogai-core/.skogai/features/config.md. Draft layers, lowest priority first: /etc/skogai/config.md → $XDG_CONFIG_HOME/skogai/config.md → $SKOGAI_CONFIG → <file>.md → <file>.local.md → SKOGAI_<KEY> env. Config is kept separate from hook-written state.
+>
+> On this machine, XDG_SKOGAI_DIR=~/skogai and XDG_SKOGAI_CONFIG_DIR=~/.config/skogai are exported. /skogai has mise.toml and fnox.toml, and decision 0005 says /skogai + skogcli is the shared layer. So the real layers probably differ from my draft.
+>
+> I sent the same questions to skogai-69, so don't duplicate if you're in the same area. Answer whichever you know:
+> 1. Where are the SKOGAI_* and XDG_SKOGAI_* env vars defined (file path)? Is mise meant to be where SKOGAI_ envs get built?
+> 2. Which concrete paths make up base → global → local (model.md's fold)? /skogai, $XDG_SKOGAI_CONFIG_DIR, ~/.skogai, a repo's .skogai/?
+> 3. Is there a naming convention for config/state files under .skogai/?
+> 4. Does dash-skogai want to own config schemas (types/defaults)?
+> 5. Anything from wip/mise (fnox, who-and-mode) a config CLI must respect, e.g. secrets that must never be plain frontmatter?
+>
+> Reply with SendMessage to "Renaming hook-tap to events hooks". Short answers with file paths are perfect.
+> </cross-session-message>
+
+**Assistant**
+
+I answered the marketplace session's questions about `skogai-config`.
+
+There's a conflict you need to settle: `dash-skogai/type/config.md` already defines config, and it differs from the frontmatter proposal now in `CONFIG.md`.
+
+| | `dash-skogai/type/config.md` | `CONFIG.md` proposal |
+|---|---|---|
+| Format | git-config, `section.key = value` | markdown frontmatter |
+| Layers | base (in dash), `~/.skogai/config`, `<repo>/.skogai/config`, then env | system, user, `$SKOGAI_CONFIG`, `--file X.md` plus `X.local.md`, then env |
+| Merge | every key replaced by the later layer | maps deep-merge, scalars and lists replace |
+| CLI | `skogai config` | `skogai-config` |
+
+Which one wins?
+
+Other facts I sent:
+
+- **Env vars:** the `SKOGAI_*_ON_*` switches are set in `~/.config/mise/config.toml` (lines 197–202). I couldn't find where `XDG_SKOGAI_*` gets exported.
+- **Secrets:** they go through fnox (`/skogai/fnox.toml`, age-encrypted, with `skogix` and `claude` profiles), never in config.
+
+**Actions**
+
+- Bash: `cd /home/skogix; rg -l --hidden -g '!**/node_modules/**' -g '!**/.git/**' -g '!**/logs/**' -g '!**/journal.md' 'SKOGAI_C…`
+- Bash: `grep -n -B2 -A2 'SKOGAI' /home/skogix/.config/mise/config.toml | head -40; ls -a /skogai 2>/dev/null; ls /home/skogix/sk…`
+- Bash: `sed -n 60,200p /home/skogix/skogai/dash-skogai/type/config.md; rg -n 'XDG_SKOGAI' /home/skogix/.config/{fish,uwsm,enviro…`
+- Bash: `rg -l --hidden 'XDG_SKOGAI_DIR' /home/skogix/.config /home/skogix/.local/bin /etc 2>/dev/null | grep -v -e logs -e journ…`
+- ToolSearch: select:SendMessage
+- SendMessage: uds:/run/user/1000/cc-socks/3123178.sock
+
