@@ -1,0 +1,8 @@
+[commit.generation]
+template-append = """
+- Copy the wording of the closest matching subject in <recent_commits>; change only the specifics
+- `.skogai/journal.md` is an automatic log: if any other file changed, ignore it and describe the other files
+- A diff that only appends a `## <date> · turn <id>` section to `.skogai/journal.md` gets exactly: Add journal entry for turn <id>
+- Name concrete things: file, directory, command or flag, not "changes" or "updates"
+- No body for single-file or mechanical changes
+"""

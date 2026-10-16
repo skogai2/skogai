@@ -2448,3 +2448,76 @@ So that also points to auto memory being off. If this read was supposed to trigg
 
 Hi skogix. What are we working on?
 
+## 2026-10-16 17:40 · turn 18fd909b
+
+**User**
+
+> id like to try some "new things" out - at least for us lately; please run `wt merge` and check the overall quality of commit message to start
+
+**Assistant**
+
+`wt merge` ran. Since you're on `master`, there was nothing to merge. It just committed the one staged file (`.skogai/journal.md`, +10) as `58e576a`. No rebase was needed and nothing was pushed.
+
+**Generated message:** `Add journal entry to 2026-10-16 turn`
+
+It gets the type of change right, but it's weaker than your existing history:
+- **It breaks your convention.** The log consistently uses `Add journal entry for turn <id>` (e.g. `f8d6304`, `d5c32b2`). This one says "to" instead of "for", and uses the date instead of the turn id. The id is right there in the diff: `turn 36150af4`.
+- **"to 2026-10-16 turn" reads wrong.** It sounds like the commit adds something to a turn, when it actually adds an entry for one.
+- **The length and lack of a body are fine** for a 10-line append.
+
+The generator seems to have picked up the heading's date but not your history's pattern. Two ways to fix it:
+- **Fix this commit:** `git commit --amend -m "Add journal entry for turn 36150af4"`
+- **Fix future messages:** give worktrunk's commit generation a prompt template that shows it recent `git log` subjects as examples. It lives in `~/.config/worktrunk/config.toml` or `.config/wt.toml`, and I can set it up if you want.
+
+**Actions**
+
+- Bash: `git branch --show-current && wt list 2>&1 | head -30`
+- Bash: `git status --short && git diff --stat HEAD`
+- Bash: `wt merge 2>&1 | tail -40`
+- Bash: `git show --stat 58e576a | head -20; git show 58e576a -- .skogai/journal.md | tail -15; git log --oneline -15`
+
+## 2026-10-16 17:43 · turn 82067b26
+
+**User**
+
+> great! because it is now your job to actually guide our new helpers so you dont have to do everything yourself ;) 
+> (essentially local llms are now available - and will be a lot more quite soon)
+
+**Assistant**
+
+I've given the local commit writer a style guide, but `llama3.2` (3B) still can't reliably write a good subject when the journal is mixed in with real changes.
+
+**What changed:**
+- **New `.config/wt.toml`:** a project `template-append` that worktrunk adds to every commit and squash prompt. It holds four rules: copy the wording of the closest recent subject, ignore the journal when other files changed, use `Add journal entry for turn <id>` for journal-only diffs, and name concrete things. It's uncommitted.
+- **Reworded the unpushed commit** to `Add journal entry for turn 36150af4` (now `3ea4e28`). The model sees the last 5 subjects as examples, so the bad one was teaching it its own mistake. The `.` commit (`9aa1e02`) is in that window too.
+
+**Results:** I checked that the guidance appears in the rendered prompt. Three sample runs on the current diff (the new `wt.toml` plus journal appends) gave:
+- `Add journal entry for turn 36150af4`
+- `Add updated journal entry template`
+- `Add corrected journal entry for turn 18fd909b`
+
+None of them mention `wt.toml`, which is the real change. The journal makes up most of the diff and the model fixates on it. On a journal-only diff it now follows the expected format.
+
+**Suggested next steps:**
+1. **Don't send journal commits to the LLM at all.** They're mechanical, so the hook that writes the journal could commit it itself with `Add journal entry for turn <id>`. The helper would then only see real changes, which is where it's needed.
+2. **Try a bigger model when one is available.** `ollama list` shows only `llama3.2`. A 7–8B model should handle mixed diffs much better. Switching is one line in `~/.config/worktrunk/config.toml`.
+3. **Test with `wt step commit --dry-run`.** It prints the full prompt and the generated message without committing.
+
+Want me to commit `.config/wt.toml` and then look at the journal hook for step 1?
+
+**Actions**
+
+- Bash: `cat ~/.config/worktrunk/config.toml 2>&1; echo ---; cat /home/skogix/skogai/.config/wt.toml 2>&1` (failed)
+- Bash: `wt config create --help 2>&1 | head -30; wt config create --project --dry-run 2>&1 | grep -n -i -A12 'append\|guidance' …`
+- Bash: `wt config create --help 2>&1 | grep -n -i -B3 -A15 'project config' | grep -i -A15 'commit\|append\|guidance' | head -60`
+- Bash: `wt config create --help 2>&1 | grep -n -i 'template-append\|project_guidance\|\[commit' | head; echo; wt config create -…`
+- Write `.config/wt.toml`
+- Bash: `wt step commit --help 2>&1 | head -40`
+- Bash: `git status --short; for i in 1 2 3; do wt -y step commit --dry-run 2>&1 | tail -4; echo ===; done` (failed)
+- Bash: `wt -y step commit --dry-run 2>&1 | grep -n -A8 'guidance\|recent_commits' | head -40`
+- Bash: `git status -sb | head -1`
+- Bash: `git commit --amend -q -m "Add journal entry for turn 36150af4" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.co…`
+- Edit `.config/wt.toml`
+- Bash: `for i in 1 2 3; do wt -y step commit --dry-run 2>&1 | tail -1; done`
+- Bash: `ollama list 2>&1 | head -20`
+
