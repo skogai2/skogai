@@ -1,13 +1,14 @@
 # routes 
 
 - @src/index.md
-- @src/types.md
+- @type/index.md
 - @tmp/functional-discussion.md
 - @SKOGAI.md
 
 # layout
 
 - `./`: meta, how we work on dash (CLAUDE.md, SKOGAI.md, TODO.md)
+- `type/`: one file per type, each acting as a module
 - `src/`: the future dot, an okn bundle. check with `okn validate src`
 - `tmp/`: untyped or undecided
 

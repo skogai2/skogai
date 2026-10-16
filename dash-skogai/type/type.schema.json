@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "type",
+  "title": "type",
+  "type": "object",
+  "required": ["type", "title", "fields", "owns"],
+  "properties": {
+    "type": { "const": "type" },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "status": { "type": "string" },
+    "fields": { "$ref": "#/$defs/strings" },
+    "owns": { "$ref": "#/$defs/paths" },
+    "writes": { "$ref": "#/$defs/paths" },
+    "watches": { "$ref": "#/$defs/paths" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "strings": { "type": "array", "items": { "type": "string" } },
+    "paths": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+  }
+}

@@ -3,3 +3,9 @@
   - okn `typed_links` cannot express this: link targets must be declared document types, so `bin/gita` is not a valid target
   - okf `resource` takes only one path
   - candidate: `skogai_schema` key such as `owns: [paths]`, checked by skogai after `okn validate`
+- [ ] knowledge vs memory: split on lifetime using okf `status` / `stale_after`?
+- [ ] task: rename to workorder? "task" collides with mise and claude code
+- [ ] spec: overlaps with type and rule. proposal / design, or drop?
+- [ ] tool: `docs/tools/<name>.md` folded into `type/tool/<name>.md`, and `workflow/` made `workflows/`. confirm
+- [ ] rule: `watches: [<applies_to>]` points a path at a field value. allowed, or keep paths literal?
+- [ ] trigger: `when` mixes paths and events. what is an event, and where does it come from?

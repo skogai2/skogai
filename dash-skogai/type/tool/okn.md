@@ -1,5 +1,5 @@
 ---
-type: Tool
+type: tool
 title: okn (openknowledge executable)
 ---
 

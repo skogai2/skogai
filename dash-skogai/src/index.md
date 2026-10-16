@@ -1,12 +1,12 @@
 ---
-type: Index
+type: index
 corpus_schema:
   version: "1"
   document_types:
-    - id: Draft
+    - id: draft
       paths: ["*.md"]
       required: [title]
-    - id: Tool
+    - id: tool
       paths: ["tools/**"]
       required: [title]
 ---
@@ -14,15 +14,3 @@ corpus_schema:
 # src
 
 the future dot: authored source that `apply` turns into a `.skogai`.
-
-# types
-
-- [types](types.md)
-
-# tools
-
-- [herdr](tools/herdr.md)
-- [wt (worktrunk)](tools/wt.md)
-- [gita](tools/gita.md)
-- [mise](tools/mise.md)
-- [okn (openknowledge executable)](tools/okn.md)
