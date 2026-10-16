@@ -13,8 +13,7 @@ enabled: true
 events: ["SessionStart", "SessionEnd", "UserPromptSubmit", "PreToolUse", "PostToolUse", "PostToolUseFailure", "Stop"]
 
 # Where to append events, relative to the git root.
-# log_path: ".skogai/logs/skogai-core/log.jsonl"
-log_path: "./log.jsonl"
+log_path: ".skogai/logs/skogai-core/log.jsonl"
 
 # Show "hook: <event>" in the status line.
 status_line: true
