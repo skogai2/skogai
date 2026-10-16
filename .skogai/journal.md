@@ -1900,3 +1900,22 @@ So the choice is fix or drop. A fix is probably small: I'd find the `str()` and 
 
 Okay, I'll leave it. What's next?
 
+## 2026-10-16 12:31 · turn 58e25262
+
+**User**
+
+> please just document that we have frontmatter usable as live settings...
+
+**Assistant**
+
+I wrote it up in `docs/concepts/frontmatter-settings.md`, next to `git-diff-communication.md` and linked to it.
+
+The doc separates what works today from what is still a plan:
+
+- **Working now:** editing the frontmatter in `.claude/skogai-core.local.md` takes effect on the next hook event, with no restart.
+- **Not built yet:** the global and project settings layers. The `git:` per-event block is only an example; skogai-core doesn't read it, and the git steps are still switched by the `SKOGAI_*` env vars.
+
+**Actions**
+
+- Write `docs/concepts/frontmatter-settings.md`
+
