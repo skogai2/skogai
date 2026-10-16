@@ -5,15 +5,18 @@ CLAUDE.md.
 
 ## Setup files
 
-A setup is a folder in `setups/<name>/`. Put a file in it to turn a feature
-on.
+A setup is a folder in `setups/<name>/` that sits on top of `baseline`: it
+inherits everything from baseline and holds only what it changes. Put a file in
+it to turn a feature on.
 
 | File | What it does |
 |---|---|
-| `settings.json` | The agent's settings. Copy it from baseline to start with everything stripped. |
-| `system-prompt.md` | Replaces Claude Code's system prompt with your own. |
+| `settings.json` | Settings merged over baseline's. Leave it out to keep baseline's (everything stripped). |
+| `system-prompt.md` | Replaces Claude Code's system prompt with your own. Without any prompt file, the setup uses baseline's. |
 | `append-system-prompt.md` | Adds to the system prompt and keeps Claude Code's default. If `system-prompt.md` also exists, it's added to that instead. |
 | `work/` | Files the agent finds in its working directory, such as `CLAUDE.md`, `.claude/` or fixtures. |
+| `config/` | Files placed in the agent's config dir, such as plugin state or rules. |
+| `plugin-dirs` | Plugins to load, one folder per line. |
 
 Create a new setup with `mise run new-setup <name>`.
 
@@ -29,6 +32,7 @@ Set these when you call `bin/agent` (or `mise run ask`):
 | `OUTPUT` | `text` | `text`, `json` or `stream-json` |
 | `KEEP=1` | off | Keep the sandbox from the last run instead of starting clean |
 | `BOX` | `/tmp/claude-code/<setup>` | Where the sandbox lives |
+| `LOADOUT` | none | Which loadout profile is active, in setups that use loadout |
 
 The prompt goes in on stdin and the reply comes out on stdout:
 
@@ -47,6 +51,7 @@ The prompt goes in on stdin and the reply comes out on stdout:
 | `baseline` | replaced: a minimal test agent | the empty agent everything is compared against |
 | `commit-msg` | replaced: commit-message writer | a diff in, a commit message out |
 | `orchestration` | appended: orchestrator role | the orchestrator, which hands work to other setups |
+| `loadout` | baseline's | the loadout plugin; profiles `default` and `vanilla` |
 
 
 ## Commands

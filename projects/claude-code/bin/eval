@@ -23,7 +23,11 @@ out="runs/$setup/$stamp"
 mkdir -p "$out"
 ln -sfn "$stamp" "runs/$setup/latest"
 { echo "setup=$setup model=${MODEL:-haiku} tools=${TOOLS:-}"; git -C "$root" rev-parse --short HEAD; } > "$out/meta.txt"
-cp "setups/$setup/system-prompt.md" "setups/$setup/append-system-prompt.md" "$out/" 2>/dev/null || true
+prompts=
+for layer in $(bin/layers "$setup"); do
+  [[ -f $layer/system-prompt.md || -f $layer/append-system-prompt.md ]] && prompts=$layer
+done
+[[ -n $prompts ]] && cp "$prompts/system-prompt.md" "$prompts/append-system-prompt.md" "$out/" 2>/dev/null || true
 
 for f in "${cases[@]}"; do
   name=$(basename "${f%.*}")

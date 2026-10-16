@@ -37,12 +37,12 @@ usage = 'arg "<setup>"'
 run = 'bin/compare "$usage_setup"'
 
 [tasks.new-setup]
-description = "Copy baseline into setups/<name> and cases/<name>"
+description = "Create an empty setups/<name> (layered on baseline) and cases/<name>"
 usage = 'arg "<name>"'
 run = '''
 set -euo pipefail
 [[ -e "setups/$usage_name" ]] && { echo "setups/$usage_name exists" >&2; exit 1; }
-cp -r setups/baseline "setups/$usage_name"
+mkdir -p "setups/$usage_name"
 mkdir -p "cases/$usage_name"
 echo "created setups/$usage_name and cases/$usage_name"
 '''
