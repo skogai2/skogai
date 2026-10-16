@@ -2521,3 +2521,36 @@ Want me to commit `.config/wt.toml` and then look at the journal hook for step 1
 - Bash: `for i in 1 2 3; do wt -y step commit --dry-run 2>&1 | tail -1; done`
 - Bash: `ollama list 2>&1 | head -20`
 
+## 2026-10-16 18:06 · turn d5942983
+
+**User**
+
+
+
+**Assistant**
+
+I'd call `da9f7d9` partly right. It got the theme but misdescribed the two changes.
+
+**Subject:** `Add journal entry format guidance to worktrunk commit template`
+
+**What the commit contains:**
+- `a` → `.config/wt.toml`: a pure rename that restores the file you moved away in `1db4b33`. No content changed.
+- `example.txt`: a new file holding a copy of my last journal entry.
+
+**How it did:**
+- **It wasn't fooled by `example.txt`.** The file looks exactly like a journal entry, but the model didn't output `Add journal entry for turn 82067b26`. The path-scoped rule held.
+- **It described the file contents, not the change.** "Add … guidance" is what `wt.toml` says, but this commit moves the file back rather than adding guidance. And `example.txt` gets blended in as "journal entry format" instead of being named.
+- **It ignored the length limit.** The subject is 61 characters against the template's 50.
+
+An accurate subject would be something like `Restore .config/wt.toml and add example.txt` (43 characters).
+
+The weak spot is that a 3B model reads content well but reads diff structure (renames, moves) poorly. One more rule might help: "A rename with no content change is a move or restore: say so, using both paths."
+
+Want me to add that rule, or do you want to keep testing it with traps like this first?
+
+**Actions**
+
+- Bash: `git show --stat --format='%h %s' da9f7d9; git status --short`
+- Bash: `git show da9f7d9 --format= -M | head -80; git log --oneline -4`
+- Bash: `git show --stat --format='%h %an: %s%n%b' 164756d 1db4b33; git show 1db4b33 --format= | head -40`
+
