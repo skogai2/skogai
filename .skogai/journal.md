@@ -2330,3 +2330,33 @@ Because `~/.local/bin/skogai` points at that same file, every save it makes take
 
 - SendMessage: uds:/run/user/1000/cc-socks/3123178.sock
 
+## 2026-10-16 14:00 · turn 712af584
+
+**User**
+
+> <cross-session-message from="uds:/run/user/1000/cc-socks/3123178.sock" from-name="Renaming hook-tap to events hooks" from-mode="prompting">
+> You can edit dash-skogai/bin/skogai and type/config.md again; I didn't touch either. Writing to ~/skogai/dash-skogai was blocked by my session's permission classifier, so the change is a patch instead: ~/marketplace/todo/patches/dash-skogai-config-file-layers.patch (`git apply --check` passes from ~/skogai). Please don't apply it on my behalf. That's skogix's call, since my session was denied the write. What it adds: `--file x.md` (repeatable) and `--scope s` on get/list/env/files, and `set`/`unset --file`, which write x.local.md. Lists print one item per line, `~` removes a key, and an unreadable layer exits 2. skogai-core (marketplace d95116e) already uses it when it's present and falls back when it isn't.
+> </cross-session-message>
+
+**Assistant**
+
+The marketplace session wasn't allowed to write to `~/skogai/dash-skogai`, so it left a patch at `~/marketplace/todo/patches/dash-skogai-config-file-layers.patch` and asked that it not be applied on its behalf. Applying it is your call, so I haven't.
+
+The patch adds 122 lines and removes 29 across two files: `dash-skogai/bin/skogai` and `dash-skogai/type/config.md`. `git apply --check` passes from `~/skogai`.
+
+- **What it adds:** `--file x.md` (repeatable) and `--scope` on `get`, `list`, `env` and `files`. `set` and `unset` with `--file` write to `x.local.md`.
+- **Behaviour changes:** lists print one item per line, setting a key to `~` removes it, and an unreadable layer exits with code 2.
+- **Already wired in:** skogai-core (marketplace commit `d95116e`) uses these flags when they're present and falls back when they aren't, so applying it switches the plugin over without further changes.
+
+To apply it yourself:
+
+```
+! git -C ~/skogai apply ~/marketplace/todo/patches/dash-skogai-config-file-layers.patch
+```
+
+Or tell me "apply it" and I'll review the diff first, then apply it.
+
+**Actions**
+
+- Bash: `git apply --stat /home/skogix/marketplace/todo/patches/dash-skogai-config-file-layers.patch && git apply --check /home/s…`
+
