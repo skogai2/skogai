@@ -17,20 +17,23 @@ folded in order, later wins:
 1. **base**: `config` in dash. the defaults.
 2. **global**: `~/.skogai/config`, or `$SKOGAI_GLOBAL_CONFIG`.
 3. **local**: `<repo>/.skogai/config`, or `$SKOGAI_LOCAL_CONFIG`.
-4. **env**: key `a.b-c` reads env `SKOGAI_A_B_C`, which overrides every layer.
+4. **file**: with `--file x.md` (repeatable), the frontmatter of `x.md`, then of `x.local.md`. nested keys flatten to `a.b.c`, `_` reads as `-`, and `--scope s` mounts them under `s.`. needs `yq`.
+5. **env**: key `a.b-c` reads env `SKOGAI_A_B_C`, which overrides every layer.
 
 ## commands
 
-- `skogai config get <key> [--show-origin]`: exit `1` if unset.
-- `skogai config set <key> <value> [--global]`: writes local unless `--global`.
-- `skogai config unset <key> [--global]`
-- `skogai config list [--show-origin]`
-- `skogai config env`: the resolved config as `export` lines, for `mise` `_.source` or `eval`.
-- `skogai config files`: the path of each layer, and whether it exists.
+- `skogai config get <key> [--show-origin] [--file x.md]... [--scope s]`: exit `1` if unset, `2` if a layer can't be read. a list prints one item per line.
+- `skogai config set <key> <value> [--global | --file x.md [--scope s]]`: writes local unless `--global`. `--file` writes `x.local.md`, never `x.md`; the value is read as yaml.
+- `skogai config unset <key> [--global | --file x.md [--scope s]]`
+- `skogai config list [--show-origin] [--file x.md]... [--scope s]`: a list prints one line per item.
+- `skogai config env [--file x.md]... [--scope s]`: the resolved config as `export` lines, for `mise` `_.source` or `eval`. a list's items are newline-separated.
+- `skogai config files [--file x.md]...`: the path of each layer, and whether it exists.
 
 ## merge
 
 every key is replaced by the later layer. a key set twice in one layer resolves to its last value.
+
+in a file layer, a frontmatter list is one value, replaced whole. `null` (`~`) removes the key, so it falls through to the default.
 
 ## keys
 
