@@ -1,6 +1,6 @@
 # skogai
 
-how an agent runs [skogai](../type/tool/skogai.md) until `bin/skogai` exists. each section is one command, written as a prompt: hand an agent this file and the command name.
+how an agent runs [skogai](../type/tool/skogai.md) until `bin/skogai` has the command. `bin/skogai` has only `config` so far. each section is one command, written as a prompt: hand an agent this file and the command name.
 
 paths are relative to the dash root, the folder holding `type/`. `<dot>` is the dot to check. in this repo it is `src`, later `./.skogai`.
 

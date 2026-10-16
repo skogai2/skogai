@@ -17,7 +17,7 @@ The settings file is an ordinary markdown document with frontmatter, not json or
 - **one file, two readers**: the frontmatter is data for the hooks, the body is prose for whoever reads it (notes, or instructions to the agent for that mode)
 - **typed**: with an okf `type` it is a document like any other, checked by `okn validate`
 - **native to agents**: read and edited without a parser or schema tool
-- **readable diffs**: a mode switch is a one-line frontmatter hunk next to the prose explaining it, which fits [diff as context](git-diff-communication.md)
+- **readable diffs**: a mode switch is a one-line frontmatter hunk next to the prose explaining it, which fits [diff as context](https://github.com/skogai2/marketplace/blob/master/plugins/skogai-core/DIFF-AS-CONTEXT.md)
 
 ## Layers
 
@@ -42,4 +42,4 @@ git:
   stop:               { stage: true, commit: true, merge: false }
 ```
 
-`stop.commit: false` gives the review flow from [diff as context](git-diff-communication.md): the agent's turn ends staged, and the next prompt's commit wraps both sides into one round.
+`stop.commit: false` gives the review flow from [diff as context](https://github.com/skogai2/marketplace/blob/master/plugins/skogai-core/DIFF-AS-CONTEXT.md): the agent's turn ends staged, and the next prompt's commit wraps both sides into one round.
