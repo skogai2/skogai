@@ -1619,3 +1619,31 @@ Ha, fair. The more you log, the more you have to work with, and git keeps all of
 
 What's next for skogai-core: using the log (journal, replay, stats), more events, or something else?
 
+## 2026-10-16 12:09 · turn df6f9e21
+
+**User**
+
+> have to work with? you are not seeing what we are getting here my man! 
+>
+> its not stopping at simply commit on ever file change system wide, merge and push every turn/message etc etc
+>
+> look for example at these bad boys: @.skogai/tmp/
+
+**Assistant**
+
+I get it now. Each turn the hook writes a fresh snapshot of the tree state:
+
+- `git-diff`: unstaged changes
+- `git-diff-cached`: staged changes
+- `wt-step-diff`: what the step commit picked up
+
+They're all empty right now because the previous turn's commit left the tree clean. The folder has its own `*` gitignore, so it never commits itself.
+
+So the point isn't the log. Every turn becomes a commit, and every turn leaves a ready-made diff of what happened. Any agent can read `.skogai/tmp` and know exactly what changed since its last turn, whether that was me, you editing between messages, or another session. It doesn't need to run git or rebuild context, and the history underneath is the full git log. That fits your rule that "if i modify a file between reads, assume it's intentional": the diff proves it.
+
+Is the next step feeding those diffs back into context automatically, say via `additionalContext` on `UserPromptSubmit`?
+
+**Actions**
+
+- Bash: `cd .skogai/tmp && for f in .gitignore git-diff git-diff-cached wt-step-diff; do echo "== $f ($(wc -l < $f) lines)"; head…`
+
