@@ -1607,3 +1607,15 @@ The new log is already 359 KB because it was already full before the path change
 - Bash: `git log --oneline -3 && tail -n 3 log.jsonl | jq -c '{ts, event, action, tool: .input.tool_name}'`
 - Bash: `f=.skogai/logs/skogai-core/log.jsonl; ls -la $f && tail -n 4 $f | jq -c '{ts, event, action, tool: .input.tool_name}'`
 
+## 2026-10-16 12:07 · turn e2560a99
+
+**User**
+
+> not quickly enough honestly! this is aaaawesome! exactly what we need
+
+**Assistant**
+
+Ha, fair. The more you log, the more you have to work with, and git keeps all of it.
+
+What's next for skogai-core: using the log (journal, replay, stats), more events, or something else?
+
