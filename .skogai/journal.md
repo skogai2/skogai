@@ -2291,3 +2291,24 @@ Still open from that plan:
 - Bash: `ln -s /home/skogix/skogai/dash-skogai/bin/skogai ~/.local/bin/skogai && which skogai && cd /home/skogix/skogai && skogai…`
 - SendMessage: uds:/run/user/1000/cc-socks/3123178.sock
 
+## 2026-10-16 13:53 · turn 8bcb4550
+
+**User**
+
+> should be done. status now?
+
+**Assistant**
+
+It's fixed: `skogai` now runs the dash version. `~/.local/bin/skogai` is a link to `~/skogai/dash-skogai/bin/skogai`, and `skogai --help` works.
+
+- The broken `skogai-cli` uv install is gone.
+- `skogcli` is still installed separately and still works, so the `/skogai` setup it supports is unaffected.
+- The command has one subcommand so far, `config`.
+
+`/skogai/bin` comes before `~/.local/bin` on PATH but contains no `skogai`, so nothing else takes precedence.
+
+**Actions**
+
+- Bash: `which -a skogai; ls -la ~/.local/bin/skogai 2>&1; ls ~/.local/share/uv/tools/ 2>&1 | grep -i skog; echo "PATH:"; echo $P…`
+- Bash: `skogai --help 2>&1; ls ~/.local/share/uv/tools/skogcli/bin; which skogcli; skogcli --help 2>&1 | head -3`
+
