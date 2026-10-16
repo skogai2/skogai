@@ -2360,3 +2360,42 @@ Or tell me "apply it" and I'll review the diff first, then apply it.
 
 - Bash: `git apply --stat /home/skogix/marketplace/todo/patches/dash-skogai-config-file-layers.patch && git apply --check /home/s…`
 
+## 2026-10-16 14:31 · turn fe42121b
+
+**User**
+
+> please go ahead as you see fit
+
+**Assistant**
+
+I applied the marketplace session's patch, so `skogai config` now reads markdown frontmatter as config layers. skogai-core already uses it when it's available.
+
+```
+$ skogai config list --show-origin --file .claude/skogai-core.md --scope skogai-core
+file:.claude/skogai-core.local.md	skogai-core.events=SessionStart
+...
+file:.claude/skogai-core.local.md	skogai-core.log-path=.skogai/logs/skogai-core/log.jsonl
+```
+
+I tested it on scratch files and on the real `.claude/skogai-core.local.md`, and everything behaved as described:
+
+- lists come back one item per line
+- setting a key to `~` removes it
+- `--scope` and `--show-origin` work
+- `set --file` writes to `x.local.md` and leaves the comments and body alone
+- a key outside the scope exits with code 2
+- a file without frontmatter is skipped
+- a `---` line in the body doesn't break parsing
+
+I made one fix of my own in `dash-skogai/bin/skogai`. Keys from frontmatter are stored with `-` in place of `_`, so `get skogai-core.log_path` came back empty. `get` now converts `_` to `-` in the key you ask for, so both spellings work.
+
+One rough edge remains: `set --file` writes the key exactly as typed. `b_c` and `b-c` end up as two separate entries in the file, even though both read back as `b-c`.
+
+**Actions**
+
+- Bash: `cat /home/skogix/marketplace/todo/patches/dash-skogai-config-file-layers.patch`
+- Bash: `git apply /home/skogix/marketplace/todo/patches/dash-skogai-config-file-layers.patch && d=/tmp/claude-1000/-home-skogix-…`
+- Bash: `d=/tmp/claude-1000/-home-skogix-skogai/1db9721f-e8e7-4a6f-a1b3-c6bada325b41/scratchpad/cfg; skogai config get skogai-cor…`
+- Bash: `cd dash-skogai && sed -i 's|    local env line resolved key="${argc_key,,}"|    local env line resolved key="${argc_key,…`
+- SendMessage: uds:/run/user/1000/cc-socks/3123178.sock
+
