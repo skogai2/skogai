@@ -1584,3 +1584,26 @@ A few things I noticed:
 
 Want me to make a tool call so we can check those rows?
 
+## 2026-10-16 12:05 · turn 9e8f6668
+
+**User**
+
+> if we want - yeah! 
+>
+> and its aaaaawesome!
+
+**Assistant**
+
+Tool events work too. Both of my Bash calls produced `PreToolUse` and `PostToolUse` rows with `tool_name: "Bash"`. The last row in the output is the call that ran the check, so its `PostToolUse` lands right after.
+
+Your path change also took effect (commit `3194076`). New rows go to `.skogai/logs/skogai-core/log.jsonl`, and the root `log.jsonl` stops at 10:03:51.
+
+Tool rows have `action: null`, so `PreToolUse` and `PostToolUse` only log and don't commit. That's the right call; otherwise every tool call would make a commit.
+
+The new log is already 359 KB because it was already full before the path change. It will keep growing quickly.
+
+**Actions**
+
+- Bash: `git log --oneline -3 && tail -n 3 log.jsonl | jq -c '{ts, event, action, tool: .input.tool_name}'`
+- Bash: `f=.skogai/logs/skogai-core/log.jsonl; ls -la $f && tail -n 4 $f | jq -c '{ts, event, action, tool: .input.tool_name}'`
+
