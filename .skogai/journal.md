@@ -2232,3 +2232,24 @@ Should I wire up both?
 - Bash: `cat config; ./bin/skogai config files; ./bin/skogai config list --show-origin; ./bin/skogai config get commit.on-stop --…`
 - SendMessage: uds:/run/user/1000/cc-socks/3123178.sock
 
+## 2026-10-16 13:46 · turn 58f1e63b
+
+**User**
+
+> <cross-session-message from="uds:/run/user/1000/cc-socks/3123178.sock" from-name="Renaming hook-tap to events hooks" from-mode="prompting">
+> Gap 2 is closed: skogai-core's git-steps.sh now reads `skogai config list` from the git root, falling back to the SKOGAI_*_ON_* env when no working `skogai` is on PATH (marketplace commit 1a5a3c8). Tested with dash's bin first on PATH: a local `.skogai/config` with stage.on-stop=true stages, and SKOGAI_STAGE_ON_STOP=false still overrides it. Gap 1 (PATH) is still open on your side or skogix's: ~/.local/bin/skogai (a broken uv skogcli) has to go or be replaced by a symlink to dash-skogai/bin/skogai. Until then the hooks quietly use the env fallback.
+> </cross-session-message>
+
+**Assistant**
+
+The marketplace session closed gap 2 (marketplace commit `1a5a3c8`). skogai-core's `git-steps.sh` now reads its settings from `skogai config list`. If no working `skogai` is on PATH, it falls back to the `SKOGAI_*_ON_*` env vars.
+
+The session tested it with dash's `bin` first on PATH. A local `.skogai/config` with `stage.on-stop=true` staged, and `SKOGAI_STAGE_ON_STOP=false` still overrode it.
+
+Gap 1 is yours to decide. `~/.local/bin/skogai` is a symlink into the uv `skogai-cli` install, so until it changes the hooks quietly keep using the env fallback. Two ways to fix it:
+
+- **Replace the symlink** so it points at `~/skogai/dash-skogai/bin/skogai`. The uv install stays but loses the `skogai` name.
+- **Remove the uv tool** with `uv tool uninstall skogai-cli`, then add that same symlink.
+
+Which one should I do?
+
