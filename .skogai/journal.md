@@ -1783,3 +1783,25 @@ The fix in skogcli is to have `get_config_dir` read the storage dir from the raw
 - Bash: `ls $XDG_SKOGAI_CONFIG_DIR; SKOGAI_CONFIG_DIR=$XDG_SKOGAI_CONFIG_DIR skogcli config get '$' 2>&1 | head -50`
 - Bash: `ls -la $XDG_SKOGAI_CONFIG_DIR/config.json; cd $XDG_SKOGAI_CONFIG_DIR && git status --short 2>/dev/null | head`
 
+## 2026-10-16 12:24 · turn 6e807c2c
+
+**User**
+
+> yeah it to say /tmp/ or whatever
+
+**Assistant**
+
+`~/.config/skogai` is clean again. I moved the stray `config.json` to `/tmp/claude-1000/-home-skogix-skogai/1db9721f-e8e7-4a6f-a1b3-c6bada325b41/scratchpad/skogcli/config.json`, and `skogcli config get '$'` runs fine with `SKOGAI_CONFIG_DIR` pointing there.
+
+That only fixed this one run. To make it stick, set it in fish:
+
+```fish
+set -Ux SKOGAI_CONFIG_DIR /tmp/skogcli
+```
+
+The skogcli recursion bug is still there for anyone who doesn't have the variable set.
+
+**Actions**
+
+- Bash: `d=/tmp/claude-1000/-home-skogix-skogai/1db9721f-e8e7-4a6f-a1b3-c6bada325b41/scratchpad/skogcli; mkdir -p $d && mv /home/…`
+
