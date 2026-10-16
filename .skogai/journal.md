@@ -2312,3 +2312,21 @@ It's fixed: `skogai` now runs the dash version. `~/.local/bin/skogai` is a link 
 - Bash: `which -a skogai; ls -la ~/.local/bin/skogai 2>&1; ls ~/.local/share/uv/tools/ 2>&1 | grep -i skog; echo "PATH:"; echo $P…`
 - Bash: `skogai --help 2>&1; ls ~/.local/share/uv/tools/skogcli/bin; which skogcli; skogcli --help 2>&1 | head -3`
 
+## 2026-10-16 13:56 · turn d7123724
+
+**User**
+
+> <cross-session-message from="uds:/run/user/1000/cc-socks/3123178.sock" from-name="Renaming hook-tap to events hooks" from-mode="prompting">
+> Heads-up: skogix said "go on", so I'm editing ~/skogai/dash-skogai/bin/skogai and type/config.md now (CONFIG.md step 2). The change adds `--file X.md` (repeatable) and `--scope NAME` to get/list/files, plus `set/unset --file`, which writes X.local.md. Frontmatter is flattened into dotted keys between the local and env layers; lists come back from `get` one item per line. The git-config layers keep their behaviour. Please hold edits to those two files until I message again, or tell me now if you're mid-change there.
+> </cross-session-message>
+
+**Assistant**
+
+The marketplace session is now editing `dash-skogai/bin/skogai` and `type/config.md`. It's adding `--file X.md` and `--scope` so that frontmatter files work as config layers, sitting between the local layer and env vars. I've confirmed I'll stay out of both files until it says it's finished.
+
+Because `~/.local/bin/skogai` points at that same file, every save it makes takes effect in the hooks right away, including any broken intermediate state.
+
+**Actions**
+
+- SendMessage: uds:/run/user/1000/cc-socks/3123178.sock
+
