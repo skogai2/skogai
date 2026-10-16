@@ -1890,3 +1890,13 @@ Most of it is worth keeping, though. The notation, the `$` section and the resol
 
 So the choice is fix or drop. A fix is probably small: I'd find the `str()` and make object values recurse into `{"type": "object", ...}`. Dropping it means `skogparse` goes away and something else (okn, jq or the frontmatter) carries the notation. What do you want?
 
+## 2026-10-16 12:30 · turn 9a2bbced
+
+**User**
+
+> .... nevermind
+
+**Assistant**
+
+Okay, I'll leave it. What's next?
+
