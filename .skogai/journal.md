@@ -1762,3 +1762,24 @@ Right, it's an okf document. Settings are just another dash type instance, and e
 
 So config isn't a separate system anymore. It's the dot itself, folded in layers. Want this written down next to `git-diff-communication.md` as a concept note?
 
+## 2026-10-16 12:23 · turn d722b348
+
+**User**
+
+> please run "skogcli config get $"
+
+**Assistant**
+
+The plain command crashed with infinite recursion. `SKOGAI_CONFIG_DIR` isn't set (only `XDG_SKOGAI_CONFIG_DIR` is), so `get_config_dir` falls back to `get_setting("settings.cli.storage_dir")`, which calls `load_settings`, which calls `get_config_dir` again, and so on (`settings.py:41` and `:324`).
+
+I retried with `SKOGAI_CONFIG_DIR=$XDG_SKOGAI_CONFIG_DIR`. That printed a `$` section, but it's skogcli's built-in default, not your config. There was no `config.json` in `~/.config/skogai`, so skogcli created one at 12:23. It now shows as untracked `?? config.json` in that repo, and I haven't deleted it. Should I remove it, or is your real config somewhere else?
+
+The fix in skogcli is to have `get_config_dir` read the storage dir from the raw file or env instead of calling `get_setting` (or to also accept `XDG_SKOGAI_CONFIG_DIR`).
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai && skogcli config get '$'` (failed)
+- Bash: `sed -n 25,45p /home/skogix/.local/share/uv/tools/skogcli/lib/python3.13/site-packages/skogcli/settings.py; sed -n 300,33…`
+- Bash: `ls $XDG_SKOGAI_CONFIG_DIR; SKOGAI_CONFIG_DIR=$XDG_SKOGAI_CONFIG_DIR skogcli config get '$' 2>&1 | head -50`
+- Bash: `ls -la $XDG_SKOGAI_CONFIG_DIR/config.json; cd $XDG_SKOGAI_CONFIG_DIR && git status --short 2>/dev/null | head`
+
