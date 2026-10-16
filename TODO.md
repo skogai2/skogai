@@ -11,6 +11,7 @@
 - [ ] add "./.skogai/memory/" to claude code auto memory.
 - [ ] check if "insights" actually have done anything ever?
 - [ ] cli; create a way to build SKOGAI_ENVs via mise
+- [ ] orchestration;rewrite the workorder shape: no open-ended surveys (0010-survey-skogai-fleet is the anti-example). one bounded question per workorder, inputs gathered by script, short checkable output. see local-agents/README.md
 - [ ] decisions; remove numbering
 - [x] dash;pin the okn version dash-skogai relies on. installed is 0.13.0, `tmp/okn` source has `check`, `review`, `publish` that the binary lacks
 - [x] dash;set `DO_NOT_TRACK=1` for okn (telemetry is on by default)
