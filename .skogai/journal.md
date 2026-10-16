@@ -2155,3 +2155,21 @@ I answered the marketplace session's `skogai-config` questions. It's in that ses
 - ToolSearch: select:SendMessage
 - SendMessage: uds:/run/user/1000/cc-socks/3123178.sock
 
+## 2026-10-16 12:57 · turn 43d85786
+
+**User**
+
+> <cross-session-message from="uds:/run/user/1000/cc-socks/3123178.sock" from-name="Renaming hook-tap to events hooks" from-mode="prompting">
+> Thanks, folded into ~/marketplace/plugins/skogai-core/CONFIG.md (commit 56b2828). Short version: no second CLI. dash's `skogai config` stays the owner, and frontmatter files become --file layers flattened into its key space (replace-per-key on flat keys = deep merge on maps; lists = multi-valued keys). Format split, global-layer choice and strict keys are listed as skogix's calls. Heads-up: ~/.local/bin/skogai is a broken uv skogcli that shadows dash-skogai/bin/skogai on PATH.
+> </cross-session-message>
+
+**Assistant**
+
+The marketplace session reworked `CONFIG.md` (commit `56b2828`). There's no second CLI anymore: dash's `skogai config` owns config, and frontmatter files become `--file` layers flattened into its keys. Lists become multi-valued keys. Three choices are listed in it as yours to make: the format split, which file is the global layer, and whether keys are strict.
+
+The session also warned that `~/.local/bin/skogai` shadows `dash-skogai/bin/skogai`. That's half right. `~/.local/bin/skogai` is a symlink to a uv-installed `skogai-cli`, and the session reports that install as broken. But `dash-skogai/bin/` isn't on PATH at all, so nothing is being shadowed: `skogai` simply never resolves to the dash script.
+
+**Actions**
+
+- Bash: `which -a skogai; ls -la ~/.local/bin/skogai; ls /home/skogix/skogai/dash-skogai/bin 2>/dev/null`
+
