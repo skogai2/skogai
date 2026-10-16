@@ -1665,3 +1665,28 @@ Yes. It's the dash design goals running for real:
 
 So `.skogai/tmp` isn't about catching up. The diff exists the moment a turn is committed, so any reader at any later point gets the same patch from the history.
 
+## 2026-10-16 12:15 · turn 30df8c89
+
+**User**
+
+> now it is up to us how we do it in the end. check for example @../../docs/concepts/git-diff-communication.md as a starting point to hint at where im going
+
+**Assistant**
+
+Got it. The diff is the message channel. A turn is the message plus its diff, and the history is the conversation.
+
+Compared with the concept doc, the current setup goes one step further. The doc has you review and commit by hand. The plugin commits automatically at both turn boundaries:
+
+- **`Stop` commit**: my turn (journal hunk plus my changes)
+- **`UserPromptSubmit` commit**: your turn (your edits since then, `example.txt` for example)
+
+So the history already alternates between us, one commit per turn. What the other side needs each turn is the opposing commit: `git show` of your `UserPromptSubmit` commit for me, and of my `Stop` commit for you. `wt step diff` covers the whole work order against `master`.
+
+That makes the remaining design pretty small:
+
+1. **Capture before committing.** Write `.skogai/tmp/*` from the staged diff right before the step commit, so it holds exactly that turn.
+2. **Inject it.** `UserPromptSubmit` returns that diff as `additionalContext`, so I see your edits without asking. Your side reads my `Stop` commit, or the journal hunk inside it.
+3. **Tell the sides apart.** Give each turn's commit its own author or trailer (user turn vs. Claude turn), so "the other side's last turn" is a simple `git log` query.
+
+Want me to add these to TODO.md, or start with #1?
+
