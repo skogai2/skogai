@@ -1744,3 +1744,21 @@ Two things follow from it:
 
 Should I add the layering to TODO.md as its own item, or go straight to finding the plugin source?
 
+## 2026-10-16 12:20 · turn f008f313
+
+**User**
+
+> well not only that. look again since this is literally simple frontmatter in markdown files and not json, toml etc :). the possibilities are actually crazy now when i think about it ^^
+
+**Assistant**
+
+Right, it's an okf document. Settings are just another dash type instance, and everything else follows from that:
+
+- **It's typed.** Give it `type: config` and `okn validate` checks it like any other document. dash already has [config](type/config.md) as a type.
+- **Data and prompt in one file.** The frontmatter is data for the hooks, and the body is prose for whoever reads it. That body is currently "notes for yourself", but it could just as well be instructions to me for that mode. Switching the file switches both the behaviour and the briefing.
+- **Any markdown file can carry settings.** A doc, a task or a tool file can have frontmatter the hooks read, so behaviour can be scoped to whatever the file is about, not only to a directory layer.
+- **Native to agents.** I read and edit markdown without a parser or schema tool, and okn handles list, search and links.
+- **It's a readable diff.** A mode switch shows up in the diff channel as a one-line frontmatter hunk next to its prose, so the change and its intent arrive together.
+
+So config isn't a separate system anymore. It's the dot itself, folded in layers. Want this written down next to `git-diff-communication.md` as a concept note?
+
