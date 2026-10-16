@@ -12,3 +12,5 @@
 - [ ] skogai cli: where does a dot record its dash ref?
 - [ ] skogai cli: merge semantics per field when folding layers (replace, append, deep merge?)
 - [ ] skogai cli: how does a type declare that a file is derived, and by what function?
+- [ ] agent prompts: until `bin/skogai` exists, an agent runs `check`, `plan` and `apply` from `workflows/skogai.md` (owned by tool skogai). init elsewhere is `apply` on an empty dot. `check` is written and runs as `mise run dash:check [dot]`; `plan` and `apply` wait on the open cli items above
+- [ ] dash-skogai-setup-prompt.md: generic okn 0.13.0 output, regenerable with `okn setup`. its scaffold (AGENTS.md, SPEC.md, log.md, decisions/, 10 rules) is what 945c808 removed and would be untyped under `check`. keep only the parts worth keeping, then delete?

@@ -52,6 +52,9 @@ To add a feature: add the check to `bin/agent`, copy the file in `bin/eval` if i
 - Built-in plugins (`cc-plugin-*@builtin`) must be disabled in `enabledPlugins`. Built-in skills need `--disable-slash-commands`.
 - Built-in agent names (Explore, Plan, ...) are always listed in `init`. They're inert without the `Agent` tool.
 - Baseline context is about 570 tokens with haiku. A big jump means something leaked in.
+- A setup without `system-prompt.md` gets the full default prompt (~2.4k tokens instead of ~570). Copy all of baseline, not just `settings.json`.
+- `KEEP=1` adds about 170 tokens: the second run in a kept sandbox injects `userEmail` into `session_context` (from the account cached in `.claude.json`). Verified by comparing transcripts with `KEEP=0` and `KEEP=1`.
+- Loadout (`--plugin-dir <loadout>`) works in `-p`. It keeps its profiles in `config/plugins/store/loadout_<source>-<hash>.json` inside the sandbox, and setting `"active": "vanilla"` there drops the project CLAUDE.md. Verified by `tests/03-loadout.sh`.
 
 Add new findings here as they come up, briefly and with how they were verified.
 
