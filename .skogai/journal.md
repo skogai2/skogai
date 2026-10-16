@@ -651,3 +651,842 @@ I wrote the handover into `dash-skogai/CLAUDE.md` below your three `@tmp/...` in
 - Read `dash-skogai/CLAUDE.md`
 - Edit `dash-skogai/CLAUDE.md`
 
+## 2026-10-15 23:25 · turn bb61e2c2
+
+**User**
+
+> hi claued
+
+**Assistant**
+
+Hi skogix. I'm in `dash-skogai` now. Last time we stopped on a proposal: should a case definition state only the tag, the required frontmatter fields with their types, and where in the layout it may appear, with `router` drafted first? Do you want to pick that up, or work on something else?
+
+## 2026-10-15 23:33 · turn 9ab09a99
+
+**User**
+
+> is a tag the value of the key type? and how would we define it in practice?
+
+**Assistant**
+
+Yes. The tag is the value of `type`. In `type: router`, `router` is the tag, and it selects which case of the union the node belongs to.
+
+## Defining it in practice
+
+`openknowledge validate` only checks OKF and claims. It has no per-type schemas, so skogai needs to add them. The simplest way is to make each case one OKF page in dash whose own tag is `type`:
+
+```markdown
+---
+type: type
+name: router
+fields:
+  name: string
+  status: [unverified, verified]
+  stability: [stable, draft]
+paths:
+  - "*.md"            # top level of a dot only
+---
+
+# router
+
+entrypoint file that tells an agent where to go next.
+```
+
+From that page:
+
+- **The union** is every page with `type: type`, and each one's `name` is a valid tag.
+- **`check`** looks up the definition for each node's tag. It fails if no definition exists or if the node's frontmatter or path doesn't match.
+- **`type` defines itself.** `type.md` is a page with `type: type, name: type`, whose fields are `name`, `fields` and `paths`. That fixed point closes the system without a separate schema language.
+
+The open question is how expressive `fields` should be. My recommendation is a minimal grammar to start: a scalar (`string`, `date`, …), an enum written as a list, and maybe `?` for optional fields. Anything more can wait until a real case needs it.
+
+Should I write `type.md` and `router.md` into dash this way?
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai/dash-skogai; ls -a; for f in ROUTES.md CLAUDE.md; do [ -f $f ] && head -15 $f; done; okn --help 2…`
+- Bash: `openknowledge validate --help 2>&1 | head -40; openknowledge list --help 2>&1 | head -25`
+
+## 2026-10-16 00:47 · turn b34187da
+
+**User**
+
+> how do @tmp/okn define their schemas? okn prompt would describe them how? but yes okay let's say that we define a schema like that. then the first type we should define is provably type type as a template following the basic okf settings and keep them synced essentially? to that make sense so far?
+
+**Assistant**
+
+okn already has this, so my `type: type` page proposal is unnecessary. The mechanism is **`corpus_schema`**, an optional extension in the frontmatter of the root `index.md` (`tmp/okn/Wiki/features/corpus-schema.md`):
+
+```yaml
+corpus_schema:
+  version: "1"
+  document_types:
+    - id: Router
+      aliases: [...]
+      paths: ["*.md"]
+      required: [title]
+  link_predicates: [...]   # typed links between types
+```
+
+I tested it in a scratch bundle, and it already enforces a **closed union**:
+
+```
+error CLAUDE.md:1: document type "Router" requires non-empty frontmatter field "title"
+error todo.md:1: document type "Whatever" is not declared in corpus_schema.document_types
+```
+
+`okn prompt` does not describe schemas. It prints agent instructions built from the enabled rules. Rules are pages with `type: Rule` and `rule_*` fields, and nothing checks those fields.
+
+## Your proposal
+
+It makes sense, with one change: **the type `type` is already defined, and okn owns it.** It is the shape of one `document_types` entry (`id`, `aliases`, `paths`, `required`). okn validates that shape against `schemas/corpus/v1/frontmatter.schema.json`. Unknown fields are errors. "Keep it synced with OKF" therefore means pinning a corpus schema version, not maintaining a copy of it.
+
+That leaves this split:
+
+- **dash** is a root `index.md` whose `corpus_schema` declares the cases (`Router`, `Decision`, `Rule`, …). The schema is the source. Any per-type prose page is optional and only documents a case.
+- **The fold** becomes literal. `apply` produces the `corpus_schema` of a dot's `index.md` from dash, then global, then local.
+- **check** is `okn validate`. For now we write nothing ourselves.
+
+The one gap: `required` only checks that a field is present and non-empty. It does not check types or enums, so `status: banana` passes. My recommendation is to accept that gap for v0 and add field typing only when a real case needs it.
+
+Next, I can write dash's root `index.md` with a `corpus_schema` that declares `Router`. Should I do that?
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai/dash-skogai/tmp; ls -la; ls -R okn 2>/dev/null | head -60`
+- Bash: `ls -la /tmp/okn 2>&1 | head; find /tmp/okn -maxdepth 3 2>/dev/null | head -60`
+- Bash: `cd /home/skogix/skogai; find . -maxdepth 4 -iname '*okn*' -o -maxdepth 4 -iname '*openknowledge*' 2>/dev/null | grep -v …`
+- Bash: `cd /home/skogix/skogai/tmp/okn; ls -a; ls -a Wiki .openknowledge; cat Wiki/.openknowledge.toml; find . -path ./bin -prun…`
+- Bash: `cd /home/skogix/skogai/tmp/okn/Wiki; cat features/corpus-schema.md; echo ----; head -60 rules/index.md; echo ----; ls ru…`
+- Bash: `cd /home/skogix/skogai/tmp/okn/Wiki; grep -n -iE '^#|type' SPEC.md | head -80`
+- Bash: `cd /home/skogix/skogai/tmp/okn/Wiki; okn prompt rules 2>&1 | head -40; ls ../packages/cli/schemas 2>/dev/null; ls ../pac…`
+- Bash: `d=/tmp/claude-1000/-home-skogix-skogai/4b5778f5-a27f-481b-911c-b3546b0efdbb/scratchpad/cs; rm -rf $d; mkdir -p $d; cd $d`
+- Bash: `cd /tmp/claude-1000/-home-skogix-skogai/4b5778f5-a27f-481b-911c-b3546b0efdbb/scratchpad/cs; okn validate . 2>&1 | sed -n…`
+
+## 2026-10-16 00:52 · turn ccc44d4a
+
+**User**
+
+> so no rules schemas then? and would pinning it to their definition let us append or apply changes? what did your entry in types.md say?
+
+**Assistant**
+
+Answers to your three questions:
+
+**1. Rule schemas:** Rules are typed, but only in Go code (`internal/okf/rule_catalog.go`). There is no JSON schema for them. A custom rule must have `rule_id`, either `rule_summary` or `description`, and at least one instruction bullet under `## Instructions`. Every other `rule_*` key is optional. So the rule contract is hardcoded, while `corpus_schema` is the part we can declare.
+
+**2. Pinning and extending:** We can append to their definition but not change its shape. I tested both in a scratch bundle:
+
+- Appending works. New `document_types` and `link_predicates` entries are just values.
+- Extending an entry fails: `corpus_schema.document_types[0] contains unsupported field "fields"`.
+- A sibling key validates cleanly. OKF allows producer-defined keys, so `skogai_schema:` next to `corpus_schema:` in the same `index.md` passes.
+
+That gives the layering we wanted:
+
+```
+index.md frontmatter
+  corpus_schema   # okn's type of types, pinned, append-only
+  skogai_schema   # our extensions (field types, enums, source/derived)
+```
+
+`check` would then be `okn validate` followed by a skogai check of `skogai_schema`.
+
+**3. My `TYPES.md` entry:**
+
+> the concept of a type itself: what a type is, and what every type definition has to define. in okf, `type` is the one required frontmatter key, with free-form values (spec §4.1).
+
+The first sentence still holds. "What every type definition has to define" is exactly a `document_types` entry: `id`, `aliases`, `paths`, `required`. The last clause is now out of date. Free-form values are only the default in OKF core. Once `corpus_schema` is present, the union is closed. I can update the entry to say that if you want.
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai/tmp/okn/packages/cli; grep -rln 'rule_review_prompt\|"rule_id"\|rule_id' --include=*.go --include…`
+- Bash: `cd /home/skogix/skogai/tmp/okn/packages/cli; grep -rln 'rule_review_prompt' . | grep -v _test | head; grep -rn 'rule_rev…`
+- Bash: `d=/tmp/claude-1000/-home-skogix-skogai/4b5778f5-a27f-481b-911c-b3546b0efdbb/scratchpad/cs; cd $d`
+- Bash: `d=/tmp/claude-1000/-home-skogix-skogai/4b5778f5-a27f-481b-911c-b3546b0efdbb/scratchpad/cs; cd $d` (failed)
+- Bash: `d=/tmp/claude-1000/-home-skogix-skogai/4b5778f5-a27f-481b-911c-b3546b0efdbb/scratchpad/cs; cd $d`
+
+## 2026-10-16 01:02 · turn 2ad59e6e
+
+**User**
+
+> @SKOGAI.md could maybe help out here. should we move the important files from tmp to ./ to show that they are important maybe?
+
+**Assistant**
+
+Yes for `TYPES.md` and `TOOLS.md`, and no for `functional-discussion.md`.
+
+- **`TYPES.md` → `./`**: It is the first goal in `SKOGAI.md`. Moving it into the root also makes it the first real node that `corpus_schema` would check, so the types get tested on the file that defines them.
+- **`TOOLS.md` → `./`**: It is a source we keep maintaining.
+- **`functional-discussion.md` stays in `tmp/`**: It is a transcript, and its conclusions belong in `TYPES.md` and future decisions. Once those are extracted, the file can be archived or deleted.
+
+`tmp/` would then mean "not yet typed or not yet decided", and the root would mean "part of the dot". That is the second goal in `SKOGAI.md`, defining the file structure.
+
+The move means two `git mv` commands and updating the routes in `CLAUDE.md`. Should I do it?
+
+## 2026-10-16 01:47 · turn f2c5f6ce
+
+**User**
+
+> Great start. I would add if possible then that ./src or something "this is the main code, active part or template base we work around" sounding subfolder. where for example src/ "scripts docs bin schemas tools templates" etc would live. think of it as "the future dot folder". if the repo would need say the tool gita we would have in src/      tools/gita.md bin/gita scripts/gita/helper.example.sh etc
+
+**Assistant**
+
+Agreed, and `src` is a good name. It also matches the source/derived split: everything under `src/` is authored source, and everything `apply` produces from it is derived.
+
+Revised layout:
+
+```
+dash-skogai/
+  CLAUDE.md SKOGAI.md TODO.md   # meta: how we work on dash
+  tmp/                          # untyped or undecided
+  src/                          # the future dot, the okn bundle root
+    index.md                    # corpus_schema + skogai_schema
+    tools/gita.md
+    bin/gita
+    scripts/gita/helper.example.sh
+    schemas/ docs/ templates/ types/
+```
+
+This changes the earlier move:
+
+- **`TOOLS.md` gets split** into `src/tools/{herdr,wt,gita,mise,okn}.md`, one stub per header, following your gita example.
+- **`TYPES.md` → `src/types.md`** for now. Once a type is settled, it moves into `corpus_schema` in `src/index.md`. A prose page under `src/types/` is only worth adding if it has something to say.
+- **`functional-discussion.md` stays in `tmp/`.**
+- **`okn validate src`** becomes the check. Files in `bin/` and `scripts/` show up as assets, which is fine.
+
+Should I go ahead? That means creating `src/` with `index.md`, splitting `TOOLS.md`, moving `TYPES.md`, and updating the routes in `CLAUDE.md`.
+
+## 2026-10-16 01:51 · turn 2a52b77a
+
+**User**
+
+> please go ahead. have in mind that we should already start thinking of types as modules of sorts. the "module gita" would have a list of files like current okn have which it owns, modifies or have different relations to etc. this is why we start with types and they need to have a real leg to stand on
+
+**Assistant**
+
+`src/` now exists as an okn bundle, and `okn validate src` passes with exit 0.
+
+```
+src/
+|-- tools/{gita,herdr,mise,okn,wt}.md   Tool
+|-- index.md                            corpus_schema: Draft, Tool
+`-- types.md                            Draft
+```
+
+- **Tools:** `tmp/TOOLS.md` is split into one stub per tool. `tmp/TYPES.md` is moved with `git mv` to `src/types.md` and has frontmatter now.
+- **New type `Draft`:** I added it for authored pages that aren't settled yet, so `types.md` passes the closed union. Rename it if you have a better word.
+- **No empty folders:** I didn't create `bin/`, `scripts/`, `schemas/`, `docs/` or `templates/`, because git doesn't track empty directories. They'll appear when the first real file goes in, such as `bin/gita`.
+- **Routes:** In `CLAUDE.md` they now point to `src/index.md` and `src/types.md`.
+- **Nothing is committed.**
+
+**Modules:** okn can't express that a type owns files. I tested a typed link from `tools/gita.md` to `bin/gita`, and it fails because link targets must be declared document types, i.e. markdown pages. OKF's `resource` field takes only one path. The likely answer is an `owns: [paths]` field defined in `skogai_schema`, which skogai checks after `okn validate`. I added this to `TODO.md` instead of building it, since "one thing at a time".
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai/dash-skogai; git status --short; cat tmp/TOOLS.md tmp/TYPES.md`
+- Bash: `d=/tmp/claude-1000/-home-skogix-skogai/4b5778f5-a27f-481b-911c-b3546b0efdbb/scratchpad/mod; rm -rf $d; mkdir -p $d/tools…`
+- Bash: `cd /home/skogix/skogai/tmp/okn; sed -n 483,503p Wiki/SPEC.md; sed -n 302,330p Wiki/SPEC.md`
+- Bash: `cd /home/skogix/skogai/dash-skogai`
+- Bash: `cd /home/skogix/skogai/dash-skogai`
+
+## 2026-10-16 02:38 · turn 9c938772
+
+**User**
+
+> please commit, update docs and let us slow down again.
+
+**Assistant**
+
+I committed this as `97de11d`, and `okn validate src` passes. The docs changes went into the same commit:
+
+- **`src/types.md`**: the `## type` entry now explains that `corpus_schema` closes the union. A type definition is one `document_types` entry, and skogai's own extensions would go in a separate `skogai_schema` key.
+- **`CLAUDE.md`**: new `# layout` section saying what `./`, `src/` and `tmp/` are for.
+
+I left two files out of the commit because they sit outside `dash-skogai` and were already modified before this session: `../.skogai/journal.md` and `../CLAUDE.md`.
+
+Next on the list is types as modules, in `TODO.md`. We can pick it up whenever you're ready.
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai/dash-skogai`
+- Bash: `git commit -q -F - <<'EOF'`
+
+## 2026-10-16 02:44 · turn caaebb38
+
+**User**
+
+> could we move the types out from src and into let's say ./type/typename.md at least. the idea being types are more than simple declarations but also filling, currently at least, the role of a module or concept of sorts. example, tool would be a type and herdr, wt or gita would be of the type tool. all tools reserve a file in bin, folder in scripts, maybe workflow file etc etc. do this make sense to start?
+
+**Assistant**
+
+Yes, it makes sense. I've moved the types into `type/`, one file per type, and `okn validate src` still passes. I haven't committed anything.
+
+- **`type/type.md`**: the old `src/types.md`, moved with `git mv`. I added one paragraph saying a type also works as a module.
+- **`type/tool.md`**: lists herdr, wt, gita, mise and okn as its instances. It also lists what each tool `<name>` reserves: `tools/<name>.md`, `bin/<name>`, `scripts/<name>/`, and maybe a workflow file.
+- **`type/index.md`**: links to every type.
+- **The other types** (decision, rule, trigger, task, knowledge, memory, repo, spec) are files containing only a heading.
+- **`src/index.md`** no longer has the types section, and in `CLAUDE.md` the routes and layout now point to `type/`.
+
+Three things are still open:
+
+1. **`type/` isn't checked by okn.** It sits outside the `src` bundle and the files have no frontmatter. Whether types become okn documents themselves is still undecided.
+2. **Where the reserved paths start is undecided.** `bin/<name>` could mean `bin/` at the root of the dot or the root of the repo. That decides where `bin/` and `scripts/` will live.
+3. **`Draft` in `src/index.md` no longer matches any document.** I kept it in the schema since it does no harm, but it can be removed.
+
+**Actions**
+
+- Bash: `git status --short . && find . -path ./.git -prune -o -type f -print | sort && for f in src/*.md src/tools/*.md; do echo…`
+- Bash: `mkdir -p type && git mv src/types.md type/type.md && for t in decision rule trigger tool task knowledge memory repo spec…`
+- Write `dash-skogai/type/type.md`
+- Write `dash-skogai/type/tool.md`
+- Write `dash-skogai/type/index.md`
+- Edit `dash-skogai/src/index.md`
+- Bash: `sed -i 's|^- @src/types.md$|- @type/index.md|; s|^- `src/`: the future dot|- `type/`: one file per type, each acting as …`
+
+## 2026-10-16 03:37 · turn b1641af5
+
+**User**
+
+> types/tool.md defines what a tool is. types/tool/wt... defines what wt is. make sense? so can we PLEASE do a single thing! Just ONE thing correct before you start wasting time mm
+
+**Assistant**
+
+Done: `type/tool.md` defines what a tool is, and `type/tool/<name>.md` defines each tool (`wt.md`, `herdr.md`, `gita.md`, `mise.md`, `okn.md`). I moved them over from `src/tools/` with `git mv`.
+
+The only follow-on edits were fixing the links in `type/tool.md` and its `type/tool/<name>.md` line, and removing the tools section from `src/index.md`, since those links pointed at files that no longer exist. `okn validate src` passes.
+
+The folder is still `type/`, not `types/`, because that's what you asked for first. Tell me if you want it renamed.
+
+**Actions**
+
+- Bash: `git mv src/tools type/tool && sed -i 's|\.\./src/tools/|tool/|g' type/tool.md && python3 - <<'EOF'`
+- Edit `dash-skogai/type/tool.md`
+
+## 2026-10-16 03:39 · turn 1c1007fe
+
+**User**
+
+> Great. since that was not even started on. what is a type? could you please show me?
+
+**Assistant**
+
+In this layout, a type is a file `type/<name>.md`. Its instances live in `type/<name>/`, and each instance file is tagged with the type's name in its frontmatter. Using tool:
+
+```
+type/
+├── type.md          defines what a type is
+├── tool.md          defines what a tool is      (a type)
+└── tool/
+    ├── wt.md        defines what wt is          (an instance of tool)
+    ├── herdr.md
+    └── ...
+```
+
+A type definition states four things:
+
+| | what it is | for tool |
+|---|---|---|
+| **name** | the tag an instance carries in frontmatter | `type: Tool` |
+| **fields** | the frontmatter every instance must have | `title` |
+| **location** | where instances live | `type/tool/<name>.md` |
+| **reserves** | the paths each instance owns outside its own file | `bin/<name>`, `scripts/<name>/` |
+
+So `type/tool.md` would look like:
+
+```markdown
+---
+type: Type
+title: tool
+fields: [title]
+reserves: [bin/<name>, scripts/<name>/]
+---
+
+# tool
+
+an executable skogai uses. ...
+```
+
+And an instance, `type/tool/wt.md`:
+
+```markdown
+---
+type: Tool
+title: wt (worktrunk)
+---
+
+# wt (worktrunk)
+```
+
+okn already checks the first three rows: a `corpus_schema` entry has an `id`, `required` fields and `paths`. Reserves is the part okn can't express, so skogai would have to check it.
+
+Two things in that picture don't exist yet:
+
+- **Nothing validates `type/`.** It isn't an okn bundle.
+- **The schema has the old location.** The `Tool` entry in `src/index.md` still says `tools/**`.
+
+Should I write this definition into `type/type.md`?
+
+## 2026-10-16 03:40 · turn d099217e
+
+**User**
+
+> well it does not look like that do it? so what do type.md look like once again? please?
+
+**Assistant**
+
+I've rewritten `type/type.md` to look like this. It's an instance of itself: it has `type: Type`, and so does every other `type/<name>.md`. The instance folder `type/<name>/` (for example `type/tool/`) is what each type reserves. Nothing validates any of this yet.
+
+```markdown
+---
+type: Type
+title: type
+fields: [title, fields, reserves]
+reserves: [type/<name>/]
+---
+
+# type
+
+a type defines a kind of thing. its definition is `type/<name>.md`, and its instances live in `type/<name>/`.
+
+every type states:
+
+- **title**: its name. instances carry it as their `type` in frontmatter.
+- **fields**: the frontmatter every instance must have.
+- **reserves**: the paths each instance owns outside its own file.
+
+`type` is itself a type: every `type/<name>.md` is an instance of it, including this file.
+```
+
+The rewrite deleted the old notes about how okn's `corpus_schema` handles types, and `git diff` still has them if you want them kept somewhere. `tool.md` doesn't follow this shape yet: it has no frontmatter.
+
+**Actions**
+
+- Bash: `cat type/type.md`
+- Write `dash-skogai/type/type.md`
+
+## 2026-10-16 03:47 · turn eff12c6f
+
+**User**
+
+> Great.
+>
+> type type 
+> title <name>
+> fields should probably have type added? 
+> reserves add all .gitkeep files to build src filesystem as we go along. this will be used to define / setup up the skeleton so to speak. think "if using the type module, these files are made / promised to be taken care of. 
+>
+> do this make sense so far?
+
+**Assistant**
+
+The frontmatter now reads:
+
+```yaml
+type: type
+title: type
+fields: [type, title, fields, reserves]
+reserves: [type/<name>/.gitkeep]
+```
+
+I read "title `<name>`" as: `title` holds the type's own name, which is `type` for this file.
+
+I haven't created any `.gitkeep` files yet. Which root do the reserved paths start from: `src/` (giving `src/type/tool/.gitkeep`) or the repo root (giving `type/tool/.gitkeep`, next to the definitions)?
+
+**Actions**
+
+- Edit `dash-skogai/type/type.md`
+- Edit `dash-skogai/type/type.md`
+
+## 2026-10-16 04:08 · turn 4f93dd74
+
+**User**
+
+> i dont like this setup to begin with if i'm honest.
+>
+> why in essence do we mix definitions with actual values to begin with?
+
+**Assistant**
+
+There's no good reason to. It crept in when the tool instances moved into `type/tool/`, and it breaks the split we'd already agreed on: dash holds the definitions, and the dot holds values.
+
+Kept apart, it looks like this:
+
+- **`type/`**: definitions only, one file per type (`type/tool.md`, `type/type.md`). There are no instance folders.
+- **`src/`**: values only. `wt.md` goes back to `src/` because it is a value of type tool.
+- **`reserves`**: paths inside `src/`. When the tool module is used, it promises `src/tool/<name>.md`, `src/bin/<name>` and `src/scripts/<name>/.gitkeep`.
+
+That also answers my last question: reserved paths always start at `src/`, because that's where values live.
+
+`type/type.md` also changes. `type` is a definition, so its own instances (`tool.md` and the rest) live in `type/`, and it reserves nothing in `src/`.
+
+Should I move the tool instances back into `src/` and set it up this way?
+
+## 2026-10-16 04:44 · turn 40b4335f
+
+**User**
+
+> you know what? from now on we define things with json. please create a basic darned json for each step instead. with me?
+
+**Assistant**
+
+`type/type.json`:
+
+```json
+{
+  "type": "type",
+  "title": "type",
+  "fields": ["type", "title", "fields", "reserves"],
+  "reserves": []
+}
+```
+
+I left `reserves` empty: by the split we just talked about, a definition doesn't reserve anything in `src/`. `type/type.md` is still there.
+
+If that's right, `tool.json` would be the next step.
+
+**Actions**
+
+- Write `dash-skogai/type/type.json`
+
+## 2026-10-16 04:47 · turn 875aef81
+
+**User**
+
+> now we do a quick pause here. what's the most widely used schema. this file can represent all types, we keep the markdown setup as is
+
+**Assistant**
+
+JSON Schema (json-schema.org). Draft 2020-12 is the current version. OpenAPI, VS Code, GitHub Actions, Kubernetes CRDs and most validators (ajv, check-jsonschema) use it.
+
+As JSON Schema, `type.json` becomes the schema that every type definition has to pass:
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "type",
+  "title": "type",
+  "type": "object",
+  "required": ["type", "title", "fields", "reserves"],
+  "properties": {
+    "type": { "const": "type" },
+    "title": { "type": "string" },
+    "fields": { "type": "array", "items": { "type": "string" } },
+    "reserves": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": false
+}
+```
+
+It fits with keeping the markdown, because YAML frontmatter parses to the same JSON. Each `.md` file's frontmatter can be validated against its type's schema without changing the markdown.
+
+One naming collision: `"type": "object"` at the top is JSON Schema's own keyword, while `properties.type` is our frontmatter key. They don't conflict, but they look alike.
+
+I haven't changed `type/type.json`. Should I replace its contents with this?
+
+## 2026-10-16 04:48 · turn 36383c43
+
+**User**
+
+> Great. please go ahead as you see fit
+
+**Assistant**
+
+`type/type.json` is now a JSON Schema (draft 2020-12), and the frontmatter of `type/type.md` passes it. I checked by pulling the frontmatter out to a file and running `uvx check-jsonschema --schemafile type/type.json` on it.
+
+The schema only checks the shape of `reserves`, not what's in it. So `type.md` still reserves `type/<name>/.gitkeep` and passes, even though we agreed a definition shouldn't reserve anything in `src/`.
+
+No validator is installed here. `check-jsonschema` ran through `uvx`, which downloads it on each run.
+
+**Actions**
+
+- Write `dash-skogai/type/type.json`
+- Bash: `which check-jsonschema ajv yq 2>/dev/null; python3 -c "import jsonschema, yaml; print('py ok')" 2>&1` (failed)
+- Bash: `cd /tmp/claude-1000/-home-skogix-skogai-dash-skogai/f948ca85-c587-448b-aeb0-95431034c39f/scratchpad && sed -n '/^---$/,/…`
+
+## 2026-10-16 04:52 · turn b42ec3c0
+
+**User**
+
+> hi claude. please rename type.json to represent its a schema.
+>
+> After that if like your input on some naming etc. essentially quickly going down a list of types, things, concepts or modules like "tool", "memory", "decision" etc etc
+
+**Assistant**
+
+Renamed `type/type.json` to `type/type.schema.json`, following the usual `<name>.schema.json` convention. Nothing referenced the old name.
+
+My take on the names, one at a time:
+
+| name | verdict | note |
+|---|---|---|
+| **type** | keep | You can't avoid having a type that describes types. |
+| **decision** | keep | Clear and write-once, like an ADR. |
+| **rule** | overlaps | Rule, decision and spec could all hold a statement like "we do X". A clean split: a decision records *why*, a rule is a constraint that can be *checked*. If rules can't be checked, fold them into decision. |
+| **trigger** | keep | Better than "hook", which git and Claude Code already use. Worth asking whether it's a type of its own or a field on tool or task, i.e. "runs on event X". |
+| **tool** | keep | It's already in use and its `reserves` are concrete. It's also the clearest example of your "types as modules" TODO. |
+| **task** | rename? | The most overloaded name on the list: mise tasks, Claude Code tasks, todo items. If "workorder" is still your word for this, it's unambiguous. |
+| **knowledge / memory** | needs a split | The two are the vaguest pair. Scope can't separate them, because both have global and local versions. I'd split on lifetime: **knowledge** is curated and expected to stay true, while **memory** is observed, dated and can go stale (`stale_after`). |
+| **repo** | keep | Its instances describe something outside dash, much like tool does. Two such types point to a shared "external reference" pattern later. |
+| **spec** | unclear | It collides with type, since a type is already a spec. If it means "a design for something we're going to build", consider **proposal** or **design**. If it means a contract, it's the same thing as type or rule. |
+
+Two names are missing from the list: **router**, the one case `okn list` already shows, and possibly **event** or **journal**, if triggers need something to react to.
+
+Which do you want to settle first? I'd start with knowledge vs memory, since rule, spec and decision get easier once that line is drawn.
+
+**Actions**
+
+- Bash: `cat type/type.json; echo ---; grep -rn "type.json" . --include=*.md --include=*.json 2>/dev/null; echo ---; for f in typ…` (failed)
+- Bash: `cd /home/skogix/skogai/dash-skogai; grep -rn "type\.json" . 2>/dev/null | grep -v '^./.git'; echo ---; for f in type/*.m…`
+- Bash: `mv type/type.json type/type.schema.json && ls type`
+
+## 2026-10-16 05:02 · turn a28bba7d
+
+**User**
+
+> some examples to build upon maybe? input wanted
+>
+> type; all types have
+>   <insert the base type from open knowledge format>
+>   *a way to own/manage a file fully*
+>   *files it modifies/act upon*
+>   *files which it "if changed then this file wants to know about it"* (trigger seems to fit well?)  
+> decision;
+>   ...
+>
+> rule: 
+>   ...
+>
+> trigger:
+>   ...
+>
+> tool:
+> owns: 
+>   ./bin/<name>
+>   ./scripts/<name>/
+>   ./docs/tools/<name>.md
+>   ./workflow/<name>.md
+
+**Assistant**
+
+Here's a draft to react to. The three relations you list for the base type are the key piece. They read as **owns / writes / watches**, i.e. create, modify and read.
+
+## type (every type has these)
+
+```yaml
+# okf base
+type: <tag>            # the discriminator
+title: <name>
+description: <one line>
+# skogai
+owns:    [paths]       # creates it and manages it fully; exactly one owner per path
+writes:  [paths]       # modifies it without owning it (append, patch, regenerate a section)
+watches: [paths]       # read-only; "if this changes, I want to know"
+```
+
+**One owner per path** is what makes the union closed across the filesystem. `check` can then report two errors:
+
+- a file with no owner is an untyped value;
+- a file with two owners is a conflict.
+
+`writes` and `watches` can have any number of entries.
+
+On the OKF base: `okn list` showed `[unverified, stable]`, so there are verification and stability fields as well. I haven't checked the exact key names against the spec.
+
+## decision
+
+```yaml
+owns:    [decisions/<nnnn>-<name>.md]
+writes:  [DECISIONS.md]          # derived index, or owned by decision type itself
+fields:  [status, supersedes]    # proposed | accepted | superseded
+```
+
+A decision is written once and never edited. You change a decision by writing a new one with `supersedes: <nnnn>`, which is the git-log model again.
+
+## rule
+
+```yaml
+owns:    [rules/<name>.md]
+watches: [<globs it constrains>]
+fields:  [applies_to, from]      # from: the decision it enforces
+```
+
+A rule is a decision made checkable. Its `watches` are the files it constrains, and when one of them changes, the rule gets re-checked.
+
+## trigger
+
+I'd make **`watches` the field** and drop trigger as a type, at least for now. "This file wants to know when that one changes" is a relation between two things, not a thing of its own. If you need trigger later, it's the dispatcher: one function that reads every `watches` entry and fires on change. That machinery is one piece, not one instance per trigger.
+
+## tool
+
+```yaml
+owns:
+  - bin/<name>
+  - scripts/<name>/
+  - docs/tools/<name>.md
+  - workflow/<name>.md
+```
+
+Two things to settle:
+
+- **Where the definition lives.** `type.md` says instances live in `type/<name>/` (currently `type/tool/okn.md`), but this list says `docs/tools/<name>.md`. Pick one. My suggestion: `type/tool/<name>.md` is the instance, and docs, if needed, are a separate file the tool owns.
+- **Plural vs singular directory names.** You have `bin`, `scripts`, `docs/tools` and `workflow`, a mix. I'd go plural throughout (`workflows/`), except `bin`, which is a convention of its own.
+
+Next would be knowledge vs memory under this model. Or I can write these drafts into the `type/*.md` files first if they look right.
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai/dash-skogai; cat type/tool/okn.md | head -60; okn --help 2>&1 | head -30; ls src; find / -iname "…`
+- Bash: `cd /home/skogix/skogai/dash-skogai; okn validate --help 2>&1 | head -30; ls ~/.config/openknowledge; find / -path /proc …`
+- Bash: `head -40 /tmp/claude-1000/-home-skogix-skogai/4b5778f5-a27f-481b-911c-b3546b0efdbb/tasks/b2uhltpqr.output; okn get --hel…`
+
+## 2026-10-16 05:25 · turn 73192e71
+
+**User**
+
+> <task-notification>
+> <task-id>b2uhltpqr</task-id>
+> <tool-use-id>toolu_01RJBSKyCUsFWuofdfTncZ1Q</tool-use-id>
+> <output-file>/tmp/claude-1000/-home-skogix-skogai/4b5778f5-a27f-481b-911c-b3546b0efdbb/tasks/b2uhltpqr.output</output-file>
+> <status>completed</status>
+> <summary>Background command "Find the OKF spec for base fields" completed (exit code 0)</summary>
+> </task-notification>
+
+**Assistant**
+
+The background search found the OKF v0.2 spec at `~/.local/src/open-knowledge-plugin/.okf/reference/okf-spec.md`, so here's the corrected base for the type draft.
+
+**The one hard rule (§11):** a file must have frontmatter with a non-empty `type`. Every other field is optional.
+
+**Optional base fields:**
+- **Identity:** `type`, `title`, `description`
+- **Source:** `resource`
+- **Provenance:** `sources[]` (`resource`, `id`, `author`, `usage_count`, `last_modified`), `usage_window`
+- **Trust:** `generated: {by, at}`, `verified[]`
+- **Lifecycle:** `status`, `stale_after`
+
+This explains the `[unverified, stable]` in your `okn list` output: no `verified[]` entries, and `status: stable`.
+
+It affects the draft in two ways:
+- **knowledge vs memory:** `status` and `stale_after` are already OKF fields, so the lifetime split I suggested needs no new fields from skogai.
+- **`owns` / `writes` / `watches`:** nothing in the OKF base expresses them. They'd be skogai's only additions to the base type.
+
+**Actions**
+
+- Bash: `sed -n '40,200p' /tmp/claude-1000/-home-skogix-skogai/4b5778f5-a27f-481b-911c-b3546b0efdbb/tasks/b2uhltpqr.output`
+- Bash: `grep -n -iE "frontmatter|required|^#|type:|title:|description|resource|status|stability|verif" /home/skogix/.local/src/o…`
+
+## 2026-10-16 05:40 · turn 270df330
+
+**User**
+
+> please continue as you see fit
+
+**Assistant**
+
+I wrote the drafts into the `type/` files, and the four filled-in definitions pass `type/type.schema.json`.
+
+- **`type/type.md`** now has the OKF base fields, `owns` / `writes` / `watches` instead of `reserves`, and the check rules: a file with no owner is untyped, a file with two owners is a conflict.
+- **`type/type.schema.json`** matches it. `owns` is required; `writes`, `watches`, `description` and `status` are optional.
+- **`type/tool.md`** owns `type/tool/<name>.md`, `bin/<name>`, `scripts/<name>/` and `workflows/<name>.md`.
+- **`type/decision.md`** is write-once, with `status` and `supersedes`. It writes `DECISIONS.md`, which is generated from the decisions.
+- **`type/rule.md`** has `applies_to` (what it constrains), an optional `from` (the decision it enforces), and watches its `applies_to` paths.
+
+I left trigger, knowledge, memory, task, spec and repo empty. Each one needs a call from you first, so I added these to `TODO.md` instead:
+- whether trigger becomes the `watches` field or stays a type;
+- knowledge vs memory;
+- renaming task to workorder;
+- what spec is;
+- **casing:** the tool instances say `type: Tool` but type titles are lowercase, and a closed set of types needs one casing;
+- **tool paths:** I folded `docs/tools/<name>.md` into `type/tool/<name>.md` and renamed `workflow/` to `workflows/` without asking. Undo either if you disagree;
+- whether `watches: [<applies_to>]` in rule may point at a field value instead of a literal path.
+
+The existing `skogai_schema owns: [paths]` item in `TODO.md` is now covered by the `owns` field. Nothing is committed.
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai/dash-skogai; sed -n '17,60p' /home/skogix/.local/src/open-knowledge-plugin/.okf/reference/okf-spe…`
+- Write `dash-skogai/type/type.md`
+- Write `dash-skogai/type/type.schema.json`
+- Write `dash-skogai/type/tool.md`
+- Write `dash-skogai/type/decision.md`
+- Write `dash-skogai/type/rule.md`
+- Bash: `cd /home/skogix/skogai/dash-skogai` (failed)
+- Bash: `cd /home/skogix/skogai/dash-skogai; uv run --quiet --with pyyaml --with jsonschema python -I -c '`
+
+## 2026-10-16 05:50 · turn 360e7725
+
+**User**
+
+> a trigger I would almost expect to be "trigger" owns script/trigger/name.sh which runs when target file change, event happen etc?
+> now a file overall can still watch something but thats just a really simple trigger example type right?
+>
+> also if possible always lowercase.
+>
+> After please commit
+
+**Assistant**
+
+Committed as `ca3214d`, covering only the files inside `dash-skogai`.
+
+- **trigger:** written the way you described. It owns `type/trigger/<name>.md` and `scripts/trigger/<name>.sh`, and its field `when` lists the paths or events that run the script. The base `watches` field is described as the simplest trigger: it marks interest in a path and runs nothing.
+- **Field name:** I called it `when` instead of `on`, because YAML reads a bare `on` as the boolean `true`. The schema check caught that.
+- **Lowercase:**
+  - the tool instances now say `type: tool`;
+  - `src/index.md` now uses `index`, `draft` and `tool`, and `okn validate src` still passes;
+  - display titles like "okn (openknowledge executable)" keep their capitals.
+- **Path:** I used `scripts/trigger/` rather than `script/trigger/` so it matches the `scripts/` folder that tool uses.
+- **TODO.md:** the trigger and casing items are removed. A new one asks what an "event" is in `when`, and where events come from.
+
+The commit also includes the staged move from `src/` to `type/` and your earlier edits to `CLAUDE.md` and `src/index.md`. I left `../.skogai/journal.md` and `../CLAUDE.md` uncommitted, since they're outside this repo folder.
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai/dash-skogai; grep -rn "^type: [A-Z]" . --include='*.md' 2>/dev/null | grep -v '^./.git'; git diff…`
+- Bash: `cd /home/skogix/skogai/dash-skogai; sed -n 1,14p src/index.md`
+- Bash: `cd /home/skogix/skogai/dash-skogai`
+- Write `dash-skogai/type/trigger.md`
+- Bash: `cd /home/skogix/skogai/dash-skogai`
+- Bash: `cd /home/skogix/skogai/dash-skogai`
+
+## 2026-10-16 05:52 · turn 5525e516
+
+**User**
+
+> hi claude. what's pwd and do you have any skogai envs?
+
+**Assistant**
+
+The working directory is `/home/skogix/skogai/dash-skogai`, and there are 10 skogai env vars set.
+
+**Paths**
+- `XDG_SKOGAI_DIR=/home/skogix/skogai`
+- `XDG_SKOGAI_CONFIG_DIR=/home/skogix/.config/skogai`
+- `SKOGAI_CLAUDE_CODE_DOCS_DIR=/home/skogix/tmp/docs`
+- `/skogai/bin` is on `PATH`.
+
+**Git automation flags (all `false`)**
+- On prompt submit: `SKOGAI_STAGE_ON_USER_PROMPT_SUBMIT`, `SKOGAI_COMMIT_ON_USER_PROMPT_SUBMIT`, `SKOGAI_MERGE_ON_USER_PROMPT_SUBMIT`
+- On stop: `SKOGAI_STAGE_ON_STOP`, `SKOGAI_COMMIT_ON_STOP`, `SKOGAI_MERGE_ON_STOP`
+
+**Actions**
+
+- Bash: `pwd; env | grep -i skogai`
+
+## 2026-10-16 05:54 · turn 790e149b
+
+**User**
+
+> I'd like to mise set the stage and commit envs true in both cases globally. do we have any journal or ../.skogai/logs files in git status currently?
+
+**Assistant**
+
+The four stage and commit vars are now `true` in `~/.config/mise/config.toml`. The two merge vars are still `false`.
+
+In git status, the only file under `../.skogai` is `../.skogai/journal.md`, which has uncommitted changes. Nothing under `../.skogai/logs` shows up, so it's either clean or ignored.
+
+The hooks in this session still see the old values, so the new settings apply from the next session or shell.
+
+**Actions**
+
+- Bash: `mise set -g SKOGAI_STAGE_ON_USER_PROMPT_SUBMIT=true SKOGAI_COMMIT_ON_USER_PROMPT_SUBMIT=true SKOGAI_STAGE_ON_STOP=true S…`
+

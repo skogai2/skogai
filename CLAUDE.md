@@ -1,2 +1,3 @@
-- @projects/orchestration/CLAUDE.md - included as the basic orchestration layer
+- projects/orchestration/CLAUDE.md - included as the basic orchestration layer
 - @docs/skogix/introduction.md - a small introduction from the user skogix
+- @dash-skogai/CLAUDE.md
