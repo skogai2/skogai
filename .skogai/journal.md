@@ -1559,3 +1559,28 @@ Got it. Which kind of plugin:
 
 What's the first thing you want to tackle?
 
+## 2026-10-16 12:03 · turn 8d202970
+
+**User**
+
+> AND IT ACTUALLY WOOOOOORKS! woop-di-woop-woop!
+>
+> you see this file here: @log.jsonl totally created just now. 
+>
+> and you see this as well?: @.claude/skogai-core.local.md 
+>
+>
+> woop-di-woop
+
+**Assistant**
+
+Woop confirmed 🎉 Both hooks fired cleanly: `UserPromptSubmit` on "mostly plugin-stuffs" and `Stop` with my reply. The settings file is being picked up, since rows land in `./log.jsonl` instead of the default path.
+
+A few things I noticed:
+
+- **The log commits itself.** Every event runs `git add -A` plus a `wt step commit`, and the log now sits at the repo root, so each commit includes `log.jsonl` and every turn produces a diff. The default `.skogai/logs/...` path, or a gitignore entry, would avoid that churn.
+- **The rows are heavy.** Each one carries the full hook input, including `transcript_path` and the whole `last_assistant_message`. That's fine for debugging, but the file will grow fast once `PreToolUse` and `PostToolUse` rows start coming in.
+- **No tool rows yet.** I haven't made a real tool call yet. The `@` file reads are attachments, not tool calls, so we can't yet confirm that `PreToolUse` and `PostToolUse` work.
+
+Want me to make a tool call so we can check those rows?
+
