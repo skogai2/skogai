@@ -1,6 +1,15 @@
-- @tmp/TOOLS.md
-- @tmp/TYPES.md
+# routes 
+
+- @src/index.md
+- @src/types.md
 - @tmp/functional-discussion.md
+- @SKOGAI.md
+
+# layout
+
+- `./`: meta, how we work on dash (CLAUDE.md, SKOGAI.md, TODO.md)
+- `src/`: the future dot, an okn bundle. check with `okn validate src`
+- `tmp/`: untyped or undecided
 
 # handover
 

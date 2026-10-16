@@ -1,0 +1,5 @@
+- [ ] explain the git-plugin overall
+- [ ] types as modules: a module (e.g. gita) declares the files it owns or relates to (tools/gita.md, bin/gita, scripts/gita/*)
+  - okn `typed_links` cannot express this: link targets must be declared document types, so `bin/gita` is not a valid target
+  - okf `resource` takes only one path
+  - candidate: `skogai_schema` key such as `owns: [paths]`, checked by skogai after `okn validate`
