@@ -2200,3 +2200,35 @@ Want me to do either?
 
 - Bash: `which -a skogai; ls -la ~/.local/bin/skogai ~/skogai/dash-skogai/bin/skogai 2>&1; head -3 ~/.local/bin/skogai; ~/.local/…`
 
+## 2026-10-16 13:46 · turn fa0fcd51
+
+**User**
+
+> well honestly the one who implements it best first ^^. 
+>
+> let say it like this for now, doesnt matter at all. get one working and everyones happy
+
+**Assistant**
+
+One is already working: `dash-skogai/bin/skogai config`.
+
+```
+$ skogai config get commit.on-stop --show-origin
+env:SKOGAI_COMMIT_ON_STOP	true
+```
+
+It resolves the dash layers in order: `dash-skogai/config` as the base, then `~/.skogai/config`, then `<repo>/.skogai/config`, then env vars. The `SKOGAI_*_ON_*` switches you already set in mise map onto its keys, so `list`, `get`, `files` and `--show-origin` all give real answers today. I told the marketplace session it's the one to build on.
+
+Two gaps before it's actually used:
+
+1. **It can't be called as `skogai`.** `dash-skogai/bin` isn't on PATH, so the name resolves to the uv `skogai-cli` in `~/.local/bin`.
+2. **The plugin doesn't call it.** skogai-core's `git-steps.sh` still reads the env vars directly instead of running `skogai config get stage.on-stop` and the others.
+
+Should I wire up both?
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai/dash-skogai && cat bin/skogai; ls; git log --oneline -3; which yq jq; yq --version`
+- Bash: `cat config; ./bin/skogai config files; ./bin/skogai config list --show-origin; ./bin/skogai config get commit.on-stop --…`
+- SendMessage: uds:/run/user/1000/cc-socks/3123178.sock
+
