@@ -1854,3 +1854,25 @@ Should I resolve it next? I'd look up `path` in `skogcli config get '$'` and rep
 - Bash: `echo '[$ id]' | SKOGAI_CONFIG_DIR=/tmp/claude-1000/-home-skogix-skogai/1db9721f-e8e7-4a6f-a1b3-c6bada325b41/scratchpad/s…`
 - Bash: `skogparse --help 2>&1 | head -30`
 
+## 2026-10-16 12:27 · turn 0a0fdb79
+
+**User**
+
+> now run say [$ json, true, 52, $ eid] instead and this time add --execute
+
+**Assistant**
+
+`--execute` resolves the refs recursively until they reach leaves:
+
+- **`$ json`** resolves to the whole `json` object.
+- **`true`** and **`52`** pass through as typed literals: `bool` and `number`.
+- **`$ eid`** expands fully. `eid` → `[$ entity.id * $ entity.gen]`, both of which → `$ id`, which → `$ int * $ unique`. That gives `(int * unique) * (int * unique)` as a nested `binary_op` tree, with `int` resolved to the `json.int` object and `unique` resolved to its description string.
+
+So a type is evaluated by substitution all the way down to its definition, which is the `$` section working as an interpreter.
+
+There's one rough edge. Object-valued refs come back as `{"type": "string", "value": "{'string': '', ... 'true': True ...}"}`, a Python `repr` stringified into the value. That loses the structure and isn't valid JSON (`True`, single quotes). They should become `{"type": "object", "value": {...}}` nodes, recursively typed like everything else.
+
+**Actions**
+
+- Bash: `echo '[$ json, true, 52, $ eid]' | SKOGAI_CONFIG_DIR=/tmp/claude-1000/-home-skogix-skogai/1db9721f-e8e7-4a6f-a1b3-c6bada…`
+
