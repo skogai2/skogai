@@ -45,7 +45,7 @@ path      :: string            -- `<var>` placeholders, trailing `/` is a folder
 module :: instance -> [path]   -- every file an instance owns or relates to
 ```
 
-missing. a type's `owns` already is the module for its instances, but there is no way to declare *extra* paths per instance (`bin/gita`, `scripts/gita/*`).
+missing. a type's `owns` already is the module for its instances, including `bin/gita` and `scripts/gita/`, but there is no way to declare *extra* paths per instance outside the type's `owns` patterns.
 
 - okn `typed_links` can't target non-document paths; okf `resource` is one path.
 - candidate: `owns: [paths]` on the instance, checked by `skogai check` after `okn validate`.
