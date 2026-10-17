@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event.sessionend",
+  "title": "SessionEnd",
+  "allOf": [
+    {
+      "$ref": "event#/$defs/row"
+    }
+  ],
+  "properties": {
+    "event": {
+      "const": "SessionEnd"
+    },
+    "input": {
+      "allOf": [
+        {
+          "$ref": "event#/$defs/input"
+        }
+      ],
+      "required": [
+        "reason"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event.userpromptsubmit",
+  "title": "UserPromptSubmit",
+  "allOf": [
+    {
+      "$ref": "event#/$defs/row"
+    }
+  ],
+  "properties": {
+    "event": {
+      "const": "UserPromptSubmit"
+    },
+    "input": {
+      "allOf": [
+        {
+          "$ref": "event#/$defs/input"
+        }
+      ],
+      "required": [
+        "prompt"
+      ],
+      "properties": {
+        "prompt": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event.stop",
+  "title": "Stop",
+  "allOf": [
+    {
+      "$ref": "event#/$defs/row"
+    }
+  ],
+  "properties": {
+    "event": {
+      "const": "Stop"
+    },
+    "input": {
+      "allOf": [
+        {
+          "$ref": "event#/$defs/input"
+        }
+      ],
+      "required": [
+        "prompt_id",
+        "last_assistant_message"
+      ],
+      "properties": {
+        "stop_hook_active": {
+          "type": "boolean"
+        },
+        "last_assistant_message": {
+          "type": "string"
+        },
+        "background_tasks": {
+          "type": "array"
+        },
+        "session_crons": {
+          "type": "array"
+        }
+      }
+    }
+  }
+}

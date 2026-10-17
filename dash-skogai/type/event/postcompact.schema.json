@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event.postcompact",
+  "title": "PostCompact",
+  "allOf": [
+    {
+      "$ref": "event#/$defs/row"
+    }
+  ],
+  "properties": {
+    "event": {
+      "const": "PostCompact"
+    },
+    "input": {
+      "allOf": [
+        {
+          "$ref": "event#/$defs/input"
+        }
+      ],
+      "required": [
+        "trigger"
+      ],
+      "properties": {
+        "trigger": {
+          "enum": [
+            "manual",
+            "auto"
+          ]
+        },
+        "compact_summary": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

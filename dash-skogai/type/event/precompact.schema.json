@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event.precompact",
+  "title": "PreCompact",
+  "allOf": [
+    {
+      "$ref": "event#/$defs/row"
+    }
+  ],
+  "properties": {
+    "event": {
+      "const": "PreCompact"
+    },
+    "input": {
+      "allOf": [
+        {
+          "$ref": "event#/$defs/input"
+        }
+      ],
+      "required": [
+        "trigger"
+      ],
+      "properties": {
+        "trigger": {
+          "enum": [
+            "manual",
+            "auto"
+          ]
+        },
+        "custom_instructions": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event.posttoolusefailure",
+  "title": "PostToolUseFailure",
+  "allOf": [
+    {
+      "$ref": "event#/$defs/row"
+    }
+  ],
+  "properties": {
+    "event": {
+      "const": "PostToolUseFailure"
+    },
+    "input": {
+      "allOf": [
+        {
+          "$ref": "event#/$defs/input"
+        }
+      ],
+      "required": [
+        "tool_name",
+        "tool_input",
+        "error"
+      ],
+      "properties": {
+        "tool_name": {
+          "type": "string"
+        },
+        "tool_input": {
+          "type": "object"
+        },
+        "tool_use_id": {
+          "type": "string"
+        },
+        "error": {
+          "type": "string"
+        },
+        "is_interrupt": {
+          "type": "boolean"
+        },
+        "duration_ms": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

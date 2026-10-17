@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event.posttooluse",
+  "title": "PostToolUse",
+  "allOf": [
+    {
+      "$ref": "event#/$defs/row"
+    }
+  ],
+  "properties": {
+    "event": {
+      "const": "PostToolUse"
+    },
+    "input": {
+      "allOf": [
+        {
+          "$ref": "event#/$defs/input"
+        }
+      ],
+      "required": [
+        "tool_name",
+        "tool_input"
+      ],
+      "properties": {
+        "tool_name": {
+          "type": "string"
+        },
+        "tool_input": {
+          "type": "object"
+        },
+        "tool_use_id": {
+          "type": "string"
+        },
+        "tool_response": {},
+        "duration_ms": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

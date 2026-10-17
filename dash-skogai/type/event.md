@@ -26,7 +26,7 @@ one json object per line in `.skogai/logs/event.jsonl`:
 - **ts**: when it happened, utc, to the millisecond.
 - **event**: the instance's `title`.
 - **action**: optional, what the script did, when it did more than record the row.
-- **input**: everything the event came with, unchanged.
+- **input**: everything the event came with, unchanged. `$defs/input` in the schema lists the fields every event shares; `type/event/<name>.schema.json` adds its own and says which are required.
 
 ## the script
 

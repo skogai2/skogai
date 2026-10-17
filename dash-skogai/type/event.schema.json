@@ -3,26 +3,86 @@
   "$id": "event",
   "title": "event",
   "type": "object",
-  "required": ["type", "title"],
+  "required": [
+    "type",
+    "title"
+  ],
   "properties": {
-    "type": { "const": "event" },
-    "title": { "type": "string" },
-    "description": { "type": "string" },
-    "status": { "type": "string" },
-    "enabled": { "type": "boolean" }
+    "type": {
+      "const": "event"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "enabled": {
+      "type": "boolean"
+    }
   },
   "additionalProperties": false,
   "$defs": {
     "row": {
       "type": "object",
-      "required": ["ts", "event", "input"],
+      "required": [
+        "ts",
+        "event",
+        "input"
+      ],
       "properties": {
-        "ts": { "type": "string", "format": "date-time" },
-        "event": { "type": "string" },
-        "action": { "type": "string" },
-        "input": { "type": "object" }
+        "ts": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "event": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "input": {
+          "type": "object"
+        }
       },
       "additionalProperties": false
+    },
+    "input": {
+      "type": "object",
+      "required": [
+        "session_id",
+        "cwd",
+        "hook_event_name"
+      ],
+      "properties": {
+        "session_id": {
+          "type": "string"
+        },
+        "prompt_id": {
+          "type": "string"
+        },
+        "transcript_path": {
+          "type": "string"
+        },
+        "cwd": {
+          "type": "string"
+        },
+        "permission_mode": {
+          "type": "string"
+        },
+        "hook_event_name": {
+          "type": "string"
+        },
+        "agent_id": {
+          "type": "string"
+        },
+        "agent_type": {
+          "type": "string"
+        }
+      }
     }
   }
 }

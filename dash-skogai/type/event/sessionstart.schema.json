@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event.sessionstart",
+  "title": "SessionStart",
+  "allOf": [
+    {
+      "$ref": "event#/$defs/row"
+    }
+  ],
+  "properties": {
+    "event": {
+      "const": "SessionStart"
+    },
+    "input": {
+      "allOf": [
+        {
+          "$ref": "event#/$defs/input"
+        }
+      ],
+      "required": [
+        "source"
+      ],
+      "properties": {
+        "source": {
+          "enum": [
+            "startup",
+            "resume",
+            "clear",
+            "compact",
+            "fork"
+          ]
+        },
+        "model": {
+          "type": "string"
+        },
+        "session_title": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

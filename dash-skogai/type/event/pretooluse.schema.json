@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event.pretooluse",
+  "title": "PreToolUse",
+  "allOf": [
+    {
+      "$ref": "event#/$defs/row"
+    }
+  ],
+  "properties": {
+    "event": {
+      "const": "PreToolUse"
+    },
+    "input": {
+      "allOf": [
+        {
+          "$ref": "event#/$defs/input"
+        }
+      ],
+      "required": [
+        "tool_name",
+        "tool_input"
+      ],
+      "properties": {
+        "tool_name": {
+          "type": "string"
+        },
+        "tool_input": {
+          "type": "object"
+        },
+        "tool_use_id": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
