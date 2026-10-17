@@ -3,7 +3,7 @@ type: type
 title: type
 description: a kind of thing, and the files each of its instances owns, writes and watches.
 fields: [type, title, description, fields, owns, writes, watches]
-owns: [type/<name>.md, type/<name>.schema.json, type/<name>/]
+owns: [type/<name>.md, type/<name>.schema.json]
 ---
 
 # type
@@ -36,7 +36,7 @@ every type states:
 
 - a file with no owner is untyped: an error.
 - a file with two owners is a conflict: an error.
-- a parent owns a folder, its instances own their files: when a folder pattern (`type/<name>/`) and a file pattern (`type/tool/<name>.md`) both match, the file pattern wins. that is one owner, not a conflict.
+- ownership is one step. `type` owns `type/tool.md`; `tool` owns `type/tool/gita.md`. `type` never owns what is under `type/tool/`.
 - `writes` and `watches` can overlap freely.
 
 `type` is itself a type: every `type/<name>.md` is an instance of it, including this file.
