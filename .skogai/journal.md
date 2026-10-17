@@ -4129,6 +4129,22 @@ Your own uncommitted changes in `~/skogai` (`herdr.md`, `wt.md` and others) are 
 - Write `dash-skogai/type/event.schema.json`
 - Bash: `cd ~/skogai/dash-skogai; python3 - <<'EOF'`
 
+## 2026-10-17 20:57 · turn 7debe7cf
+
+**User**
+
+> You are a worker. Task: write projects/orchestration/TOOLS-wt.md, a terse reference for using worktrunk (wt) from an orchestrator session. Learn it from the installed binary (wt --help, wt switch --help, wt merge --help, wt list --help, wt remove --help, wt step --help) and ~/.config/worktrunk/config.toml. Cover only: create a worktree without cd (--no-cd), target one with -C <path>, list, merge (squash vs --no-squash, --no-remove, --stage, -y), remove, and step commit/diff if they exist. Note that worktrees live under .skogai/worktrees/<branch>. Do not run wt merge or wt remove. Style: lowercase prose, short, command examples, no fluff. When done, commit only that file with: git add projects/orchestration/TOOLS-wt.md && git commit -m 'orchestration: wt reference'. Then reply with one line: the commit hash and the file's line count.
+
+**Assistant**
+
+a976c26, 77 lines
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai/.skogai/worktrees/tools-wt; for c in "" switch merge list remove step; do echo "=== wt $c"; wt $c…` (failed)
+- Bash: `cd /home/skogix/skogai/.skogai/worktrees/tools-wt; wt merge --help 2>&1 | sed -n '1,70p'; echo ---; wt list --help 2>&1 …`
+- Write `projects/orchestration/TOOLS-wt.md`
+- Bash: `cd /home/skogix/skogai/.skogai/worktrees/tools-wt; git add projects/orchestration/TOOLS-wt.md && git commit -q -m 'orche…`
 ## 2026-10-17 15:58 · turn 619b0564
 
 **User**
