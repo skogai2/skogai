@@ -85,8 +85,6 @@ missing. a type's `owns` already is the module for its instances, including `bin
 | `SKOGAI.md`, `CLAUDE.md` | router (draft); `CLAUDE.md` should become derived `@SKOGAI.md` |
 | `TODO.md` | none — task? |
 | `type/index.md`, `src/index.md` | router, or a new `index` type |
-| `type/type.schema.json`, `type/event.schema.json` | type (`type/<name>.schema.json`) ✓ |
-| `type/event/<name>.schema.json` | event ✓ |
 | `tmp/**` | untyped by design |
 
 ## tmp/routing leftovers
