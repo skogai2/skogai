@@ -20,7 +20,7 @@
 - [ ] skogai cli: how does a type declare that a file is derived, and by what function?
 - [ ] agent prompts: `bin/skogai` has only `config` so far. until it has `check`, `plan` and `apply`, an agent runs `check`, `plan` and `apply` from `workflows/skogai.md` (owned by tool skogai). init elsewhere is `apply` on an empty dot. `check` is written and runs as `mise run dash:check [dot]`; `plan` and `apply` wait on the open cli items above
 - [ ] router: decision 0006 keeps routing out of dash until the type layer works. `type/router.md` is a draft folded from `tmp/routing/`. keep it as a draft, or move it back to tmp?
-- [ ] router: `owns: [<name>/SKOGAI.md]` leaves `CLAUDE.md` unowned, and `./CLAUDE.md` already routes with `# routes`. does router own `CLAUDE.md` too, or does claude code (a tool) own it?
+- [ ] router: dash's own `CLAUDE.md` holds routes, layout and handover, and `SKOGAI.md` holds goals. move that content into `SKOGAI.md` (and its routes) so `CLAUDE.md` becomes the derived `@SKOGAI.md`?
 - [ ] router: "frontmatter `type` names the root xml block" (router -> `<routes>`). make it the rule for every type, or keep it router-only?
 - [ ] router: permalink `repo/file` resolves to `~/repo`, `~/.local/src/repo` or `projects/repo`. replaced by "refs resolve to commits", or does it belong in repo?
 - [ ] tmp/routing schemas: `lesson` (match.keywords, rule/context/pattern) vs knowledge/memory, `workflow` (objective/steps/validation) vs `workflows/<name>.md`, `template`, `reference`. map to types or drop

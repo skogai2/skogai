@@ -4,7 +4,7 @@ title: router
 description: a file that points to other files, so an agent loads only what the task needs.
 status: draft
 fields: [type, title]
-owns: [<name>/SKOGAI.md]
+owns: [<name>/SKOGAI.md, <name>/CLAUDE.md]
 ---
 
 # router
@@ -31,6 +31,14 @@ title: dash-skogai
 - **no transitive bloat**: a router never `@`-links a file that itself `@`-links content. that loads everything below it.
 - **one step**: each router points to the next level, never to everything.
 
-`CLAUDE.md` is the only file claude code loads natively. it reaches a router by `@`-linking it.
+## CLAUDE.md
+
+claude code loads only `CLAUDE.md`, never `SKOGAI.md`. so each router also owns the `CLAUDE.md` next to it, and that file is derived: its whole content is
+
+```markdown
+@SKOGAI.md
+```
+
+it is never hand-edited, and `check` regenerates and compares it. routes go in `SKOGAI.md`, not in `CLAUDE.md`.
 
 the source this was folded from is [tmp/routing](../tmp/routing/README.md).
