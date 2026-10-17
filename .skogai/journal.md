@@ -4004,3 +4004,128 @@ I'd tackle the `tools` items next: put the gotchas into the existing `tool/herdr
 - Bash: `cd /home/skogix/skogai; rtk find . -path ./node_modules -prune -o -type d -name 'dot-dash-skogai' -print 2>/dev/null | h…`
 - Bash: `cd /home/skogix/skogai; python3 - <<'EOF'`
 
+## 2026-10-17 11:45 · turn 3cb44c6e
+
+**User**
+
+> Read workflows/skogai.md and run its check section with <dot> = src.
+
+**Assistant**
+
+The check found 2 errors and 6 warnings. `okn validate src` passed.
+
+```text
+error   src/index.md: untyped
+error   src/index.md: untagged
+warning type/task.md: stub, no frontmatter
+warning type/knowledge.md: stub, no frontmatter
+warning type/memory.md: stub, no frontmatter
+warning type/repo.md: stub, no frontmatter
+warning type/spec.md: stub, no frontmatter
+warning type/index.md: stub, no frontmatter
+skipped derived files: not specified
+dash    3133d55d92f5be4d6e4046a6da51dfbc501fd657
+result  errors=2 warnings=6
+```
+
+**Actions**
+
+- Read `dash-skogai/workflows/skogai.md`
+- Bash: `git rev-parse HEAD`
+- Bash: `rtk git status --porcelain type/`
+- Bash: `okn validate src`
+- Bash: `git ls-files --cached --others --exclude-standard src`
+- Glob: type/*.md
+- Bash: `head -n 30 type/task.md type/knowledge.md type/memory.md type/repo.md type/spec.md type/type.md type/decision.md type/ru…`
+
+## 2026-10-17 15:11 · turn 623120c6
+
+**User**
+
+> go ahead
+
+**Assistant**
+
+The herdr and wt gotchas now live on their tool pages, and `TOOLS.md` is gone from the plan, since dash's `tool` type does that job.
+
+- **`dash-skogai/type/tool/herdr.md`** got a `## gotchas` section: the stray key after `send-keys` (clear it with `ctrl+u`), `agent read` cutting off long replies (read the transcript instead), and `acceptEdits` vs auto mode.
+- **`dash-skogai/type/tool/wt.md`** got `## gotchas`: `step diff X` treats `X` as the target, so use `-b` for the branch; and `step commit` messages have no attribution trailers.
+- **`projects/orchestration/TODO.md`** lost the two `tools;` items and the `herdr;` item (settled: default permissions are fine). 8 items are left.
+
+Your `3133d55 WIP` commit already includes the earlier TODO move, so the new changes are just these 3 files, still uncommitted. `.skogai/journal.md` and `MEMORY.md` were changed by something else, not me.
+
+Still pointing at `TOOLS.md`: PLAN.md (the big-picture table and Lessons) and ORCHESTRATOR.md (the parked "Tools rule", "Not covered by FEATURES.md"). I'll fix those when we fold the two docs into one, which I'd do next along with the stale `[x] spawn`.
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai/dash-skogai/type/tool; rtk read herdr.md; echo; echo -----; rtk read wt.md; rtk ls; rtk ls ../../…`
+- Bash: `rtk read /home/skogix/skogai/dash-skogai/type/tool/skogai.md`
+- Bash: `cd /home/skogix/skogai/dash-skogai/type/tool`
+- Bash: `cd /home/skogix/skogai; rtk git status --short; tail -3 dash-skogai/TODO.md | cut -c1-60; git check-ignore -v dash-skoga…` (failed)
+- Bash: `cd /home/skogix/skogai; rtk git log --oneline -3 --stat | head -20`
+
+## 2026-10-17 15:14 · turn bc1a2bcb
+
+**User**
+
+
+
+**Assistant**
+
+I updated `type/router.md` so the router owns two files: `<name>/SKOGAI.md`, where the routes live, and `<name>/CLAUDE.md`, which is generated and contains only `@SKOGAI.md`. `check` is meant to regenerate and compare `CLAUDE.md`, so it's never hand-edited. I also saved "always commit" as a memory and started committing.
+
+Commits (nothing pushed):
+- **skogai `ce9c9d5`:** the router change, a rewritten TODO item, and the new memory. Only my own line went into `MEMORY.md`; the other session's `fleet-persona` entry, `journal.md` and your herdr/wt edits are still uncommitted.
+- **skogix `b51e083`:** the three `docs/repos` updates from earlier.
+
+dash's own files break the new rule. Its `CLAUDE.md` holds the routes, layout, design goals and handover, while `SKOGAI.md` only holds goals. I'd go there next: move that content into `SKOGAI.md` as a `type: router` with a `<routes>` block, leaving `CLAUDE.md` as just `@SKOGAI.md`. It changes the file every session in dash loads, so I'm checking with you before I do it.
+
+The two `.projects` folders are still there because the classifier blocked `rm`:
+```
+! rm -rf ~/skogix/.projects/claude-docs
+! git -C ~/skogix rm -r -q .projects/routing && git -C ~/skogix commit -m "remove .projects/routing, moved to dash-skogai"
+```
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai && git show HEAD:.skogai/memory/MEMORY.md | sed '/^\* \[temporary-paths\]/i * [always-commit](alw…`
+- Bash: `git -C /home/skogix/skogix add docs/repos/marketplace.md docs/repos/skogai-docs.md docs/repos/skogai-routing.md && git -…`
+
+## 2026-10-17 15:15 · turn 23a23377
+
+**User**
+
+
+
+**Assistant**
+
+A1 and A2 are drafted in `~/skogai/dash-skogai`, left uncommitted for you to review. `event.log-path` resolves from the base config; I haven't run `dash:check` yet.
+
+**A1: `type/event.md`**
+- **What an event is:** "something that happened, recorded as one row appended to the event log." Rows are never edited, and the log as a whole is temporary.
+- **What each event owns:** `type/event/<name>.md`, `type/event/<name>.schema.json` and `scripts/event/<name>.sh`. Every event writes `.skogai/logs/event.jsonl`.
+- **Opt-in:** an optional `enabled` field. An event runs only when it is `true`; if it is missing, or the event has no file, the event is off.
+- **The script:** it gets the event's input and appends exactly one row. It may answer "go on", "stop, with a reason", or a structured answer the source understands. If it can't run, it says so and lets the event go on.
+- **No mechanisms:** the definition doesn't mention Claude Code hooks, exit codes, jq or flock. Those belong in the plugin.
+- **No `watches`:** I left out the type-level `watches` the workorder mentioned. Nothing watches on behalf of every event, so a single event can add its own (`Stop` reads the log, for example).
+
+**A2: `type/event.schema.json`**
+I followed the existing convention, where `type.schema.json` is the schema for every type definition. So `event.schema.json` is the schema for event files (`type`, `title`, `enabled`, …). The row format is a shared definition inside it, `$defs/row`: `{ts, event, action?, input}`, with `input` passed through unchanged. Each `<Name>.schema.json` in A3 will build on it and narrow `input` to that event.
+
+**Supporting edits, which A5's clean check depends on:**
+- **Ownership rule (`type.md` and `workflows/skogai.md`):** when a folder rule and a file rule both match a file, the file rule wins. That's your "parent owns the folder" decision, and it also clears the existing double owner on `type/tool/*.md`. I marked that TODO item done.
+- **Schema files (`type.md`):** a type now also owns `type/<name>.schema.json`. Without that, `type.schema.json` and `event.schema.json` would have no owner.
+- **Base config:** added `[event] log-path = .skogai/logs/event.jsonl`.
+- **Index:** `event` is listed in `type/index.md`.
+
+Your own uncommitted changes in `~/skogai` (`herdr.md`, `wt.md` and others) are untouched. If you're happy with this, I'll commit the dash files and tick A1 and A2 in the workorder.
+
+**Actions**
+
+- Bash: `cd ~/.local/src/marketplace; gh pr close 4 --delete-branch -c "Landed on master as dc2ac12 (cherry-pick) + da2263f." 2>&…`
+- Bash: `cd ~/skogai/dash-skogai; rtk read type/router.md type/index.md workflows/skogai.md config; rtk git -C ~/skogai log --one…`
+- Bash: `cd ~/skogai/dash-skogai; rtk grep -n "owners\|derived" TODO.md; grep -rn "schema" type/*.md | rtk grep -v "^type/router"`
+- Write `dash-skogai/type/event.md`
+- Write `dash-skogai/type/event.schema.json`
+- Bash: `cd ~/skogai/dash-skogai; python3 - <<'EOF'`
+

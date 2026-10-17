@@ -9,3 +9,4 @@ or is forgotten.
 * [openknowledge-insights-are-memory](openknowledge-insights-are-memory.md) - insights/ is memory inside the bundle; openknowledge loose ends.
 * [always-commit](always-commit.md) - commit finished changes without asking, only my files.
 * [temporary-paths](temporary-paths.md) - .skogai/logs and tmp are throwaway; defaults are opt-in.
+* [fleet-persona-not-roleplay](fleet-persona-not-roleplay.md) - skogai-fleet: personas are seats for many models; relationships drive and sink; KRONSCH test.

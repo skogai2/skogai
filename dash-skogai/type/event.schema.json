@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event",
+  "title": "event",
+  "type": "object",
+  "required": ["type", "title"],
+  "properties": {
+    "type": { "const": "event" },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "status": { "type": "string" },
+    "enabled": { "type": "boolean" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "row": {
+      "type": "object",
+      "required": ["ts", "event", "input"],
+      "properties": {
+        "ts": { "type": "string", "format": "date-time" },
+        "event": { "type": "string" },
+        "action": { "type": "string" },
+        "input": { "type": "object" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -18,7 +18,8 @@ run each command exactly as written, one per shell call, from the dash root: no 
 4. **files**: list every file in `<dot>` with `git ls-files --cached --others --exclude-standard <dot>`.
 5. **owners**: for each file, find the cases whose `owns` patterns match its path relative to `<dot>`. `<name>` matches one path segment, and a pattern ending in `/` matches everything under it.
    - no owner: `untyped`.
-   - two or more owners: `conflict`, naming the owners.
+   - a folder pattern and a file pattern both match: the file pattern is the owner.
+   - two or more owners left: `conflict`, naming the owners.
 6. **tags**: for each `.md` file, read its frontmatter.
    - no `type`: `untagged`.
    - a `type` that is not a case: `unknown tag`.

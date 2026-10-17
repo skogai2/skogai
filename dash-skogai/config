@@ -9,3 +9,5 @@
 [merge]
 	on-user-prompt-submit = false
 	on-stop = false
+[event]
+	log-path = .skogai/logs/event.jsonl
