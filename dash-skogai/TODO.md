@@ -7,12 +7,16 @@
 - [ ] task: rename to workorder? "task" collides with mise and claude code
 - [ ] spec: overlaps with type and rule. proposal / design, or drop?
 - [ ] tool: `docs/tools/<name>.md` folded into `type/tool/<name>.md`, and `workflow/` made `workflows/`. confirm
-- [ ] rule: `watches: [<applies_to>]` points a path at a field value. allowed, or keep paths literal?
-- [ ] trigger: `when` mixes paths and events. what is an event, and where does it come from?
+- [ ] rule: defines its own "watched file" field, so `<watched-file>` is explained one step away (by the rule type itself)
+- [ ] trigger: split `when` into a defined `event` field (paths belong to rule/watches). what is an event, and where does it come from?
 - [ ] skogai cli: where does a dot record its dash ref?
 - [ ] skogai cli: merge semantics per field when folding layers. config is replace-only for now; append for multi-valued keys?
 - [ ] config: should `dash.ref` live in the local config?
 - [ ] config: strict keys declared by types, or free-form?
+- [ ] config/env: namespace control vars. `SKOGAI_GLOBAL_CONFIG` collides with key `global.config`. candidate: reserve the `config` section, so layer paths are keys `config.global` / `config.local` -> `SKOGAI_CONFIG_GLOBAL` / `SKOGAI_CONFIG_LOCAL`, and refuse to set them from a file layer
+- [ ] schema: `fields` is a map of key -> value, not a list of names. required for every instance: `type`, `title`, `owns` (every instance has a living space: tool/gh lives under type/tool, type/tool under the base type). maybe `created` / `edited`. allow the okf base instead of `additionalProperties: false`
+- [ ] relations are one step: gh is tool/gh, tool is type/tool, repo skogai is gh/skogai. sharing is several direct relations (tool/gh, cli/gh, git/gh), never a chain. every `<variable>` in a path is defined by the instance itself or its parent
+- [ ] owners: `type` owns `type/<name>/` and `tool` owns `type/tool/<name>.md`, so `type/tool/gita.md` has two owners. resolve with the one-step rule: the parent (type/tool) owns the folder, its instances own their file?
 - [ ] skogai cli: how does a type declare that a file is derived, and by what function?
 - [ ] agent prompts: `bin/skogai` has only `config` so far. until it has `check`, `plan` and `apply`, an agent runs `check`, `plan` and `apply` from `workflows/skogai.md` (owned by tool skogai). init elsewhere is `apply` on an empty dot. `check` is written and runs as `mise run dash:check [dot]`; `plan` and `apply` wait on the open cli items above
 - [ ] dash-skogai-setup-prompt.md: generic okn 0.13.0 output, regenerable with `okn setup`. its scaffold (AGENTS.md, SPEC.md, log.md, decisions/, 10 rules) is what 945c808 removed and would be untyped under `check`. keep only the parts worth keeping, then delete?

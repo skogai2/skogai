@@ -32,11 +32,11 @@ _file_layers() {
     done
 }
 
-# hook.stop.stage -> SKOGAI_HOOK_STOP_STAGE
+# `.` is a relation, `-` is part of a name: stage.on-stop -> SKOGAI_STAGE_ONSTOP
 _env_name() {
     local k="${1^^}"
-    k="${k//./_}"
-    echo "SKOGAI_${k//-/_}"
+    k="${k//-/}"
+    echo "SKOGAI_${k//./_}"
 }
 
 # a frontmatter file as "key<TAB>tag<TAB>value" lines: nested maps flatten to
