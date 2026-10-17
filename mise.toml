@@ -2,6 +2,7 @@
 age = "latest"
 argc = "latest"
 yq = "latest"
+jq = "latest"
 fnox = { version = "latest", workflow = "release.yml" }
 watchexec = "latest"
 
@@ -19,4 +20,4 @@ claude -p --tools Read,Glob,Grep,Bash \
 [tasks."dash:graph"]
 description = "render dash types as a mermaid graph and table into tmp/graph/types.md"
 dir = "{{config_root}}/dash-skogai"
-run = "bash tmp/graph/types.sh > tmp/graph/types.md"
+run = "bash tmp/graph/types.sh > tmp/graph/types.md.tmp && mv tmp/graph/types.md.tmp tmp/graph/types.md"

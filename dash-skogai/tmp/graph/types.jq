@@ -4,6 +4,7 @@ def list: if . == null or . == [] then "" else map("`" + . + "`") | join(", ") e
 
 (map(select(.file | test("^type/[^/]+\\.md$"))) | map(. + {name: name})) as $types
 | (map(select(.file | test("^type/[^/]+/[^/]+\\.md$"))) | map(. + {name: name, parent: (.file | split("/")[1])})) as $instances
+| ($instances | to_entries | map(.value + {id: "i\(.key)"})) as $instances
 | ([$types[] | (.owns // []), (.writes // []), (.watches // []) | .[]] | unique) as $paths
 | ($paths | to_entries | map({key: .value, value: "p\(.key)"}) | from_entries) as $pid
 | def edges($rel; $arrow):
@@ -26,7 +27,7 @@ def list: if . == null or . == [] then "" else map("`" + . + "`") | join(", ") e
   edges("owns"; "-->|owns|"),
   edges("writes"; "-.->|writes|"),
   edges("watches"; "==>|watches|"),
-  ($instances[] | "  i_\(.parent)_\(.name | gsub("[^a-z0-9]"; "_"))[\"\(.name)\"]:::inst", "  t_\(.parent) --- i_\(.parent)_\(.name | gsub("[^a-z0-9]"; "_"))"),
+  ($instances[] | "  \(.id)[\"\(.name | esc)\"]:::inst", "  t_\(.parent) --- \(.id)"),
   "```",
   "",
   "blue: type. yellow: draft. grey dashed: stub with no frontmatter. green: instance. solid: owns, dashed: writes, thick: watches.",

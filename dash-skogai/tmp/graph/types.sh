@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # types.sh [dash-dir] > types.md: render type/ frontmatter as a mermaid graph and a table
 set -euo pipefail
-cd "${1:-$(dirname "$0")/../..}"
+here="$(cd "$(dirname "$0")" && pwd)"
+cd "${1:-$here/../..}"
 
 frontmatter() {
     local fm
@@ -18,4 +19,4 @@ records() {
     done
 }
 
-records | jq -rs -f "$(dirname "$0")/types.jq" --arg rev "$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+records | jq -rs -f "$here/types.jq" --arg rev "$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
