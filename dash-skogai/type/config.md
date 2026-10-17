@@ -18,7 +18,7 @@ folded in order, later wins:
 2. **global**: `~/.skogai/config`, or `$SKOGAI_GLOBAL_CONFIG`.
 3. **local**: `<repo>/.skogai/config`, or `$SKOGAI_LOCAL_CONFIG`.
 4. **file**: with `--file x.md` (repeatable), the frontmatter of `x.md`, then of `x.local.md`. nested keys flatten to `a.b.c`, `_` reads as `-`, and `--scope s` mounts them under `s.`. needs `yq`.
-5. **env**: key `a.b-c` reads env `SKOGAI_A_B_C`, which overrides every layer.
+5. **env**: key `a.b-c` reads env `SKOGAI_A_BC`, which overrides every layer. `.` is a relation and becomes `_`; `-` is part of a name and is dropped.
 
 ## commands
 

@@ -1,6 +1,7 @@
 [tools]
 age = "latest"
 argc = "latest"
+yq = "latest"
 fnox = { version = "latest", workflow = "release.yml" }
 watchexec = "latest"
 
