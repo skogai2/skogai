@@ -18,6 +18,6 @@ claude -p --tools Read,Glob,Grep,Bash \
 '''
 
 [tasks."dash:graph"]
-description = "render dash types as a mermaid graph and table into tmp/graph/types.md"
+description = "render dash types, one section each with a mermaid graph, into README.md"
 dir = "{{config_root}}/dash-skogai"
-run = "bash tmp/graph/types.sh > tmp/graph/types.md.tmp && mv tmp/graph/types.md.tmp tmp/graph/types.md"
+run = "bash tmp/graph/types.sh > README.md.tmp && mv README.md.tmp README.md"
