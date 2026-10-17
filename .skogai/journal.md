@@ -3720,3 +3720,105 @@ It's the same lesson as pinning the ollama digest and the Read hook: anything th
 
 If you want, I can put these three into `TODO.md` alongside the `skogrtk` and `SKOGAI_*` items: allowlist entries for your wrappers, the Read/rewrite hook, and the env-var visibility. That's one entry each, and we deal with them one at a time.
 
+## 2026-10-17 01:15 · turn 099be2d3
+
+**User**
+
+> rtk bypass ls && echo ":::" && rtk ls && echo ":::" && ls
+> backups
+> dash-skogai
+> Documents
+> dot-skogai
+> Downloads
+> go
+> old
+> skogai
+> skogix
+> tmp
+> tools
+> Work
+> :::
+> Documents/
+> Downloads/
+> backups/
+> go/
+> old/
+> skogai/
+> skogix/
+> tmp/
+> tools/
+> Work -> skogai  6B
+> dash-skogai -> /skogai  7B
+> dot-skogai -> /home/skogix/.skogai  20B
+> :::
+> Permissions Size User   Date Modified Name
+> drwxr-xr-x     - skogix 11 Oct 08:42   backups
+> lrwxrwxrwx     - skogix  2 Oct 16:55   dash-skogai -> /skogai
+> drwxr-xr-x     - skogix 17 Oct 00:40  󰲂 Documents
+> lrwxrwxrwx     - skogix  6 Oct 19:53   dot-skogai -> /home/skogix/.skogai
+> drwxr-xr-x     - skogix 17 Oct 01:02  󰉍 Downloads
+> drwxr-xr-x     - skogix 10 Oct 23:54   go
+> drwxr-xr-x     - skogix 10 Oct 23:25   old
+> drwxr-xr-x     - skogix 17 Oct 00:19   skogai
+> drwxr-xr-x     - skogix 16 Oct 17:26   skogix
+> drwxr-xr-x     - skogix 16 Oct 23:04   tmp
+> drwxr-xr-x     - skogix 16 Oct 19:45   tools
+> lrwxrwxrwx     - skogix  1 Oct 20:34   Work -> skogai
+
+**Assistant**
+
+`rtk ls` gives an agent the most useful output of the three. It's the only compact one that shows what's a link and where it points:
+
+| | links visible | tokens | noise |
+|---|---|---|---|
+| `rtk bypass ls` | no, `dash-skogai` looks like a plain dir | lowest | none |
+| `rtk ls` | yes, with targets | low | none |
+| `ls` (your eza alias) | yes | ~4× | perms, user, dates, icons |
+
+`~/dash-skogai -> /skogai` caught my eye because it points at the filesystem root, not your home. I checked: `/skogai` exists and has mode `2775`, so it's a group-shared directory with setgid. That looks intentional. Without `rtk ls` I'd have assumed it was a normal directory.
+
+**Actions**
+
+- Bash: `rtk ls -ld /skogai ~/dash-skogai/ 2>&1`
+
+## 2026-10-17 01:16 · turn d659e369
+
+**User**
+
+> /doctor
+
+**Assistant**
+
+I applied all the cleanup and checked the result: both JSON files still parse, and the binary and mise version are gone. I didn't ask about permissions because auto mode is already your default and nothing needed pre-approving.
+
+| File / location | Change | Undo |
+|---|---|---|
+| `~/.local/share/claude/versions/2.1.283` | Deleted the unused native binary (241 MB) | Reinstall it, though nothing ran it |
+| mise | `mise uninstall claude@2.1.301` (2.1.302 is still installed) | `mise install claude@2.1.301` |
+| `~/.claude/settings.json` | Removed the empty `hooks` block; set `claude-code-setup@anthropic-plugin-directory` and `cc-plugin-diff@builtin` to `false` | Set them back to `true` or `/plugin` |
+| `~/.claude.json` | Added `mise` to this project's `disabledMcpServers` | `/mcp enable mise` |
+| `skogai/.claude/settings.local.json` (new, gitignored) | `cc-plugin-you-should-know@builtin: false` | Delete the file |
+| `skogai/CLAUDE.md` | Removed the duplicate "Command output" block | Restore from the quote above or `git checkout` |
+| `dash-skogai/CLAUDE.md:31` | Changed `@TODO.md` to `TODO.md`, so TODO.md is read when needed instead of loading every session | Put the `@` back |
+
+- **Restart needed:** the plugin and MCP changes take effect in your next session, or after `/reload-plugins`.
+- **The duplicate block may come back:** it was between `<!-- rtk-instructions v2 -->` markers, which means rtk wrote it. Running `rtk init` again in this repo will probably re-add it.
+- **Nothing committed:** the two CLAUDE.md edits are uncommitted for you to review in `git diff`.
+
+**Actions**
+
+- Bash: `cd ~; echo "== installs"; which -a claude; ls -la ~/.local/bin/claude 2>&1; readlink -f "$(which claude)"; p=$(npm -g co…` (failed)
+- Bash: `cd ~; cat ~/.local/bin/claude; echo; ls -la ~/.local/share/mise/installs/claude/ ; ls -la ~/.local/share/claude/versions…`
+- Bash: `cd ~; jq -c '.hooks | to_entries[] | {ev:.key, types:[.value[].hooks[]?.type], m:[.value[].matcher]}' ~/.claude/settings…`
+- Bash: `cd ~; jq -c '.hooks' ~/.claude/settings.json | head -c 300; echo`
+- Bash: `cd ~; all=$(find ~/.claude/projects -name '*.jsonl' -mtime -30)`
+- Bash: `cd ~; d=$(mktemp -d); find ~/.claude/projects -name '*.jsonl' -mtime -30 -print0 | xargs -0 cat | jq -c 'if .type=="assi…`
+- Bash: `cd ~/skogai; wc -c ~/.claude/CLAUDE.md ~/.claude/RTK.md CLAUDE.md docs/skogix/introduction.md dash-skogai/CLAUDE.md dash…` (failed)
+- Bash: `cd ~; rtk ls ~/.claude/plugins/cache/ 2>&1; rtk find ~/.claude/plugins/cache -maxdepth 4 -path '*claude-code-setup*' -ty…`
+- AskUserQuestion
+- Bash: `cd ~; set -e`
+- Read `CLAUDE.md`
+- Read `dash-skogai/CLAUDE.md`
+- Edit `CLAUDE.md`
+- Edit `dash-skogai/CLAUDE.md`
+
