@@ -20,7 +20,7 @@ path      :: string            -- `<var>` placeholders, trailing `/` is a folder
 | [rule](../type/rule.md) | partial | type, title, applies_to | `type/rule/<name>.md` | | `<applies_to>` | none | `from` not in `fields`; define its own watched-file field |
 | [trigger](../type/trigger.md) | partial | type, title, when | `type/trigger/<name>.md`, `scripts/trigger/<name>.sh` | | `<when>` | none | split `when` into `event` + paths; overlaps rule/watches |
 | [tool](../type/tool.md) | defined | type, title | `type/tool/<name>.md`, `bin/<name>`, `scripts/<name>/`, `workflows/<name>.md` | | | gita, herdr, mise, okn, skogai, wt | confirm `docs/tools/` → `type/tool/`, `workflow/` → `workflows/` |
-| [event](../type/event.md) | partial | type, title | `type/event/<name>.md`, `type/event/<name>.schema.json`, `scripts/event/<name>.sh` | `.skogai/logs/event.jsonl` | | 13 hook events | `enabled` not in `fields`; no `scripts/event/` yet; key `event.log-path` not in base `config` |
+| [event](../type/event.md) | partial | type, title | `type/event/<name>.md`, `type/event/<name>.schema.json`, `scripts/event/<name>.sh` | `.skogai/logs/event.jsonl` | | 13 hook events | `enabled` not in `fields`; no `scripts/event/` yet |
 | [router](../type/router.md) | draft | type, title | `<name>/SKOGAI.md`, `<name>/CLAUDE.md` | | | none typed | keep or move back to tmp (decision 0006); `<name>/` breaks the `type/<type>/<name>` pattern; root-xml-block rule for all types?; permalink resolution |
 | [knowledge](../type/knowledge.md) | stub | | | | | | split vs memory on lifetime (`status`/`stale_after`?) |
 | [memory](../type/memory.md) | stub | | | | | | see knowledge |
