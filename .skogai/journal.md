@@ -3822,3 +3822,185 @@ I applied all the cleanup and checked the result: both JSON files still parse, a
 - Edit `CLAUDE.md`
 - Edit `dash-skogai/CLAUDE.md`
 
+## 2026-10-17 08:20 · turn 9728c5c8
+
+**User**
+
+> hello claude!
+
+**Assistant**
+
+Hello skogix! What are we working on?
+
+## 2026-10-17 08:22 · turn a3d34525
+
+**User**
+
+> well its time to "pick apart and re-imagine" @projects/orchestration/ to begin with
+
+**Assistant**
+
+Here's the teardown. My overall read: there are four docs wrapped around a 252-byte prompt, and the docs describe two different systems.
+
+## What's there
+
+| file | what it actually holds |
+|---|---|
+| `CLAUDE.md` | imports (one of them points at a file that doesn't exist) |
+| `ORCHESTRATOR.md` | symlink rationale, a table of parked prompt parts, open questions |
+| `PLAN.md` | goal, a mapping onto `projects/claude-code`, lessons, open questions |
+| `TODO.md` | 25 items, about half of which aren't about orchestration |
+| `setup/` | the role-only prompt. No `settings.json`, even though two files point to it |
+
+## Problems
+
+1. **Broken and stale references.** `setup/settings.json` doesn't exist. TODO `[x] spawn` says the spawn command is "written into the orchestration prompt", but it was cut and is listed as parked in ORCHESTRATOR.md.
+2. **Two worker models and no choice between them.** The docs center on `bin/agent` (one-shot, empty sandbox, can't see the repo). But the only real success so far was herdr + `wt` (a real worktree, ran to `done` in about 20s on auto mode), and the `delegate` and `approve` TODOs are all built on that path.
+3. **The TODO mixes three projects.** The `feature;*`, `test;*`, `setup;*` and `spawn;BOX` items are claude-code harness work. `delegate;*` and `approve;*` are a pipeline. Only `tools`, `eval` and `kinds` are orchestration itself.
+4. **Ownership is upside down.** The orchestrator's implementation lives in `claude-code/setups/` and this folder symlinks into it, so the "active, adopted" folder owns no code.
+5. **The two places the prompt is used don't match.** The main session gets it as project instructions without settings. The harness gets it as an appended system prompt with settings. Evals of one tell you little about the other.
+6. **PLAN.md and ORCHESTRATOR.md overlap.** Both have a status line, a "draft" label, lessons and open questions.
+
+## Re-imagined as types
+
+```
+task    = { intent, context, acceptance }
+worker  = oneshot setup            -- answer only: review, commit-msg, summary
+        | worktree agent           -- herdr + wt: implementation
+report  = { answer, status, diff?, branch? }
+
+delegate :: task -> worker -> report
+approve  :: report -> decision      -- merge | revise | reject
+orchestrate = discuss >>= task >>= delegate >>= approve
+```
+
+That maps onto dash types that already exist: `task`, `tool` (one per worker kind, which is what TOOLS.md was meant to be), `decision`, `rule` (the approval policy) and `knowledge` (the gotchas).
+
+## Proposed shape
+
+- **One doc:** goal plus the types above. Fold PLAN.md and ORCHESTRATOR.md into it and drop the parked-parts table. Git history already keeps those.
+- **TODO.md:** keep only the orchestration items. Move the harness items to `projects/claude-code/TODO.md`.
+- **Pick herdr + `wt` as the first real worker**, since it's the one that has worked. `bin/agent` stays for answer-only workers.
+- `setup/` stays as it is for now, and the missing `settings.json` gets fixed or dropped.
+
+Where do you want to start? I'd go with the TODO split first: it's mechanical, and it makes everything after it easier to see.
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai/projects/orchestration && for f in CLAUDE.md ORCHESTRATOR.md PLAN.md TODO.md; do echo "=== $f"; r…`
+- Bash: `rtk ls -la setup/; rtk read setup/append-system-prompt.md; echo ===; rtk read setup/settings.json; echo ===; rtk ls ../c…` (failed)
+- Bash: `rtk ls ../claude-code ../claude-code/setups ../claude-code/bin; rtk wc -l ../claude-code/FEATURES.md; rtk ls -la ../clau…`
+
+## 2026-10-17 09:07 · turn 0b9ed82b
+
+**User**
+
+> Read workflows/skogai.md and run its check section with <dot> = src.
+
+**Assistant**
+
+```text
+error   index.md: untyped
+error   index.md: untagged
+warning type/spec.md: stub, no frontmatter
+warning type/memory.md: stub, no frontmatter
+warning type/knowledge.md: stub, no frontmatter
+warning type/repo.md: stub, no frontmatter
+warning type/task.md: stub, no frontmatter
+warning type/index.md: stub, no frontmatter
+skipped derived files: not specified
+dash    54042563466892f8de1e6f3726fbb750dbab7569 dirty
+result  errors=2 warnings=6
+```
+
+**Actions**
+
+- Read `dash-skogai/workflows/skogai.md`
+- Bash: `git rev-parse HEAD`
+- Bash: `rtk git status --porcelain type/`
+- Bash: `okn validate src`
+- Bash: `git ls-files --cached --others --exclude-standard src`
+- Glob: type/*.md
+- Grep `dash-skogai/type`
+
+## 2026-10-17 09:12 · turn 32f40241
+
+**User**
+
+> absolutely agree on todo being merged.
+>
+> also the ideas of tasks types sound at least be a smaller proposal for the long run and could be connected with "workflow" types down the line.
+>
+> what would be"left" or what need more information?
+
+**Assistant**
+
+Once the TODO split is done and the task proposal is parked, very little is left that belongs only to orchestration. Most of it already has a home in dash.
+
+## What's left, and where it would live
+
+| item | home |
+|---|---|
+| goal plus the role prompt (`setup/`) | stays here. This is the core of the project |
+| `tools;TOOLS.md` and the gotchas | goes away. The dash `tool` type already has `herdr` and `wt` as instances, and it owns `workflows/<name>.md`. The gotchas go into `tool/herdr.md` and `tool/wt.md` |
+| `delegate;*` (the herdr → wt pipeline) | a `delegate` tool instance (`bin/`, `scripts/`, `workflows/delegate.md`), or the first "workflow" |
+| `kinds` (one-shot vs worktree worker) | the worker union in the task/workflow proposal |
+| `eval;` testing the orchestrator | stays here, but it's blocked until the orchestrator can actually delegate |
+| `CLAUDE.md` | becomes a `router`. The current one breaks the "no transitive bloat" rule by `@`-loading three content files |
+
+## Needs a decision from you
+
+1. **Where the harness TODOs go.** `projects/claude-code/TODO.md` doesn't exist. Should I create it, or merge everything into `dash-skogai/TODO.md`?
+2. **Which session is the orchestrator: the main session or the harness one?** If it's the main session, the symlink, `settings.json` and the two-ways-of-using-it table mostly stop mattering.
+3. **What `bin/agent` is for.** Should it stay as the worker for answer-only tasks, or does everything go through herdr?
+4. **Approval policy.** Should the orchestrator merge and then report, or prepare the merge and wait for your ok?
+5. **Worker permissions.** Is auto mode fine for herdr workers by default?
+6. **The `Agent` tool.** Keep it as a fallback, or remove it so a missing worker always gets noticed?
+7. **`wip/dot-dash-skogai` decisions 0002 and 0003.** Do they still hold, or are they superseded by dash?
+
+The big one behind all of these: with tools and workflows living in dash, `projects/orchestration` might shrink to just "the prompt plus its eval". Its other parts would become dash instances. Questions 1 and 2 decide whether that happens.
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai/dash-skogai/type; for f in router.md task.md tool.md; do echo "--- $f"; cat $f 2>&1 | head -40; d…` (failed)
+
+## 2026-10-17 09:20 · turn 69046f86
+
+**User**
+
+> 1. simple as is into dash-skogai/TODO.md is fine
+> 2. the one we get to orchestrate the best :). but ~/skogai/ or "root of skogai/skogai" should be the goal i think
+> 3. if you mean the "projects/claude-code/bin/agent" then if we got it to work then it would pretty much be the best orchestrator ever out of the box. and no matter what we hope that most work goes via herdr anyway
+> 4. does not matter at this stage
+> 5. default is ok whatever it is
+> 6. dont know what you mean so it should probably be the default
+> 7. none are superseded and currently no decisions exist since we havent gotten there yet. "archive for later" i guess
+
+**Assistant**
+
+I moved 12 harness items, unchanged, from `projects/orchestration/TODO.md` to the end of `dash-skogai/TODO.md`. These were `sandbox`, `setup` (tools/permissions), `spawn` (BOX collisions), all seven `feature;*` items, `test` and the finished `docs` item. Nothing is committed yet.
+
+What your answers settle:
+
+- **2. Which session orchestrates:** the root `~/skogai/CLAUDE.md` already imports `projects/orchestration/CLAUDE.md`, so the main session at the repo root already is the orchestrator. The harness copy is the test bed.
+- **3. `bin/agent`:** that's a fair goal. In practice, getting it to work comes down to the moved `sandbox` and `setup` items.
+- **6. The `Agent` tool:** this is Claude Code's built-in subagent tool, the same one I could use to spawn a helper. "Default" means it stays as a fallback, so that question closes.
+- **7. Archive:** that's already done. `wip/dot-dash-skogai` was removed in `767297e`, so it only exists in git history. I'll drop the open question that mentions it from PLAN.md.
+
+What's left in the orchestration TODO (11 items):
+
+- **Stale:** `[x] spawn` claims the spawn command is in the prompt, but it isn't. It should be reopened or deleted.
+- **Done:** `[x] setup` (the symlink).
+- **Moves to dash `tool` instances:** `tools;TOOLS.md` and the `tools;gotchas` item. The gotchas go into `tool/herdr.md` and `tool/wt.md`.
+- **Becomes a `delegate` tool or workflow:** both `delegate;*` items and both `approve;*` items.
+- **Settled by your answers:** `herdr` (default permissions) and `approve;decide` (doesn't matter yet).
+- **Actually stays here:** `kinds` and `eval`.
+
+I'd tackle the `tools` items next: put the gotchas into the existing `tool/herdr.md` and `tool/wt.md`, and drop TOOLS.md entirely. Want me to go ahead?
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai/dash-skogai; rtk read TODO.md; rtk ls /home/skogix/skogai/wip 2>&1 | head`
+- Bash: `cd /home/skogix/skogai; rtk find . -path ./node_modules -prune -o -type d -name 'dot-dash-skogai' -print 2>/dev/null | h…`
+- Bash: `cd /home/skogix/skogai; python3 - <<'EOF'`
+

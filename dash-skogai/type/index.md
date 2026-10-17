@@ -13,3 +13,4 @@ one file per type. a type defines its instances and the files each instance owns
 - [repo](repo.md)
 - [spec](spec.md)
 - [config](config.md)
+- [router](router.md)

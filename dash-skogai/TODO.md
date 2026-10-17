@@ -19,4 +19,23 @@
 - [ ] owners: `type` owns `type/<name>/` and `tool` owns `type/tool/<name>.md`, so `type/tool/gita.md` has two owners. resolve with the one-step rule: the parent (type/tool) owns the folder, its instances own their file?
 - [ ] skogai cli: how does a type declare that a file is derived, and by what function?
 - [ ] agent prompts: `bin/skogai` has only `config` so far. until it has `check`, `plan` and `apply`, an agent runs `check`, `plan` and `apply` from `workflows/skogai.md` (owned by tool skogai). init elsewhere is `apply` on an empty dot. `check` is written and runs as `mise run dash:check [dot]`; `plan` and `apply` wait on the open cli items above
+- [ ] router: decision 0006 keeps routing out of dash until the type layer works. `type/router.md` is a draft folded from `tmp/routing/`. keep it as a draft, or move it back to tmp?
+- [ ] router: `owns: [<name>/SKOGAI.md]` leaves `CLAUDE.md` unowned, and `./CLAUDE.md` already routes with `# routes`. does router own `CLAUDE.md` too, or does claude code (a tool) own it?
+- [ ] router: "frontmatter `type` names the root xml block" (router -> `<routes>`). make it the rule for every type, or keep it router-only?
+- [ ] router: permalink `repo/file` resolves to `~/repo`, `~/.local/src/repo` or `projects/repo`. replaced by "refs resolve to commits", or does it belong in repo?
+- [ ] tmp/routing schemas: `lesson` (match.keywords, rule/context/pattern) vs knowledge/memory, `workflow` (objective/steps/validation) vs `workflows/<name>.md`, `template`, `reference`. map to types or drop
+- [ ] tmp/routing scripts: validators overlap okn and `check` ("don't rebuild okn"). port the router check into `check`, or drop
+- [ ] tmp/routing references: `at-linking.md` and `dynamic-output-blocks.md` are claude code knowledge, not dash. move to knowledge, or to marketplace?
 - [ ] dash-skogai-setup-prompt.md: generic okn 0.13.0 output, regenerable with `okn setup`. its scaffold (AGENTS.md, SPEC.md, log.md, decisions/, 10 rules) is what 945c808 removed and would be untyped under `check`. keep only the parts worth keeping, then delete?
+- [ ] sandbox;workers run in an empty, wiped `/tmp/.../work`, so a real worker can't see this repo. Add a mode that points `bin/agent` at a real directory (or a `wt` worktree) while keeping the config isolated.
+- [ ] setup;a setup can't set its own tools or permissions. `TOOLS` comes from outside (default: none) and `-p` mode can't stop to ask, so each setup must carry its own tool and permission list.
+- [ ] spawn;runs of the same setup share `/tmp/claude-code/<setup>` and wipe it, so parallel runs collide unless each gets its own `BOX`.
+- [x] docs;`projects/claude-code/CLAUDE.md` layout still lists only `system-prompt.md` for a setup; add `append-system-prompt.md`.
+- [ ] feature;`model` file in a setup sets its default model (`MODEL` still overrides).
+- [ ] feature;`mcp.json` in a setup gives it MCP servers (`--mcp-config`, keeping `--strict-mcp-config`).
+- [ ] feature;`agents.json` in a setup defines its subagents (`--agents`). Needed for orchestrator workers.
+- [ ] feature;`plugins/` in a setup loads plugins (`--plugin-dir`). Lets us test the skog plugin.
+- [ ] feature;`env` in a setup is sourced before `claude` runs (per-setup `SKOGAI_*` and similar).
+- [ ] feature;`add-dirs` in a setup grants read access to repo paths (`--add-dir` per line).
+- [ ] feature;`schema.json` in a setup forces structured output (`--json-schema`; check `cli-reference.md` first).
+- [ ] test;`append-system-prompt.md` and `work/` have no test in `projects/claude-code/tests/`.
