@@ -12,13 +12,14 @@ tested 2026-10-17, herdr 0.9.5.
 b=<branch>; p=/home/skogix/skogai/.skogai/worktrees/$b
 wt switch -c $b --no-cd -y
 pane=$(herdr pane split --current --direction right --cwd $p --no-focus | jq -r .result.pane.pane_id)
-sleep 2; herdr pane run $pane "claude --permission-mode auto"
-sleep 8; herdr agent rename $pane $b
+sleep 2; herdr pane run $pane "exec bash --norc --noprofile"
+herdr pane wait-output $pane --match 'bash-' --timeout 10000
+herdr agent start $b --kind claude --pane $pane --timeout 60000 -- --permission-mode auto
 herdr agent prompt $b "<task>" --wait --timeout 600000
 herdr agent read $b --source recent-unwrapped --lines 40
 ```
 
-- `herdr agent start` fails with `agent_pane_busy` on fish panes: atuin sits in the shell's foreground group. use `pane run` + `agent rename` instead; herdr detects claude by itself.
+- panes start the login shell (fish), and atuin in its foreground group makes `agent start` fail with `agent_pane_busy`. `exec bash --norc --noprofile` gives it a plain shell.
 - `--permission-mode auto` so the worker doesn't stop for every shell command.
 - the prompt says what to do, which files it may touch, to commit with an explicit `git commit -m` and to reply with one line (hash + what changed). the worker's context pays for the work, not ours.
 - `--wait` returns on idle, done or blocked. on `blocked`, `agent read` and ask skogix before answering it.
@@ -36,7 +37,7 @@ wt -C $p merge -y --no-squash --stage none        # keeps the worker's commits
 - `--stage none`: the skogai-core Stop hook writes the worker's turns into `.skogai/journal.md` in its worktree. the default `--stage all` would commit that into master.
 - that same journal change blocks the worktree removal after merge. TODO.md decides what happens to it.
 
-`wt merge` uses the commit generator in `~/.config/worktrunk/config.toml` (`aichat -m ollama:llama3.2`). its messages come out quoted or nonsense (`33df31e`), so workers commit with their own message and we merge with `--no-squash`.
+`wt merge` and `wt step commit` generate messages with `[commit.generation]` in `~/.config/worktrunk/config.toml` (claude haiku, `claude -p`). workers still commit with their own `-m`, since they know what they did.
 
 details: [TOOLS-wt.md](TOOLS-wt.md).
 

@@ -4434,3 +4434,52 @@ All three are now in `projects/orchestration/TODO.md`.
 - Bash: `cd /home/skogix/skogai; rtk read CLAUDE.md; echo ---; cat projects/orchestration/setup/append-system-prompt.md | wc -l`
 - Bash: `cd /home/skogix/skogai; cat >> projects/orchestration/TODO.md <<'EOF'`
 
+## 2026-10-17 22:02 · turn 79885727
+
+**User**
+
+> - i have created @SKOGAI.md which should absolutely be writeable for you now.
+>
+> `herdr agent start refuses fish panes because atuin is in the foreground.`
+> - hmm. i dont think fish are used at any step of what we are working on? 
+>
+> - i have also changed to claude code as the wt-commit-creator.
+>
+> ---
+>
+> potential solutions; the wt plugin for herdr runs bash explicitly.
+
+**Assistant**
+
+Future sessions now load the delegate recipe: `SKOGAI.md` imports `projects/orchestration/TOOLS.md`. `agent start` works now, and I updated the recipe in `TOOLS.md` to match. I haven't run a full delegation with the new recipe yet, only `agent start` on its own.
+
+- **Fish:** we don't use it, but every herdr pane starts in it. `herdr pane process-info` on the worker pane showed `/usr/bin/fish` with atuin under it. Passing `--env SHELL=/usr/bin/bash` to `pane split` didn't change that.
+- **Bash fix:** this is your bash idea, applied to the worker pane. It runs `exec bash --norc --noprofile` first, waits for the `bash-` prompt, then `herdr agent start --kind claude`. That started the worker and it reported `idle`.
+- **Commit messages:** I saw your switch to claude haiku. I updated `TOOLS.md` and checked off the commitgen item in `TODO.md`.
+
+Still open:
+1. The `tools-wt` worktree is still there with the worker's journal entry in it. Keep that entry or force-remove the worktree? The journal question for future workers is in `TODO.md`.
+2. Should I commit `TOOLS.md`, `SKOGAI.md` and `TODO.md`?
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai; rtk read CLAUDE.md; echo ---; herdr pane split --help 2>&1 | sed '/Are you an AI/,$d' | rtk grep…`
+- Bash: `cd /home/skogix/skogai; p=$PWD/.skogai/worktrees/tools-wt`
+- Bash: `pane=w2B:pP; herdr pane run $pane "exec bash --norc --noprofile" >/dev/null; sleep 1`
+- Bash: `pane=w2B:pP; sleep 2; herdr pane read $pane --source visible 2>&1 | grep -v '^\s*$' | tail -5; herdr pane process-info -…`
+- Bash: `herdr agent start bashtest --kind claude --pane w2B:pP --timeout 60000 -- --permission-mode auto 2>&1 | jq -c '.error //…`
+- Bash: `herdr pane close w2B:pP | jq -c .result.type`
+- Edit `projects/orchestration/TOOLS.md`
+- Edit `projects/orchestration/TOOLS.md`
+- Bash: `cd /home/skogix/skogai`
+
+## 2026-10-17 22:34 · turn b9d09fe7
+
+**User**
+
+> hi claude
+
+**Assistant**
+
+Hi skogix! What are we working on?
+

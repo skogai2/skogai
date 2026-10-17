@@ -7,5 +7,5 @@
 - [ ] approve;decide whether the orchestrator merges and reports afterwards, or prepares the merge and waits for skogix's ok. Write the result into `setup/append-system-prompt.md` and `setup/settings.json`.
 - [x] setup;moving settings.json and append-system-prompt.md to something like `./setup/` or even `ln -s` the folder itself to better show what is actually implementation of the orchestration setup and what is not?
 - [ ] journal;the skogai-core Stop hook writes each worker's turns to `.skogai/journal.md` in its worktree. that blocks `wt merge`'s worktree removal. decide: commit it on the worker branch, merge it into master's journal, or skip the hook for workers.
-- [ ] commitgen;`[commit.generation]` is `aichat -m ollama:llama3.2` and produces quoted or junk messages (`33df31e`, `975f28c`). replace it, or make `-m` / worker commits the rule.
-- [ ] delegate;`herdr agent start` returns `agent_pane_busy` on fish panes (atuin in the foreground group). TOOLS.md uses `pane run` + `agent rename` for now. also try `wt switch -c <b> --no-cd -x claude`.
+- [x] commitgen;`[commit.generation]` switched from `aichat -m ollama:llama3.2` (quoted or junk messages: `33df31e`, `975f28c`) to claude haiku.
+- [x] delegate;`herdr agent start` returned `agent_pane_busy` on fish panes (atuin in the foreground group). fixed with `exec bash --norc --noprofile` in the pane first, in TOOLS.md.

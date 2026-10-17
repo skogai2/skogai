@@ -1,11 +1,11 @@
 # routes 
 
-- @src/index.md
-- @type/index.md
+- @src/index.md [@TODO]
+- @type/index.md [@TODO]
 
 # layout
 
-- `./`: meta, how we work on dash (CLAUDE.md, SKOGAI.md, TODO.md)
+- `./`: the meta top-layer, here we are creating for someone how we work on dash (CLAUDE.md, SKOGAI.md, TODO.md)
 - `type/`: one file per type, each acting as a module
 - `src/`: the future dot, an okn bundle. check with `okn validate src`
 - `tmp/`: untyped or undecided
