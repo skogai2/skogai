@@ -1,0 +1,98 @@
+# read-only mirror: describes what is already on skogix's omarchy 4.0.4 box.
+# not meant to be applied. validate with `mise bootstrap plan` / `status`.
+# see ../bootstrap-mirror.md
+
+[settings]
+experimental = true
+system_packages.sudo = false   # belt and braces: anything needing root fails instead of elevating
+
+# --- packages ---------------------------------------------------------------
+# left out: 159 explicitly-installed packages that come from omarchy's own
+# lists (/usr/share/omarchy/install/omarchy-{base,other}.packages, the
+# omarchy-pkg-add hardware scripts, and the omarchy meta package's depends).
+
+[bootstrap.packages]
+# user-added, official repos (extra / multilib)
+"pacman:aichat" = "latest"
+"pacman:atuin" = "latest"
+"pacman:bash-preexec" = "latest"
+"pacman:bitwarden" = "latest"
+"pacman:bitwarden-cli" = "latest"
+"pacman:cloc" = "latest"
+"pacman:cloudflared" = "latest"
+"pacman:fish" = "latest"
+"pacman:fisher" = "latest"
+"pacman:flatpak" = "latest"
+"pacman:freerdp" = "latest"
+"pacman:kitty" = "latest"
+"pacman:podlet" = "latest"
+"pacman:podman" = "latest"
+"pacman:podman-compose" = "latest"
+"pacman:podman-docker" = "latest"
+"pacman:steam" = "latest"
+"pacman:systemctl-tui" = "latest"
+"pacman:tailscale" = "latest"
+"pacman:tree" = "latest"
+"pacman:zed" = "latest"
+
+# user-added, from the [omarchy] pacman repo. these are sync-db packages, so
+# they are `pacman:` not `aur:` (aur: only counts `pacman -Qm` packages).
+"pacman:claude-desktop" = "latest"
+"pacman:omarchy-fish" = "latest"
+"pacman:omazed" = "latest"
+"pacman:openai-codex-desktop" = "latest"
+"pacman:supergfxctl" = "latest"
+"pacman:voxtype-bin" = "latest"
+
+# installer / hardware baseline (archinstall, not omarchy's lists)
+"pacman:efibootmgr" = "latest"
+"pacman:intel-ucode" = "latest"
+"pacman:lib32-vulkan-intel" = "latest"
+"pacman:mkinitcpio" = "latest"
+"pacman:sudo" = "latest"
+
+# foreign packages (pacman -Qqem), built with yay (paru is not installed)
+"aur:anthropic-cli-bin" = "latest"
+"aur:claude-history" = "latest"
+"aur:opkssh" = "latest"
+"aur:pangolin-bin" = "latest"
+"aur:rcm" = "latest"
+"aur:spotifast-bin" = "latest"
+"aur:tailtui" = "latest"
+
+# --- services -----------------------------------------------------------------
+# system services: only units a package already provides; mise starts/enables
+# them (via sudo) only when they differ. these four are user-added and running.
+[bootstrap.services.cloudflared]
+state = "running"
+enabled = true
+
+[bootstrap.services.tailscaled]
+state = "running"
+enabled = true
+
+[bootstrap.services.sshd]
+state = "running"
+enabled = true
+
+[bootstrap.services.supergfxd]
+state = "running"
+enabled = true
+
+# systemd *user* units can NOT be mirrored: both `scope = "user"` services and
+# [bootstrap.linux.systemd.units] write and own ~/.config/systemd/user/dev.mise.<name>.*
+# and never adopt an existing unit. enabled user units today, for reference:
+#   bt-agent collie gptme-server omarchy-crash-watch omarchy-fcitx5
+#   omarchy-migrate-notify omarchy-recover-internal-monitor omarchy-sleep-lock
+#   pipewire-pulse podman voxtype wireplumber xdg-user-dirs (.service)
+#   gnome-keyring-daemon p11-kit-server pipewire-pulse pipewire (.socket)
+
+# --- repos --------------------------------------------------------------------
+# no `ref`: the checkout is never moved, only checked (exists, clean, origin matches)
+[bootstrap.repos]
+"~/skogai" = { url = "https://github.com/skogai2/skogai.git" }
+
+# --- shell --------------------------------------------------------------------
+[bootstrap.user]
+login_shell = "/usr/bin/fish"
+
