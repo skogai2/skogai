@@ -25,6 +25,7 @@ behaviour:
 - an `in-use` slot with no processes doesn't say what holds it; a lease without `--lease-holder` shows no holder
 - hooks get no `TREEHOUSE_*` env: no slot, repo, lease or base branch
 - plain `get` opens a subshell even without a tty, does the setup, then returns immediately
+- unverified: a root reached through a symlink (`~/.treehouse` -> `~/.config/treehouse`) looked like two pools. one slot got `pre_destroy` twice, once per path
 
 interface:
 
@@ -42,11 +43,12 @@ docs:
 - `max_trees`, the user config path and hooks are only in `init` output / README
 - changelog text in help ("migrating from the removed --force flag")
 - `get --help` is dominated by niche options (apfs, path templates)
+- the full `init` template says `"treehouse" is always appended` to `root`; the actual dir is `<root>/.treehouse`
 
 ## not yet tested
 
 - hitting `max_trees`
-- `pre_destroy` via `prune --yes` / `destroy --yes`
+- `pre_destroy` via `prune --yes` (`destroy --yes` works)
 - a failing hook
 - `.worktreeinclude`
 - `-b/--branch`, `--base`

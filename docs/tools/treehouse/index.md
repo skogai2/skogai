@@ -5,8 +5,8 @@ a pool of reusable git worktrees so several agents can work on one repo in paral
 verdict: a good basic tool that does what it says. the behaviour held under every misuse we tried; the weak spot is self-documentation (see [review](review.md)).
 
 - source: `~/.local/src/skogai-fleet/inspiration/treehouse` (README has the full reference, incl. hooks)
-- config: `~/.config/treehouse/config.toml`, see [config](#config)
-- pools: `~/.treehouse/<repo>-<hash>/<slot>/<repo>` (`~/.treehouse` -> `~/.config/treehouse`)
+- config: `~/.config/treehouse/config.toml` -> `~/.dotfiles/.config/treehouse/config.toml`, see [config](#config)
+- pools: `~/.local/state/.treehouse/<repo>-<hash>/<slot>/<repo>-<slot>`
 
 ## lifecycle
 
@@ -52,9 +52,11 @@ precedence per setting: flag > env (`TREEHOUSE_*`) > repo `treehouse.toml` > use
 
 current user config:
 
+- `root = "/home/skogix/.local/state"`: pools are state, kept out of `~/.config` so only the config is versioned. treehouse appends `.treehouse`. changing `root` hides existing pools, empty them first
 - `max_trees = 16`
 - `unique_leaf = true`: new slots are `<repo>-<slot>` so tools keyed on directory name see distinct checkouts. existing slots keep their paths
-- `root`, `base_branch`, `worktree_path` unset. `worktree_path` would supersede `unique_leaf`, and `root` inside a repo is rejected for that repo
+- `base_branch`, `worktree_path` unset. `worktree_path` would supersede `unique_leaf`
+- no symlinks into the pool root: the same slot reached by two paths got `pre_destroy` twice
 - hooks log to `~/.cache/treehouse/hooks.log`
 
 hooks (`post_create`, `pre_destroy`) are only read from the user config, never from a repo `treehouse.toml`, so a cloned repo can't run shell. `post_create` runs on every acquire, reused slots included; for `--lease` its stdout goes to stderr. a failing hook is logged and does not fail the command. hooks get no `TREEHOUSE_*` env, only `$PWD`.

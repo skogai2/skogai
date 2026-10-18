@@ -20,7 +20,7 @@
 # with only append-system-prompt.md keeps Claude Code's default prompt.
 # LOADOUT sets the active profile in the sandbox's loadout store.
 set -euo pipefail
-root=$(cd "$(dirname "$0")/.." && pwd)
+root=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
 
 : "${SETUP:=baseline}"
 : "${MODEL:=haiku}"
