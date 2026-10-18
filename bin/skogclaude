@@ -1,0 +1,1 @@
+claude -p --tools Read,Glob,Grep,Bash \ --allowedTools "Bash(okn validate *),Bash(git ls-files *),Bash(git rev-parse *),Bash(git status *)" \ --permission-mode dontAsk \ "Read workflows/skogai.md and run its check section with <dot> = {{usage.dot}}." < /dev/null 
