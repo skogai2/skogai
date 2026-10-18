@@ -30,3 +30,9 @@
 - [ ] dash;never run `okn setup ci|github|observe` from the repo: they write to the git root and `.claude/settings.json`
 - [ ] dash;later: claims, evidence, insights. skip: query (claims only), `okn agent` (duplicates `bin/agent`), rules/ (prose, not checks)
 
+- [ ] treehouse;turn docs/tools/treehouse/ into a skill (agent path: `get --lease` / `return --if-lease-holder`)
+- [ ] treehouse;decide what skogai's `post_create` warms (mise install? okn?), ties into "setup wt hooks"
+- [ ] treehouse;add `.worktreeinclude` where slots need ignored files
+- [ ] treehouse;run the "not yet tested" list in docs/tools/treehouse/review.md
+- [ ] treehouse;make `demo.tape` hermetic (`git init -b main`, isolated config), then re-publish the gif
+- [ ] treehouse;decide whether to send review.md findings upstream
