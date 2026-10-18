@@ -11,12 +11,7 @@ description = "agent runs skogai check on a dot (read-only)"
 dir = "{{config_root}}/dash-skogai"
 usage = 'arg "[dot]" default="src"'
 run = '''
-claude -p --tools Read,Glob,Grep,Bash \
-  --allowedTools "Bash(okn validate *),Bash(git ls-files *),Bash(git rev-parse *),Bash(git status *)" \
-  --permission-mode dontAsk \
-  "Read workflows/skogai.md and run its check section with <dot> = {{usage.dot}}." < /dev/null
-'''
-
+claude -p --tools Read,Glob,Grep,Bash \ --allowedTools "Bash(okn validate *),Bash(git ls-files *),Bash(git rev-parse *),Bash(git status *)" \ --permission-mode dontAsk \ "Read workflows/skogai.md and run its check section with <dot> = {{usage.dot}}." < /dev/null '''
 [tasks."dash:graph"]
 description = "render dash types, one section each with a mermaid graph, into README.md"
 dir = "{{config_root}}/dash-skogai"
