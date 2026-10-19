@@ -1,0 +1,104 @@
+- [ ] explain the git-plugin overall
+- [ ] types as modules: a module (e.g. gita) declares the files it owns or relates to (tools/gita.md, bin/gita, scripts/gita/*)
+  - okn `typed_links` cannot express this: link targets must be declared document types, so `bin/gita` is not a valid target
+  - okf `resource` takes only one path
+  - candidate: `skogai_schema` key such as `owns: [paths]`, checked by skogai after `okn validate`
+- [ ] knowledge vs memory: split on lifetime using okf `status` / `stale_after`?
+- [ ] task: rename to workorder? "task" collides with mise and claude code
+- [ ] spec: overlaps with type and rule. proposal / design, or drop?
+- [ ] tool: `docs/tools/<name>.md` folded into `type/tool/<name>.md`, and `workflow/` made `workflows/`. confirm
+- [ ] rule: defines its own "watched file" field, so `<watched-file>` is explained one step away (by the rule type itself)
+- [ ] trigger: split `when` into a defined `event` field (paths belong to rule/watches). what is an event, and where does it come from?
+- [ ] skogai cli: where does a dot record its dash ref?
+- [ ] skogai cli: merge semantics per field when folding layers. config is replace-only for now; append for multi-valued keys?
+- [ ] config: should `dash.ref` live in the local config?
+- [ ] config: strict keys declared by types, or free-form?
+- [ ] config/env: namespace control vars. `SKOGAI_GLOBAL_CONFIG` collides with key `global.config`. candidate: reserve the `config` section, so layer paths are keys `config.global` / `config.local` -> `SKOGAI_CONFIG_GLOBAL` / `SKOGAI_CONFIG_LOCAL`, and refuse to set them from a file layer
+- [ ] schema: `fields` is a map of key -> value, not a list of names. required for every instance: `type`, `title`, `owns` (every instance has a living space: tool/gh lives under type/tool, type/tool under the base type). maybe `created` / `edited`. allow the okf base instead of `additionalProperties: false`
+- [ ] relations are one step: gh is tool/gh, tool is type/tool, repo skogai is gh/skogai. sharing is several direct relations (tool/gh, cli/gh, git/gh), never a chain. every `<variable>` in a path is defined by the instance itself or its parent
+- [ ] skogai cli: how does a type declare that a file is derived, and by what function?
+- [ ] agent prompts: `bin/skogai` has only `config` so far. until it has `check`, `plan` and `apply`, an agent runs `check`, `plan` and `apply` from `workflows/skogai.md` (owned by tool skogai). init elsewhere is `apply` on an empty dot. `check` is written and runs as `mise run dash:check [dot]`; `plan` and `apply` wait on the open cli items above
+- [ ] router: decision 0006 keeps routing out of dash until the type layer works. `type/router.md` is a draft folded from `tmp/routing/`. keep it as a draft, or move it back to tmp?
+- [ ] router: dash's own `CLAUDE.md` holds routes, layout and handover, and `SKOGAI.md` holds goals. move that content into `SKOGAI.md` (and its routes) so `CLAUDE.md` becomes the derived `@SKOGAI.md`?
+- [ ] router: "frontmatter `type` names the root xml block" (router -> `<routes>`). make it the rule for every type, or keep it router-only?
+- [ ] router: permalink `repo/file` resolves to `~/repo`, `~/.local/src/repo` or `projects/repo`. replaced by "refs resolve to commits", or does it belong in repo?
+- [ ] tmp/routing schemas: `lesson` (match.keywords, rule/context/pattern) vs knowledge/memory, `workflow` (objective/steps/validation) vs `workflows/<name>.md`, `template`, `reference`. map to types or drop
+- [ ] tmp/routing scripts: validators overlap okn and `check` ("don't rebuild okn"). port the router check into `check`, or drop
+- [ ] tmp/routing references: `at-linking.md` and `dynamic-output-blocks.md` are claude code knowledge, not dash. move to knowledge, or to marketplace?
+- [ ] graph: `README.md` is derived (`mise run dash:graph`) but has no owner. which type writes it, `type` or `router`? and should `check` regenerate and compare it, like `DECISIONS.md`?
+# todo
+
+- [ ] sandbox;workers run in an empty, wiped `/tmp/.../work`, so a real worker can't see this repo. Add a mode that points `bin/agent` at a real directory (or a `wt` worktree) while keeping the config isolated.
+- [ ] setup;a setup can't set its own tools or permissions. `TOOLS` comes from outside (default: none) and `-p` mode can't stop to ask, so each setup must carry its own tool and permission list.
+- [ ] spawn;runs of the same setup share `/tmp/claude-code/<setup>` and wipe it, so parallel runs collide unless each gets its own `BOX`.
+- [ ] feature;`model` file in a setup sets its default model (`MODEL` still overrides).
+- [ ] feature;`mcp.json` in a setup gives it MCP servers (`--mcp-config`, keeping `--strict-mcp-config`).
+- [ ] feature;`agents.json` in a setup defines its subagents (`--agents`). Needed for orchestrator workers.
+- [ ] feature;`plugins/` in a setup loads plugins (`--plugin-dir`). Lets us test the skog plugin.
+- [ ] feature;`env` in a setup is sourced before `claude` runs (per-setup `SKOGAI_*` and similar).
+- [ ] feature;`add-dirs` in a setup grants read access to repo paths (`--add-dir` per line).
+- [ ] feature;`schema.json` in a setup forces structured output (`--json-schema`; check `cli-reference.md` first).
+- [ ] test;`append-system-prompt.md` and `work/` have no test in `projects/claude-code/tests/`.
+- [x] spawn;the orchestrator calls a setup with plain Bash: `printf '%s\n' "$prompt" | SETUP=x projects/claude-code/bin/agent`. Written into the orchestration prompt.
+- [ ] kinds;one-shot workers (`bin/agent`, `claude -p`) fit reviews, commit messages and summaries; long or interactive implementation work fits herdr panes. Pick per setup.
+- [ ] eval;test the orchestrator itself: its cases check that it picks the right setup for a request ("uses its tools", measured).
+- [ ] delegate;`bin/delegate`: task in, one message out (answer + diff + status + branch). Steps: `herdr worktree create` → `herdr agent start` → `agent prompt --wait` (loop while `blocked`) → answer → `wt step commit -b` → `wt step diff -b`.
+- [ ] delegate;take the worker's answer from its transcript (`agent_session.value` → `~/.claude/projects/<cwd-slug>/<id>.jsonl`, last assistant message), not `herdr agent read`, which truncates long replies.
+- [ ] approve;the approval gate before merging a worker branch: scope (`diff --stat`), rerun the worker's checks, reviewer worker on the diff, clean rebase. Then `wt merge --no-remove` + `herdr worktree remove`.
+- [ ] approve;decide whether the orchestrator merges and reports afterwards, or prepares the merge and waits for skogix's ok. Write the result into `setup/append-system-prompt.md` and `setup/settings.json`.
+- [x] setup;moving settings.json and append-system-prompt.md to something like `./setup/` or even `ln -s` the folder itself to better show what is actually implementation of the orchestration setup and what is not?
+- [ ] journal;the skogai-core Stop hook writes each worker's turns to `.skogai/journal.md` in its worktree. that blocks `wt merge`'s worktree removal. decide: commit it on the worker branch, merge it into master's journal, or skip the hook for workers.
+- [x] commitgen;`[commit.generation]` switched from `aichat -m ollama:llama3.2` (quoted or junk messages: `33df31e`, `975f28c`) to claude haiku.
+- [x] delegate;`herdr agent start` returned `agent_pane_busy` on fish panes (atuin in the foreground group). fixed with `exec bash --norc --noprofile` in the pane first, in TOOLS.md.
+- [ ] explain the git-plugin overall
+- [ ] types as modules: a module (e.g. gita) declares the files it owns or relates to (tools/gita.md, bin/gita, scripts/gita/*)
+  - okn `typed_links` cannot express this: link targets must be declared document types, so `bin/gita` is not a valid target
+  - okf `resource` takes only one path
+  - candidate: `skogai_schema` key such as `owns: [paths]`, checked by skogai after `okn validate`
+- [ ] knowledge vs memory: split on lifetime using okf `status` / `stale_after`?
+- [ ] task: rename to workorder? "task" collides with mise and claude code
+- [ ] spec: overlaps with type and rule. proposal / design, or drop?
+- [ ] tool: `docs/tools/<name>.md` folded into `type/tool/<name>.md`, and `workflow/` made `workflows/`. confirm
+- [ ] rule: defines its own "watched file" field, so `<watched-file>` is explained one step away (by the rule type itself)
+- [ ] trigger: split `when` into a defined `event` field (paths belong to rule/watches). what is an event, and where does it come from?
+- [ ] skogai cli: where does a dot record its dash ref?
+- [ ] skogai cli: merge semantics per field when folding layers. config is replace-only for now; append for multi-valued keys?
+- [ ] config: should `dash.ref` live in the local config?
+- [ ] config: strict keys declared by types, or free-form?
+- [ ] config/env: namespace control vars. `SKOGAI_GLOBAL_CONFIG` collides with key `global.config`. candidate: reserve the `config` section, so layer paths are keys `config.global` / `config.local` -> `SKOGAI_CONFIG_GLOBAL` / `SKOGAI_CONFIG_LOCAL`, and refuse to set them from a file layer
+- [ ] schema: `fields` is a map of key -> value, not a list of names. required for every instance: `type`, `title`, `owns` (every instance has a living space: tool/gh lives under type/tool, type/tool under the base type). maybe `created` / `edited`. allow the okf base instead of `additionalProperties: false`
+- [ ] relations are one step: gh is tool/gh, tool is type/tool, repo skogai is gh/skogai. sharing is several direct relations (tool/gh, cli/gh, git/gh), never a chain. every `<variable>` in a path is defined by the instance itself or its parent
+- [ ] skogai cli: how does a type declare that a file is derived, and by what function?
+- [ ] agent prompts: `bin/skogai` has only `config` so far. until it has `check`, `plan` and `apply`, an agent runs `check`, `plan` and `apply` from `workflows/skogai.md` (owned by tool skogai). init elsewhere is `apply` on an empty dot. `check` is written and runs as `mise run dash:check [dot]`; `plan` and `apply` wait on the open cli items above
+- [ ] router: decision 0006 keeps routing out of dash until the type layer works. `type/router.md` is a draft folded from `tmp/routing/`. keep it as a draft, or move it back to tmp?
+- [ ] router: dash's own `CLAUDE.md` holds routes, layout and handover, and `SKOGAI.md` holds goals. move that content into `SKOGAI.md` (and its routes) so `CLAUDE.md` becomes the derived `@SKOGAI.md`?
+- [ ] router: "frontmatter `type` names the root xml block" (router -> `<routes>`). make it the rule for every type, or keep it router-only?
+- [ ] router: permalink `repo/file` resolves to `~/repo`, `~/.local/src/repo` or `projects/repo`. replaced by "refs resolve to commits", or does it belong in repo?
+- [ ] tmp/routing schemas: `lesson` (match.keywords, rule/context/pattern) vs knowledge/memory, `workflow` (objective/steps/validation) vs `workflows/<name>.md`, `template`, `reference`. map to types or drop
+- [ ] tmp/routing scripts: validators overlap okn and `check` ("don't rebuild okn"). port the router check into `check`, or drop
+- [ ] tmp/routing references: `at-linking.md` and `dynamic-output-blocks.md` are claude code knowledge, not dash. move to knowledge, or to marketplace?
+- [ ] graph: `README.md` is derived (`mise run dash:graph`) but has no owner. which type writes it, `type` or `router`? and should `check` regenerate and compare it, like `DECISIONS.md`?
+# todo
+
+- [ ] sandbox;workers run in an empty, wiped `/tmp/.../work`, so a real worker can't see this repo. Add a mode that points `bin/agent` at a real directory (or a `wt` worktree) while keeping the config isolated.
+- [ ] setup;a setup can't set its own tools or permissions. `TOOLS` comes from outside (default: none) and `-p` mode can't stop to ask, so each setup must carry its own tool and permission list.
+- [ ] spawn;runs of the same setup share `/tmp/claude-code/<setup>` and wipe it, so parallel runs collide unless each gets its own `BOX`.
+- [ ] feature;`model` file in a setup sets its default model (`MODEL` still overrides).
+- [ ] feature;`mcp.json` in a setup gives it MCP servers (`--mcp-config`, keeping `--strict-mcp-config`).
+- [ ] feature;`agents.json` in a setup defines its subagents (`--agents`). Needed for orchestrator workers.
+- [ ] feature;`plugins/` in a setup loads plugins (`--plugin-dir`). Lets us test the skog plugin.
+- [ ] feature;`env` in a setup is sourced before `claude` runs (per-setup `SKOGAI_*` and similar).
+- [ ] feature;`add-dirs` in a setup grants read access to repo paths (`--add-dir` per line).
+- [ ] feature;`schema.json` in a setup forces structured output (`--json-schema`; check `cli-reference.md` first).
+- [ ] test;`append-system-prompt.md` and `work/` have no test in `projects/claude-code/tests/`.
+- [x] spawn;the orchestrator calls a setup with plain Bash: `printf '%s\n' "$prompt" | SETUP=x projects/claude-code/bin/agent`. Written into the orchestration prompt.
+- [ ] kinds;one-shot workers (`bin/agent`, `claude -p`) fit reviews, commit messages and summaries; long or interactive implementation work fits herdr panes. Pick per setup.
+- [ ] eval;test the orchestrator itself: its cases check that it picks the right setup for a request ("uses its tools", measured).
+- [ ] delegate;`bin/delegate`: task in, one message out (answer + diff + status + branch). Steps: `herdr worktree create` → `herdr agent start` → `agent prompt --wait` (loop while `blocked`) → answer → `wt step commit -b` → `wt step diff -b`.
+- [ ] delegate;take the worker's answer from its transcript (`agent_session.value` → `~/.claude/projects/<cwd-slug>/<id>.jsonl`, last assistant message), not `herdr agent read`, which truncates long replies.
+- [ ] approve;the approval gate before merging a worker branch: scope (`diff --stat`), rerun the worker's checks, reviewer worker on the diff, clean rebase. Then `wt merge --no-remove` + `herdr worktree remove`.
+- [ ] approve;decide whether the orchestrator merges and reports afterwards, or prepares the merge and waits for skogix's ok. Write the result into `setup/append-system-prompt.md` and `setup/settings.json`.
+- [x] setup;moving settings.json and append-system-prompt.md to something like `./setup/` or even `ln -s` the folder itself to better show what is actually implementation of the orchestration setup and what is not?
+- [ ] journal;the skogai-core Stop hook writes each worker's turns to `.skogai/journal.md` in its worktree. that blocks `wt merge`'s worktree removal. decide: commit it on the worker branch, merge it into master's journal, or skip the hook for workers.
+- [x] commitgen;`[commit.generation]` switched from `aichat -m ollama:llama3.2` (quoted or junk messages: `33df31e`, `975f28c`) to claude haiku.
+- [x] delegate;`herdr agent start` returned `agent_pane_busy` on fish panes (atuin in the foreground group). fixed with `exec bash --norc --noprofile` in the pane first, in TOOLS.md.
