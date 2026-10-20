@@ -5256,3 +5256,63 @@ The over-correction you opened with — grinding everything down to detail so a 
 
 That's the actual asymmetry you found on the bus: we can make up context infinitely fast and for free, but grounding costs exactly one round-trip to something that can say no.
 
+## 2026-10-20 21:12 · turn 6d4d8bc1
+
+**User**
+
+> This is a comment left during a code review.
+> Path: .skogai/scripts/claude/cloud-environment.sh
+> Line: 10
+>
+> Comment:
+> **Cloud setup stops early**
+>
+> `mise install` uses the root config, which selects the `packslip:` backend for `fnox`. If the cloud session has the GitHub restrictions documented at commit `09fec7f`, that backend's required contents API request is blocked. Installation fails, and `set -e` stops the script before either SkogAI tool is installed. Use a cloud-compatible backend such as `aqua:jdx/fnox`.
+>
+> ---
+>
+> For each issue above, determine whether it is valid and should be fixed. If so, fix it directly.
+
+**Assistant**
+
+The review comment was right, and I've fixed it: `mise.toml` now uses `"aqua:jdx/fnox" = "latest"` instead of `fnox = { version = "latest", workflow = "release.yml" }`. I dropped `workflow = "release.yml"` because it was an option for the packslip backend that plain `fnox` resolves to.
+
+Plain `fnox` uses the `packslip:` backend, which fetches through GitHub's contents API. Cloud sessions block that API (as written up in `wip/mise/gotchas.md`, commit `09fec7f`), so `mise install` fails and `set -e` stops the script before the two `uv tool install` lines run.
+
+Locally, mise now picks up `aqua:jdx/fnox` at **1.39.0**, while your global config has `fnox` at 1.41.0, so the aqua source is two releases behind. If that matters, `"github:jdx/fnox"` also works in cloud sessions (per the same gotchas) and should get the latest release.
+
+I haven't run the script in a cloud session, and the change isn't committed.
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai; rtk read .skogai/scripts/claude/cloud-environment.sh; echo ---; rtk ls mise.toml .mise.toml 2>/d…`
+- Bash: `cd /home/skogix/skogai; rtk git show 09fec7f -- wip/mise/example/mise.toml wip/mise/gotchas.md | cat; mise registry fnox…`
+- Bash: `cd /home/skogix/skogai; sed -i 's|^fnox = { version = "latest", workflow = "release.yml" }$|"aqua:jdx/fnox" = "latest"|'…`
+
+## 2026-10-20 21:12 · turn f13253b1
+
+**User**
+
+> This is a comment left during a code review.
+> Path: .skogai/scripts/claude/cloud-environment.sh
+> Line: 10
+>
+> Comment:
+> **Cloud setup stops early**
+>
+> `mise install` uses the root config, which selects the `packslip:` backend for `fnox`. If the cloud session has the GitHub restrictions documented at commit `09fec7f`, that backend's required contents API request is blocked. Installation fails, and `set -e` stops the script before either SkogAI tool is installed. Use a cloud-compatible backend such as `aqua:jdx/fnox`.
+>
+> ---
+>
+> For each issue above, determine whether it is valid and should be fixed. If so, fix it directly.
+
+**Assistant**
+
+The issue is valid, and your uncommitted `mise.toml` change already fixes it. The working tree switches `fnox` to `"aqua:jdx/fnox" = "latest"`, which is the backend the comment asks for and the one commit `09fec7f` settled on. I made no edits; the fix takes effect once that change is committed.
+
+One more thing in the script: the bare `mise activate` on line 11 does nothing, because it only prints shell code. `09fec7f` removed the same line from the wip setup script, so it can come out here too.
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai; rtk read .skogai/scripts/claude/cloud-environment.sh; echo ---; rtk read mise.toml; echo ---; rt…`
+

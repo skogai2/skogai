@@ -3,7 +3,7 @@ age = "latest"
 argc = "latest"
 yq = "latest"
 jq = "latest"
-fnox = { version = "latest", workflow = "release.yml" }
+"aqua:jdx/fnox" = "latest"
 watchexec = "latest"
 
 [tasks."dash:check"]
