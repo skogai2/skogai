@@ -1,3 +1,4 @@
 /.skogai/logs
 /tmp
 /.claude/worktrees
+/.skogai/config/script_metadata.json
