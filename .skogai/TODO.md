@@ -106,3 +106,4 @@
 - [ ] claude-setup;use "ctrl+s" example for perfect reason and goal for "claude-code-setup" project
 - [ ] claude-setup; a good example of an agent in this case; context7/docs
 - [ ] kitty; ctrl+shift+h/l for "circle the open panes"
+- [ ] !`atuin dotfiles alias set captain-deck 'herdr plugin action invoke open-captain-deck --plugin herdr-firstmate-flow'`
