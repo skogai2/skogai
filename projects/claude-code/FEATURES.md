@@ -50,7 +50,8 @@ The prompt goes in on stdin and the reply comes out on stdout:
 |---|---|---|
 | `baseline` | replaced: a minimal test agent | the empty agent everything is compared against |
 | `commit-msg` | replaced: commit-message writer | a diff in, a commit message out |
-| `orchestration` | appended: orchestrator role | the orchestrator, which hands work to other setups |
+| `base` | appended: base orchestrator | the orchestrator to build on: delegates to `bin/agent` and herdr panes, reports the commands it ran |
+| `orchestration` | appended: orchestrator role | the earlier role-only orchestrator |
 | `loadout` | baseline's | the loadout plugin; profiles `default` and `vanilla` |
 
 
@@ -65,3 +66,4 @@ The prompt goes in on stdin and the reply comes out on stdout:
 | `mise run review <setup>` | Read every response from the latest eval |
 | `mise run compare <setup>` | See how the two latest evals differ |
 | `mise run test` | Run the tests |
+| `mise run orchestrator` | Talk to the orchestrator: interactive `claude` at the repo root with `setups/base`'s prompt appended (`SETUP=` for another) |

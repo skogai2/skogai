@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Start an interactive orchestrator session at the repo root, with your normal
+# Claude Code config (herdr, wt, hooks) and a setup's prompt appended.
+#   bin/orchestrator                     interactive, setups/base
+#   bin/orchestrator "first message"     extra args go straight to claude
+#   SETUP=orchestration bin/orchestrator
+# Unlike bin/agent this is not sandboxed: only the setup's append-system-prompt.md
+# is used, its settings.json and other files are not applied.
+set -euo pipefail
+root=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
+
+: "${SETUP:=base}"
+prompt=$root/setups/$SETUP/append-system-prompt.md
+[[ -f $prompt ]] || { echo "no prompt: $prompt" >&2; exit 1; }
+
+cd "$(git -C "$root" rev-parse --show-toplevel)"
+exec claude --append-system-prompt-file "$prompt" "$@"

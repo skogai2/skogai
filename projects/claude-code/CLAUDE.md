@@ -6,6 +6,7 @@ A lab for learning exactly what Claude Code does. Start from an agent with every
 
 - `bin/agent`: one-shot `claude -p` in an isolated sandbox. The prompt comes on stdin. Everything else builds on it.
 - `bin/inspect`, `bin/transcript`: show what a session exposes, or locate its transcript.
+- `bin/orchestrator`: interactive `claude` at the repo root with a setup's `append-system-prompt.md` (default `base`). Not sandboxed, uses the real config; only the prompt file applies.
 - `bin/layers`: the layer folders of a setup, base first (`setups/baseline`, then the setup).
 - `bin/eval`, `bin/review`, `bin/compare`: batch-run cases, read all responses, diff two runs.
 - `setups/<name>/`: one configuration under test, layered on top of `setups/baseline`. It holds only what differs from baseline: `settings.json`, `config/`, `work/`, `plugin-dirs`, `system-prompt.md` and/or `append-system-prompt.md`.

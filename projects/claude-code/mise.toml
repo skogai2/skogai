@@ -50,3 +50,8 @@ echo "created setups/$usage_name and cases/$usage_name"
 [tasks.test]
 description = "Run tests/run (must pass before committing)"
 run = 'tests/run'
+
+[tasks.orchestrator]
+description = "Interactive orchestrator session at the repo root (SETUP=base)"
+raw = true
+run = 'bin/orchestrator'
