@@ -5705,3 +5705,45 @@ If you still want it hard-coded, it would be `# @env SKOGAI_CONFIG_DIR=/home/sko
 
 - Bash: `sed -n 225,245p /tmp/argc/specification.md`
 
+## 2026-10-22 22:20 · turn 06663a3a
+
+**User**
+
+> well the function you have given don't have a default.... hard code it if you can't find the intended way for now
+
+**Assistant**
+
+The `SKOGAI_CONFIG_DIR` default is now hard-coded to `/home/skogix/.config/skogai`, and I removed the function. `--help` now shows `[default: …]` for all three variables, and with the variable unset, `files` resolves the global layer to `/home/skogix/.config/skogai/config`.
+
+The catch is that the default now only fits your user. That's fine until it's bundled for someone else.
+
+**Actions**
+
+- Bash: `python3 - <<'EOF'`
+
+## 2026-10-22 22:24 · turn 756dd4e5
+
+**User**
+
+> great. now we need to update dash-skogai in general and remove almost all config-related references. is the bin file alone what needs to be moved or if any docs need to follow along please add it beside it in the bin folder for now and i fix it
+
+**Assistant**
+
+Moved: `type/config.md` is now `bin/skogai-config.md`, its entry in `type/index.md` is gone, and the README no longer has a config section after regenerating. Nothing else has to move with the binary; it runs on its own.
+
+`dash-skogai/config` (the stage/commit/merge/event defaults) I've left in place. It isn't part of the tool; it's data for whatever reads those keys, which today means the skogai-core hooks. In the new layering it's the content you'd install as `/etc/skogai/config`.
+
+These references to config are still there for you to fix:
+- `type/event.md:37`: "the base config key `event.log-path`".
+- `type/tool/skogai.md:13`: the old layers line, `base`/`global`/`local` and a link to `../config.md`, which no longer exists.
+- `type/tool/skogai.md:19-21`: the `### skogai config` section, "implemented in `bin/skogai`", and the same dead link.
+- `workflows/skogai.md:3`: "`bin/skogai` has only `config` so far".
+- `tmp/definitions.md:18,35,60,62`: the config table rows and two links to `../type/config.md`.
+- `bin/skogai-config.md`: still has `type: type` frontmatter from when it was a type file.
+
+**Actions**
+
+- Bash: `cd ~/skogai/dash-skogai && grep -rn -i -E 'skogai.config|skogai config|\bconfig\b' --exclude-dir=.git --exclude=README.m…`
+- Bash: `rtk read type/config.md; sed -n 1,30p tmp/graph/types.sh | rtk grep -n -i 'index\|type/'`
+- Bash: `git mv type/config.md bin/skogai-config.md && sed -i '/^- \[config\](config.md)$/d' type/index.md && mise run dash:graph…` (failed)
+
