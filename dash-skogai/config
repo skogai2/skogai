@@ -11,3 +11,5 @@
 	on-stop = false
 [event]
 	log-path = .skogai/logs/event.jsonl
+[base]
+	test = true

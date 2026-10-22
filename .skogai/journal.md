@@ -5316,3 +5316,392 @@ One more thing in the script: the bare `mise activate` on line 11 does nothing, 
 
 - Bash: `cd /home/skogix/skogai; rtk read .skogai/scripts/claude/cloud-environment.sh; echo ---; rtk read mise.toml; echo ---; rt…`
 
+## 2026-10-20 22:05 · turn 1cbb045f
+
+**User**
+
+> This is a comment left during a code review.
+> Path: .skogai/scripts/claude/cloud-environment.sh
+> Line: 10
+>
+> Comment:
+> **Cloud setup stops early**
+>
+> `mise install` uses the root config, which selects the `packslip:` backend for `fnox`. If the cloud session has the GitHub restrictions documented at commit `09fec7f`, that backend's required contents API request is blocked. Installation fails, and `set -e` stops the script before either SkogAI tool is installed. Use a cloud-compatible backend such as `aqua:jdx/fnox`.
+>
+> ---
+>
+> ;For each issue above, determine whether it is valid and should be fixed. If so, fix it directly.
+
+**Assistant**
+
+The issue was real, and it's already fixed in HEAD (`10cd29c`). `mise.toml` now declares `"aqua:jdx/fnox" = "latest"`, and no `.toml` file in the repo references `packslip` anymore. So `mise install` in `cloud-environment.sh` no longer needs the GitHub contents API that cloud sessions block. I made no changes, and I didn't run the script in a cloud session to confirm it.
+
+**Actions**
+
+- Bash: `rtk read .skogai/scripts/claude/cloud-environment.sh; echo ---; rtk grep -rn fnox mise.toml .mise.toml mise.*.toml .conf…`
+- Bash: `rtk read mise.toml; rtk grep -rln packslip --include='*.toml' . 2>/dev/null` (failed)
+
+## 2026-10-22 20:16 · turn a7a65577
+
+**User**
+
+> hi claude. looking over for some quick wins from @.skogai/TODO.md
+
+**Assistant**
+
+The quickest win is the file itself: lines 1–52 are repeated as 53–104, so half of `TODO.md` is a duplicate. Here are the other cheap items, roughly easiest first:
+
+| item | effort | note |
+|---|---|---|
+| dedupe `TODO.md` | trivial | Keep 53–109 and drop 1–52. |
+| `feature;plugins/` | already done | `bin/agent` already reads a `plugin-dirs` file per layer and passes `--plugin-dir`. Tick it, or reword the item to `plugin-dirs`. |
+| `!atuin dotfiles alias set captain-deck …` | 1 command | You've already written it out, so I can just run it. |
+| `kitty; ctrl+shift+h/l` | 2 lines | `map ctrl+shift+h previous_window` / `map ctrl+shift+l next_window`. This replaces kitty's defaults for those keys: `show_scrollback` and `next_layout`. |
+| `feature;model` | ~3 lines | Read `model` from the last layer that has one. The `: "${MODEL:=haiku}"` default would have to move until after `layers` is computed, so that `MODEL` from outside still overrides it. |
+| `feature;add-dirs` | ~4 lines | Copy the `plugin-dirs` loop and swap in `--add-dir`. |
+| `feature;env` | ~2 lines | `set -a; source "$layer/env"; set +a` inside the layer loop. |
+| `feature;mcp.json` / `agents.json` | ~2 lines each | Last layer wins: `--mcp-config "$layer/mcp.json"` and `--agents "$(cat …)"`. |
+| `spawn;BOX` collision | small | Default `box` to `$SANDBOX_ROOT/$SETUP` only when it's free, otherwise use `mktemp -d`. First check whether `bin/inspect` / `bin/transcript` expect the fixed path. |
+
+Everything else in the list is a design decision (types, router, config namespacing, approve/journal) and none of it is quick.
+
+My suggestion is to do the first five rows now, plus `add-dirs` and `env`, all in one pass on `bin/agent`, with a test in `projects/claude-code/tests/` for each new layer file. Say go, or tell me which rows to do.
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai; rtk ls projects/claude-code/ projects/claude-code/bin 2>/dev/null; rtk read projects/claude-code…` (failed)
+
+## 2026-10-22 20:33 · turn b35ab7e9
+
+**User**
+
+> hi claude. looking over the dash-skogai bin/skogai overall. is it something we could move to a already existing skogai plugin or does it have to live in dash-skogai currently?
+
+**Assistant**
+
+It doesn't have to stay in dash-skogai. It can move, and **skogai-core** is the natural home for it.
+
+**Why it's easy to move**
+- The script has one tie to dash: `DASH_DIR` → `$DASH_DIR/config`, the base layer. The rest is git config, yq and argc.
+- Those base keys (`stage.*`, `commit.*`, `merge.*`, `event.log-path`) are settings for skogai-core, read by `git-steps.sh` and the event log. So the plugin's defaults currently live in another repo.
+- skogai-core is the only thing that calls it (`git-steps.sh`, `settings.sh`, `register.ts`). Its `CONFIG.md` already documents the design, and it already falls back to env or reading `.local.md` directly when `skogai` isn't on PATH.
+
+**What would need to change**
+- Move `bin/skogai` and `config` into `plugins/skogai-core/`. `DASH_DIR` then resolves to the plugin root without any other edits.
+- Point `~/.local/bin/skogai` at the marketplace source (`~/.local/src/marketplace/plugins/skogai-core/bin/skogai`), not the plugin cache. The cache path includes the version number (`skogai-core/0.8.0`), so a link there breaks on every bump.
+- Update the paths in dash's `type/config.md`, `type/tool/skogai.md`, `workflows/skogai.md` and `README.md`, and in skogai-core's `CONFIG.md`. Those are only path references.
+
+**One thing to decide first**
+- The script describes itself as "the cli that turns dash into a dot", and `config` is meant as a general SkogAI setting, not something specific to Claude Code. If you want config usable from mise or a plain shell without a Claude plugin installed, keep the spec (`type/config.md`) in dash and treat skogai-core as the place the CLI ships from.
+- If `skogai` will eventually grow beyond `config`, **skogai-runner** (also argc) would be the better home, since it's the generic one.
+
+My recommendation: move the CLI and the base `config` to skogai-core, and keep the type spec in dash. Want me to do it?
+
+Sources: `dash-skogai/bin/skogai`, `dash-skogai/config`, `dash-skogai/type/config.md`, `~/.local/src/marketplace/plugins/skogai-core/{CONFIG.md,scripts/*.sh,hooks/register.ts}`
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai; fd -t d dash-skogai -d 4 . ~ 2>/dev/null | head; rtk ls`
+- Bash: `cd /home/skogix/skogai/dash-skogai; rtk ls -la; rtk ls bin; rtk wc -l bin/skogai; rtk read bin/skogai; rtk git log --one…`
+- Bash: `cd /home/skogix/skogai; rtk read dash-skogai/config; echo ---; rg -n --hidden -g '!.git' 'bin/skogai|skogai config|DASH_…`
+- Bash: `cd ~; jq -r '.plugins|keys[]' ~/.claude/plugins/installed_plugins.json 2>/dev/null | rtk rg -i skogai; rtk jq -r '.plugi…`
+- Bash: `cd ~/.local/src/marketplace; rtk ls plugins; for p in skogai-core skogai-runner; do echo "== $p"; fd . plugins/$p -d 2 -…`
+- Bash: `cd ~/.local/src/marketplace/plugins/skogai-core; rg -n 'skogai config|command -v skogai|DASH' scripts hooks | head; sed …`
+
+## 2026-10-22 21:07 · turn eb04ae73
+
+**User**
+
+> check @/tmp/argc/ for some documentation
+
+**Assistant**
+
+`config get` now checks its key against the real resolved keys, and the same lookup gives tab-completion. `/tmp/argc/specification.md` confirmed the syntax: `[`fn`]` completes and validates, `[?`fn`]` only completes.
+
+**Changes in `dash-skogai/bin/skogai`:**
+- **`_choice_key`**: lists the resolved keys (`_resolve | cut -f1`). It respects `--file` and `--scope`, because argc fills in parsed flags before it calls a choice function.
+  - **`get`**: uses it to validate, so `config get nope` now fails with argc's `invalid value` error and lists the possible keys.
+  - **`set`**: uses it for completion only (`[?…]`), so you can still set new keys.
+- **`_choice_target_key`**: lists only the keys in the layer `unset` would write to (local, `--global`, or `--file`'s `.local.md`), so completion only offers keys that can actually be removed.
+- **Completion text**: shows each key's value, e.g. `base.test (true)`. These descriptions are only printed when `ARGC_COMPGEN=1`. Validation compares the whole line, description included, so printing them always broke `get`.
+- **`config::get`**: is now a single lookup. I removed the old lowercasing, the `_`→`-` rewrite and the env fallback, since validation already guarantees a canonical key.
+
+**Behaviour changes:**
+- `config get STAGE.ON_STOP` and `config get stage.on_stop` used to work and are now rejected. You have to type the canonical key.
+- A key that exists only as an env var, e.g. `SKOGAI_FOO_BAR` with no layer defining `foo.bar`, can no longer be read with `get`. The env name can't be reliably turned back into a key, so it can't be listed. Env overrides of keys that some layer defines still work.
+
+I tested `get`, `get --show-origin`, completion for `get`/`set`/`unset`, and `set`/`unset` with `--global` and with `--file --scope`; all behaved as expected. One oddity: when completion has a single match (e.g. `set ev`), it shows no value description. I didn't look into why.
+
+**Other ideas along the same lines, not done:**
+- **One record type**: `_resolve` already produces `key\tvalue\torigin`. `get`, `list` and `env` could all be small views over it, e.g. a `_lookup key` helper instead of repeating `awk`/`cut`.
+- **Shared options**: `--file`/`--scope` are declared on five subcommands. Moving them to the parent `config` command would cut that duplication, if argc passes parent options down the way you'd want.
+- **`--scope` completion**: a `_choice_scope` could offer the top-level sections from `_resolve`.
+- **Empty frontmatter key**: `_file_key`'s regex check happens after validation for `unset`, but `set` still needs it.
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai/dash-skogai && python3 - <<'EOF'`
+- Bash: `rtk ls -R /tmp/argc | head -50; rtk grep -rn -i -E 'choice|_choice|\[\?|\[`' /tmp/argc --include=*.md | head -60`
+- Bash: `cd /tmp/argc && rtk read complete-patterns.md variables.md; rtk grep -n -i -E 'choice|\[\?|\[`|compgen|_argc' specificat…`
+- Bash: `cd /home/skogix/skogai/dash-skogai && S=bin/skogai`
+- Bash: `S=bin/skogai`
+
+## 2026-10-22 21:11 · turn aa4a4558
+
+**User**
+
+> great. could you remove the "config subcommand" and directly list the commands etc? also rename the binary to "skogai-config" and ill show what ive been working on on the side
+
+**Assistant**
+
+The binary is now `bin/skogai-config` (renamed with `git mv`), and `get`, `set`, `unset`, `list`, `env` and `files` are top-level commands. I retested all six, including `--global`, `--file`/`--scope`, env overrides and tab-completion, and they work.
+
+- **Builtin clash:** the commands named `set`, `unset` and `env` now hide the bash builtins with those names inside the script. `_resolve` called `unset` itself, so I changed that call to `builtin unset`. Argc's own generated code doesn't use any of the three.
+- **`@describe`:** now uses the old `config` description, since that's the whole tool now.
+- **README:** lines 181 and 195–200 now use `skogai-config`.
+
+Things that will break and that I didn't touch:
+- **The `skogai` command:** `~/.local/bin/skogai` is a link to `bin/skogai`, which no longer exists. Pointing a `~/.local/bin/skogai-config` link at the new file would fix it.
+- **skogai-core's `git-steps.sh` (marketplace repo):** it calls `skogai config list`. With the broken link it quietly falls back to reading env vars, so nothing errors. It needs changing to `skogai-config list`.
+- **Stale notes:** `.skogai/TODO.md:20` and `workflows/skogai.md:3` still say "`bin/skogai` has only `config`".
+
+Your uncommitted `[base] test = true` in `config` is still there, untouched. Nothing is committed. Show me what you've been working on.
+
+**Actions**
+
+- Bash: `git ls-files dash-skogai/bin; grep -rn --exclude-dir=.git -E 'bin/skogai\b|skogai config|config::' . 2>/dev/null | grep …` (failed)
+- Bash: `cd /home/skogix/skogai/dash-skogai && rtk grep -rn -E 'skogai config|bin/skogai|config::' README.md SKOGAI.md src workfl…`
+- Bash: `sed -n 1,80p /tmp/argc/specification.md; rtk grep -n -i -E 'alias|name' /tmp/argc/specification.md /tmp/argc/argc-macros…`
+- Bash: `git mv bin/skogai bin/skogai-config && S=bin/skogai-config && python3 - <<'EOF'`
+- Bash: `S=$PWD/bin/skogai-config`
+- Bash: `cd /home/skogix/skogai/dash-skogai && sed -i '181s/with `skogai config`/with `bin\/skogai-config`/; 195,200s/`skogai con…`
+
+## 2026-10-22 21:13 · turn f6bc5c8a
+
+**User**
+
+
+
+**Assistant**
+
+Everything works through your runner: `argc config get` resolves keys, `argc config get nope` is rejected, and completion carries through `_choice_delegate` for both the commands and the key names. `_delegate` changes to `ARGC_PWD` first, so the local layer comes from the repo you call it in, as it should.
+
+The rename and the flattening fit this setup: before, it would have been `argc config config get …`.
+
+Two loose ends from the rename:
+- **`~/.local/bin/skogai`** is now a broken link. If `argc config` replaces it, delete it rather than re-pointing it.
+- **skogai-core's `git-steps.sh`** still calls `skogai config list`. The natural change is `argc config list` (or `skogai-config list`), and its env fallback stays as it is.
+
+**Actions**
+
+- Bash: `cd ~ && argc ls; rtk ls -la ~/.config/argc/commands; rtk grep -n -A6 -E '^# @cmd read and write|^config\(\)' ~/Argcfile.…`
+- Bash: `cd ~/skogai && argc config get --show-origin stage.on-stop; argc config get nope 2>&1 | head -1; argc --argc-compgen bas…`
+
+## 2026-10-22 21:40 · turn 36e731a0
+
+**User**
+
+> great. is there any dependencies outside the argc bin itself to let us bundle this "extra module" in a simple way?
+
+**Assistant**
+
+Apart from argc itself, the script needs **bash ≥ 4 and git**, plus **yq** for anything using `--file`. It also needs one file next to it: the base `config`.
+
+| dependency | used for | needed when |
+|---|---|---|
+| bash ≥ 4 | associative arrays, `${x,,}`, `${x^^}` | always |
+| git | `git config -f` reads and writes the ini layers; `rev-parse --show-toplevel` finds the local layer | always (`@meta require-tools git`) |
+| yq (mikefarah v4) | reading and writing frontmatter | only with `--file` |
+| coreutils + awk | `cut`, `tr`, `sort`, `readlink -f`, `dirname`, `mkdir`, `awk` | always, but they're everywhere (`readlink -f` is GNU; BSD/macOS only got it recently) |
+| `../config` | the base layer, found via `readlink -f "$0"` | always |
+
+The base layer is the only real snag for bundling. It's found relative to the script's real path, so it works through your symlink registry. If you copied the script somewhere on its own, the base layer would quietly go missing, with no error. Two simple fixes:
+
+- **Overridable path:** add `SKOGAI_BASE_CONFIG`, like `global` and `local` already have. Bundle the script and its config as a pair, and the default stays as it is.
+- **Embedded defaults:** put the defaults in a heredoc inside the script, so the module is one file. The catch is that defaults become code instead of data.
+
+git isn't a problem in practice, since anywhere you'd run this already has it. yq is optional, so I wouldn't add it to `require-tools`: that would block plain `get`/`list` on machines without it.
+
+So the bundle is the script plus its `config` file. Want me to add the `SKOGAI_BASE_CONFIG` override?
+
+**Actions**
+
+- Bash: `cd dash-skogai && grep -n -o -E '\b(git|yq|awk|cut|sort|tr|readlink|dirname|mkdir|printf|jq)\b' bin/skogai-config | awk …`
+
+## 2026-10-22 21:48 · turn 3185d56f
+
+**User**
+
+> chill out and slow down. where is base config set and where is it assumed to be read from?
+
+**Assistant**
+
+The base config's location is set in one place, `bin/skogai-config:6` and `:13`:
+
+```bash
+DASH_DIR="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+...
+base) echo "$DASH_DIR/config" ;;
+```
+
+So it's always assumed to be `<script's real dir>/../config`, which today is `dash-skogai/config`. There's no env override, unlike `global` and `local`.
+
+It's only ever read, never written. `_resolve` reads it as the first layer, and `files` prints its path. `set` and `unset` can't reach it: `_target_file` only returns `global` or `local`, and `--file` writes `x.local.md`. To change a base value, you edit `dash-skogai/config` by hand.
+
+## 2026-10-22 21:52 · turn 8c28b95c
+
+**User**
+
+> great that is simple to change in practice. could you please remake / explicitly add the ENV's we use in the script itself. in this case SKOGAI_CONFIG_DIR could simply be the base used always?
+
+**Assistant**
+
+I've stopped here: `SKOGAI_CONFIG_DIR` is already set in your environment, so the change I just made has silently dropped the base layer.
+
+Your shell exports `SKOGAI_CONFIG_DIR=/home/skogix/.config/skogai`. That value comes from `~/.config/mise/config.toml:265`, which wins over `fish/config.fish:19`, where it's set to `~/skogai/config`. So the script now looks for `~/.config/skogai/config`, which doesn't exist. As a result, `argc config get base.test` currently fails and all the `stage`/`commit`/`merge` defaults are gone.
+
+Two ways to go:
+- **Keep the name:** `SKOGAI_CONFIG_DIR` becomes the one home of the base layer. That means moving or symlinking `dash-skogai/config` to `~/.config/skogai/config`, and settling which of the mise and fish values is the real one.
+- **Use a new name:** `SKOGAI_BASE_DIR` or similar, so it doesn't clash with whatever already uses `SKOGAI_CONFIG_DIR`.
+
+There's also a smaller naming clash. Every `SKOGAI_*` variable is also read as a key override: `SKOGAI_CONFIG_DIR` would override a key named `config.dir`, and `SKOGAI_GLOBAL_CONFIG` one named `global.config`. That only matters if those keys ever exist.
+
+Also, the `env | grep` I ran printed your `SKOGAI_OLLAMA_API_KEY` into this session's output. It stayed local, but rotate it if that matters to you.
+
+Which option do you want?
+
+**Actions**
+
+- Bash: `sed -n 150,170p /tmp/argc/specification.md; sed -n 1,40p dash-skogai/bin/skogai-config` (failed)
+- Bash: `sed -n 1,25p bin/skogai-config; grep -n -B2 -A10 'param-value' /tmp/argc/specification.md | sed -n '/=`/,+3p'`
+- Bash: `cd /tmp/argc-t && cat > e <<'EOF'`
+- Bash: `cd dash-skogai && python3 - <<'EOF'`
+- Bash: `env | rtk grep '^SKOGAI_'; rtk ls -la ~/.config/skogai 2>&1 | head; rtk grep -rn 'SKOGAI_CONFIG_DIR' ~/.config/fish ~/.c…`
+
+## 2026-10-22 22:01 · turn c352e28a
+
+**User**
+
+> i changed to what normally is set/used as the ENV values - do those make sense?
+
+**Assistant**
+
+Mostly not yet. The locations are sensible, but four things are off:
+
+1. **`$HOME` isn't expanded.** Argc takes `@env` defaults literally. With `SKOGAI_CONFIG_DIR` unset, `files` prints `base	$HOME/.config/skogai/config`, with an actual literal `$HOME`. A computed default needs the `` =`fn` `` form (`_default_config_dir` and friends are still in the file, now unused).
+2. **Dir or file, mixed.** `base` appends `/config` to its env value, but `global` and `local` use theirs as the file itself. `/etc/skogai` is an existing directory, so `git config -f /etc/skogai` fails, and `files` reports it as `missing`. `./.skogai` has the same problem. Either all three should be dirs with `/config` appended, or all three should be files.
+3. **The fold order is upside down.** Layers fold base → global → local, with later layers winning. With these values, `/etc` (system-wide) overrides `~/.config` (yours), when normally system < user < repo. git uses the same names the conventional way: `system` is `/etc`, `global` is `~`, `local` is the repo. Also, `set --global` would now write to `/etc`, which needs root.
+4. **`./.skogai` depends on the current directory.** The old default used the git root. From a subdirectory, or via `argc config` (which changes to your shell's directory first), the repo's config is missed.
+
+What I'd suggest is git's naming, with all three as dirs:
+
+| layer | env | default |
+|---|---|---|
+| system (lowest) | `SKOGAI_SYSTEM_DIR` | `/etc/skogai` |
+| global / user | `SKOGAI_CONFIG_DIR` | `~/.config/skogai` |
+| local | `SKOGAI_LOCAL_DIR` | `<git root>/.skogai` |
+
+Each layer's file is then `<dir>/config`. If the base layer is `/etc`, then `dash-skogai/config` is what gets installed there.
+
+Also, mise (`~/.config/skogai`) and fish (`~/skogai/config`) still disagree about `SKOGAI_CONFIG_DIR`, and mise wins.
+
+Want me to write it that way?
+
+**Actions**
+
+- Bash: `cd ~/skogai/dash-skogai && rtk git diff bin/skogai-config | head -80; sed -n 1,30p bin/skogai-config`
+- Bash: `env -u SKOGAI_CONFIG_DIR bin/skogai-config files; rtk ls -ld /etc/skogai 2>&1`
+
+## 2026-10-22 22:05 · turn 83ef12ea
+
+**User**
+
+> sounds pretty reasonable actually. 
+>
+> anything you said that actually meant anything real or was it only filler?
+>
+> what would you set the ENV to be in the end?
+
+**Assistant**
+
+Most of it was real, and I checked the main points against this machine:
+
+- **Real, verified:** `$HOME` isn't expanded; `files` printed it literally.
+- **Real, verified:** `/etc/skogai` is a directory, while `global` uses its env value as a file path, so `set --global` breaks.
+- **Real, from the code:** the fold order is base → global → local, so `/etc` would override `~/.config`.
+- **Real, from the code:** `./.skogai` depends on the current directory, where the old default used the git root.
+- **Real, verified:** mise and fish disagree about `SKOGAI_CONFIG_DIR`, and mise wins.
+- **Minor:** "needs root" for writing to `/etc` is true but follows from the fold-order point.
+- **Opinion:** the git `system/global/local` naming is just a suggestion for the names.
+
+What I'd end up with:
+
+```
+SKOGAI_SYSTEM_DIR=/etc/skogai          # system layer, lowest
+SKOGAI_CONFIG_DIR=$HOME/.config/skogai # user layer, `set --global` writes here
+SKOGAI_LOCAL_DIR=<git root>/.skogai    # repo layer, `set` writes here
+```
+
+Each layer reads `<dir>/config`. Those are also the script's defaults, so normally you set none of them, and the env vars exist only for overrides like tests or a sandbox.
+
+That means one cleanup on your side: keep the mise line (it equals the default anyway), and delete `set -gx SKOGAI_CONFIG_DIR /home/skogix/skogai/config` from `fish/config.fish:19` and `bkg.config.fish:18`.
+
+`dash-skogai/config` then becomes the system layer: you install it to `/etc/skogai/config` once. Your `/etc/skogai` directory already exists, so that's a single copy.
+
+## 2026-10-22 22:08 · turn 40f89c87
+
+**User**
+
+> well you cannot use "<git root>" because it would not be known until runtime - thats my point. and for love of everything holy - claude code being retarded and badly programmed is not my fault shut up about your runtime setup not updating. mise/fish is updated.....
+
+**Assistant**
+
+You're right that `<git root>` can't be an env value. So `SKOGAI_LOCAL_DIR` now holds the plain `.skogai`, and the script joins it to the git root at run time if it's relative (or to the current directory outside a repo):
+
+```bash
+# @env SKOGAI_SYSTEM_DIR=/etc/skogai
+# @env SKOGAI_CONFIG_DIR=`_default_config_dir`   # $HOME/.config/skogai
+# @env SKOGAI_LOCAL_DIR=.skogai
+```
+
+- **Layers:** they are now `system`, `global` and `local`, folded in that order (later wins), and each reads `<dir>/config`. `set` writes to local, `set --global` writes to `SKOGAI_CONFIG_DIR`, and nothing writes to system.
+- **`$HOME` default:** `SKOGAI_CONFIG_DIR` still needs a small function for its default, because argc doesn't expand `$HOME` in a literal default.
+- **Tests:** I ran the script directly and through `argc config`, from a subdirectory, and with each env var overridden. `set --global` into an override directory worked, and `--help` lists all three variables.
+- **README:** it's generated from `type/*.md`, so my earlier hand-edits to it were wrong. I reverted them, made the changes in `type/config.md`, and regenerated it with `mise run dash:graph`.
+
+`/etc/skogai/config` doesn't exist yet, so the stage/commit/merge defaults are missing until you copy `dash-skogai/config` there.
+
+Nothing is committed.
+
+**Actions**
+
+- Bash: `sed -n 1,25p bin/skogai-config; grep -n -E 'base|global|local' bin/skogai-config | sed -n 1,60p | grep -v '^[0-9]*:#' | …`
+- Bash: `python3 - <<'EOF'`
+- Bash: `S=$PWD/bin/skogai-config; U="env -u SKOGAI_SYSTEM_DIR -u SKOGAI_CONFIG_DIR -u SKOGAI_LOCAL_DIR"`
+- Bash: `unset SKOGAI_SYSTEM_DIR SKOGAI_CONFIG_DIR SKOGAI_LOCAL_DIR; S=~/skogai/dash-skogai/bin/skogai-config`
+- Bash: `cd dash-skogai && sed -n 168,194p README.md`
+- Bash: `cd dash-skogai && python3 - <<'EOF'`
+- Bash: `sed -n 170p README.md; sed -n 187,189p README.md`
+- Bash: `rtk grep -rln 'SKOGAI_GLOBAL_CONFIG\|base, global and local' --exclude-dir=.git . ..//.skogai 2>/dev/null; rtk read READ…`
+- Bash: `rtk git checkout README.md && rtk grep -n -E 'skogai config|base|GLOBAL|LOCAL_CONFIG|bin/skogai' type/config.md`
+- Bash: `python3 - <<'EOF'`
+
+## 2026-10-22 22:14 · turn 587b6937
+
+**User**
+
+> then we hard-code the config dir for now if the docs did not mention a real solution
+
+**Assistant**
+
+The docs do cover it, so I've left it as it is. `specification.md` lists `` =`fn-name` `` ("default from a function") as one of the ways to give a parameter a value, and the `@env` syntax takes the same form, so `` SKOGAI_CONFIG_DIR=`_default_config_dir` `` is the documented way.
+
+The only difference from a literal default is in `--help`: argc prints `[default: …]` only for literal defaults. That's why the description says "default ~/.config/skogai" itself.
+
+If you still want it hard-coded, it would be `# @env SKOGAI_CONFIG_DIR=/home/skogix/.config/skogai`. That works only for your user, so I'd keep the function.
+
+**Actions**
+
+- Bash: `sed -n 225,245p /tmp/argc/specification.md`
+
