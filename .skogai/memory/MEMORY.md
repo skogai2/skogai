@@ -12,3 +12,6 @@ or is forgotten.
 * [fleet-persona-not-roleplay](fleet-persona-not-roleplay.md) - skogai-fleet: personas are seats for many models; relationships drive and sink; KRONSCH test.
 * [dotfiles-via-mise-tools](dotfiles-via-mise-tools.md) - dotfiles/history: mise's own commands only, never raw git/systemctl on its store.
 * [names-lowercase-one-segment](names-lowercase-one-segment.md) - lowercase; a name is one segment, `.`/`_` are relations.
+* [functional-state-as-diff](functional-state-as-diff.md) - user is a functional programmer; state is a diff on a base, every key has a default.
+* [trust-existing-systems](trust-existing-systems.md) - use pacman/git/etc. where they fit; never reinvent the wheel.
+* [swap-internals-keep-interface](swap-internals-keep-interface.md) - swapping internals keeps the user's command; check on the real setup, not only tests.
