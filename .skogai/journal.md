@@ -6120,3 +6120,48 @@ It's still unmerged on `type-module` (2 commits on top of master's `89aa4a3`). S
 
 - Bash: `cd ~/.local/src/marketplace-type/plugins/skogai-runner; git log --oneline -3; git status --short; for m in core memory r…`
 
+## 2026-10-25 16:54 · turn cfce0e04
+
+**User**
+
+> hi claude time for some updates, could you give me a general rundown of this repo?
+
+**Assistant**
+
+This repo is your workstation's **skogai hub**. It's where you and agents decide how skogai works: the vocabulary and types, memory, Claude Code setups and orchestration. Not much here is a finished product yet. Git tracks 194 files across 269 commits. The `tmp/` folder holds 598M of ignored scratch.
+
+**Entry points**
+- `CLAUDE.md` and `AGENTS.md` both point to `SKOGAI.md`, which points to `docs/skogix/introduction.md`. It's a thin router.
+- `mise.toml` sets up the tools (jq, yq, fnox, age, argc, watchexec) and has two tasks:
+  - `dash:check` runs a read-only agent check on a dot.
+  - `dash:graph` regenerates `dash-skogai/README.md`.
+
+**Main areas**
+| path | what it is |
+|---|---|
+| `dash-skogai/` (82 files) | The type system, the biggest area. Its types include type, task, knowledge, memory, repo, spec, tool, decision, rule, trigger, router and event. Each type says which files it owns, writes and watches, and there are JSON schemas for type and event. `workflows/skogai.md` is the check/plan/apply procedure. Half-folded routing material sits in `tmp/routing/`. |
+| `projects/claude-code/` | A sandboxed Claude Code test bed. Setups (`baseline`, `base`, `loadout`, `commit-msg`, `orchestration`) are driven by scripts in `bin/` (`agent`, `eval`, `review`, `compare`, `inspect`, `layers`). Tests 00–05 cover them. |
+| `projects/orchestration/` | The draft plan from 2026-10-14. The main session talks things through and decides, and setups do the bulk of the work. `bin/agent` is the v0 handoff: prompt on stdin, one message on stdout. |
+| `.skogai/` | Local state: `TODO.md` (about 30 open design questions, mostly dash types and the skogai CLI), `journal.md`, 11 memory notes with an index, scripts and the orchestrator template and workflow. |
+| `docs/` | Your introduction, an okf knowledge bundle (glossary, layout, types, log), treehouse docs and the frontmatter-settings concept. |
+| `.ai/cactus/` | 15 Q&A records from ops work (sshd, podman/docker prune, codex setup, tunnels). |
+| `.agents/`, `.codex/`, `.rtk/` | Skills for other agents (greptile, greploop, herdr), the codex config and hooks, and rtk filters. |
+| `tmp/` | Ignored, except a handful of tracked scripts (worktree hook stubs, `agent-msg.py`, `repo-status.sh`). It also holds caches: claude-docs, okn, atuin. |
+| `tries/2026-10-24-init-` | An empty try directory. |
+
+**Where things stand**
+- The journal's last entry is about the `type-module` branch in `~/.local/src/marketplace-type`, outside this repo. All tests pass there, and it was left asking whether to merge it into marketplace master and bump to 0.10.0. That question is still open.
+- `bin/skogai` currently only has a `config` command, and `bin/skogai-config` has been removed. That's why agents run check/plan/apply by hand from `workflows/skogai.md`.
+
+**Probable bugs**
+- `bin/skogclaude` and the `dash:check` run in `mise.toml` are the same `claude -p …` command squashed onto one line with `\ ` in the middle. Each `\ ` escapes the space after it, so `--allowedTools` and `--permission-mode` reach claude as `" --allowedTools"` and `" --permission-mode"` instead of as flags. Both commands are probably broken. I haven't changed either one.
+- The last two commits are just "todo" and "WIP".
+
+Want me to fix the `\ ` breakage, or pick up the marketplace merge question?
+
+**Actions**
+
+- Bash: `rtk ls -la && rtk git log --oneline | head -20 && git log --oneline | wc -l && cat README.md 2>/dev/null | head -60; fin…`
+- Bash: `for d in .agents .ai .claude .codex .rtk .skogai bin dash-skogai docs projects tmp tries; do echo "$d $(find $d -type f …`
+- Bash: `git ls-files | wc -l; git ls-files | cut -d/ -f1 | sort | uniq -c; rtk ls tmp | head; rtk du -sh tmp; rtk read bin/skogc…`
+
