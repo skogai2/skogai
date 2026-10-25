@@ -5,6 +5,16 @@
     "CLAUDE_CODE_DISABLE_POLICY_SKILLS": "1",
     "CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL": "1"
   },
+  "permissions": {
+    "allow": [
+      "Bash(gita *)",
+      "Bash(git *)",
+      "Bash(okn *)",
+      "Bash(herdr *)",
+      "Bash(wt *)"
+    ],
+    "defaultMode": "auto"
+  },
   "model": "opus",
   "hooks": {
     "PostToolUse": [
@@ -70,31 +80,17 @@
   },
   "enabledPlugins": {
     "nelson@synced": false,
-    "worktrunk@worktrunk": false,
     "cc-plugin-you-should-know@builtin": false,
     "cc-plugin-diff@builtin": false,
     "cc-plugin-telemetry@builtin": false
   },
   "extraKnownMarketplaces": {
-    "worktrunk": {
-      "source": {
-        "source": "github",
-        "repo": "max-sixty/worktrunk"
-      },
-      "autoUpdate": true
-    },
     "skogai-marketplace": {
       "source": {
         "source": "git",
         "url": "https://github.com/skogai2/marketplace.git"
       },
       "autoUpdate": true
-    },
-    "openai-codex": {
-      "source": {
-        "source": "git",
-        "url": "https://github.com/openai/codex-plugin-cc.git"
-      }
     }
   },
   "outputStyle": "Concise",
@@ -117,15 +113,5 @@
   "remoteControlAtStartup": true,
   "crossSessionInbound": "accept",
   "inputNeededNotifEnabled": true,
-  "agentPushNotifEnabled": true,
-  "permissions": {
-    "defaultMode": "auto",
-    "allow": [
-      "Bash(gita *)",
-      "Bash(git *)",
-      "Bash(okn *)",
-      "Bash(herdr *)",
-      "Bash(wt *)"
-    ]
-  }
+  "agentPushNotifEnabled": true
 }
