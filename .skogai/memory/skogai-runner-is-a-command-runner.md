@@ -6,7 +6,7 @@ metadata:
   created: 2026-10-26
   stale_after: 2026-11-26
   originSessionId: 5b3e07e9-52a0-42cc-9b27-1df8465e0d64
-  modified: 2026-10-26T02:55:41.079Z
+  modified: 2026-10-26T04:46:24.889Z
 ---
 
 skogix, 2026-10-26: "runner" in skogai-runner means a command runner in
@@ -14,13 +14,14 @@ the sense of argc, make and the like, not agent io. skogai 3.0 is a big
 rework that centres on the core module (finding, configuring, testing and
 running modules) and the purpose behind it.
 
-**Why:** runner, memory and type were moved from `modules/` to the repo's
-own `.skogai/modules/` (local layer) on purpose, to keep them out of the
-shipped source while core gets the focus. This is not a regression.
+**Why:** runner, memory and type were moved to `.skogai/modules/` and then
+removed from master (c4cfd39, 2026-10-26) on purpose, so core gets the
+focus. Their last versions are in git history. This is not a regression.
 
 **How to apply:** treat `modules/core` and `bin/skogai` as the product.
-Don't flag the local-only modules as broken, and don't describe the repo
-as "typed agent io" first. HANDOVER.md still uses the older framing.
+Don't flag the missing modules as broken, and don't describe the repo as
+"typed agent io" first. HANDOVER.md is gone; `.skogai/TODO.md` (linked
+from CLAUDE.md) is the working list.
 Related: [[swap-internals-keep-interface]], [[trust-existing-systems]].
 
 On expiry: fold into the repo's own docs once HANDOVER/README reflect it, or forget.
