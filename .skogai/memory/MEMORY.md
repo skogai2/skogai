@@ -15,3 +15,4 @@ or is forgotten.
 * [functional-state-as-diff](functional-state-as-diff.md) - user is a functional programmer; state is a diff on a base, every key has a default.
 * [trust-existing-systems](trust-existing-systems.md) - use pacman/git/etc. where they fit; never reinvent the wheel.
 * [swap-internals-keep-interface](swap-internals-keep-interface.md) - swapping internals keeps the user's command; check on the real setup, not only tests.
+* [skogai-runner-is-a-command-runner](skogai-runner-is-a-command-runner.md) - "runner" = command runner (argc/make); skogai 3.0 focuses on core, other modules local on purpose.
