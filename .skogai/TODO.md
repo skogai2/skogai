@@ -57,3 +57,5 @@
 - [ ] !`atuin dotfiles alias set captain-deck 'herdr plugin action invoke open-captain-deck --plugin herdr-firstmate-flow'`
 - [ ] shell; tree for ai agents with .gitignore and similar functionality
 - [ ] mise; encryption for credential store to track dotfiles
+
+- [ ] the command `skogai module build --shell fish` either sets variables wrong or something is wrong with my man
