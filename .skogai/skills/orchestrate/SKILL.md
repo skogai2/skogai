@@ -87,7 +87,13 @@ One task = one branch = one agent. Keep tasks small enough that the acceptance s
    herdr agent start <name> --kind <kind> --pane <root-pane-id>
    ```
 
-   Native agent arguments go after `--`. `agent start` returns once the agent is ready; on `agent_not_ready` inspect with `agent read` before doing anything else.
+   Native agent arguments go after `--`. For `claude`, give the subagent write access to the central task file and a non-prompting permission mode, otherwise it sits `blocked` on its first edit:
+
+   ```bash
+   herdr agent start <name> --kind claude --pane <root-pane-id> -- --add-dir ~/skogai/.skogai/tasks --permission-mode auto
+   ```
+
+   `agent start` returns once the agent is ready; on `agent_not_ready` inspect with `agent read` before doing anything else.
 4. Update the task file: `status: dispatched`, `worktree`, `workspace`, `agent`.
 5. Hand over the task by path, not by pasting the spec:
 
