@@ -59,3 +59,5 @@
 - [ ] mise; encryption for credential store to track dotfiles
 
 - [ ] the command `skogai module build --shell fish` either sets variables wrong or something is wrong with my man
+
+- [ ] quick history and background of skogai3.0

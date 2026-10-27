@@ -16,3 +16,4 @@ or is forgotten.
 * [trust-existing-systems](trust-existing-systems.md) - use pacman/git/etc. where they fit; never reinvent the wheel.
 * [swap-internals-keep-interface](swap-internals-keep-interface.md) - swapping internals keeps the user's command; check on the real setup, not only tests.
 * [skogai-runner-is-a-command-runner](skogai-runner-is-a-command-runner.md) - "runner" = command runner (argc/make); skogai 3.0 focuses on core, other modules removed from master on purpose.
+* [rejection-is-a-value](rejection-is-a-value.md) - invalid input is an answer, not an error exit; same output whatever exists.
