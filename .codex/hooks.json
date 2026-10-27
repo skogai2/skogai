@@ -21,18 +21,6 @@
           }
         ]
       }
-    ],
-    "SessionStart": [
-      {
-        "matcher": "^(startup|resume|clear|compact|fork)$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash '/home/skogix/skogai/.codex/hooks/herdr-agent-state.sh' session",
-            "timeout": 10
-          }
-        ]
-      }
     ]
   }
 }
