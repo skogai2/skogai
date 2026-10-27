@@ -33,7 +33,18 @@ herdr workspace list
 herdr agent list
 ```
 
-`HERDR_WORKSPACE_ID` and `HERDR_PANE_ID` identify you. Long-lived project workspaces are bootstrapped by `~/.local/bin/herdr-workspaces`; do not create or close those.
+`HERDR_WORKSPACE_ID` and `HERDR_PANE_ID` identify you. Long-lived project workspaces are bootstrapped by this skill's `bin/herdr-workspaces`; do not create or close those.
+
+## Project workspaces
+
+`bin/herdr-workspaces` creates one Herdr workspace per project, `--no-focus`. Idempotent: labels that already exist are skipped, entries whose cwd is missing are skipped with a message on stderr.
+
+The project list is the `workspaces` array at the top of the script, one `label|cwd` entry per project. To add a project, append an entry and rerun.
+
+```bash
+bin/herdr-workspaces --dry-run   # print what would be created, create nothing
+bin/herdr-workspaces
+```
 
 ## Task files
 
