@@ -1,7 +1,0 @@
-{
-  "profiles": [
-    { "name": "default", "base": "on", "overrides": {} },
-    { "name": "vanilla", "base": "off", "overrides": {} }
-  ],
-  "active": "default"
-}

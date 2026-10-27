@@ -1,1 +1,0 @@
-Research how HTTP/2 multiplexing differs from HTTP/1.1 pipelining, including why pipelining was rarely enabled in browsers. Give me a five-bullet summary.

@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-# Print the layer folders of a setup, base first. Later layers win.
-#   bin/layers commit-msg   -> setups/baseline setups/commit-msg
-set -euo pipefail
-root=$(cd "$(dirname "$0")/.." && pwd)
-setup=${1:?usage: bin/layers <setup>}
-[[ -d $root/setups/$setup ]] || { echo "no such setup: $root/setups/$setup" >&2; exit 1; }
-echo "$root/setups/baseline"
-[[ $setup == baseline ]] || echo "$root/setups/$setup"

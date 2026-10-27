@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-# Print the path of the latest session transcript in a sandbox.
-set -euo pipefail
-: "${SETUP:=baseline}" "${SANDBOX_ROOT:=/tmp/claude-code}"
-ls -t "$SANDBOX_ROOT/$SETUP"/config/projects/*/*.jsonl 2>/dev/null | head -1
