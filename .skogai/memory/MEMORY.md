@@ -17,4 +17,5 @@ or is forgotten.
 * [swap-internals-keep-interface](swap-internals-keep-interface.md) - swapping internals keeps the user's command; check on the real setup, not only tests.
 * [skogai-runner-is-a-command-runner](skogai-runner-is-a-command-runner.md) - "runner" = command runner (argc/make); skogai 3.0 focuses on core, other modules removed from master on purpose.
 * [rejection-is-a-value](rejection-is-a-value.md) - invalid input is an answer, not an error exit; same output whatever exists.
+* [read-vendored-docs-first](read-vendored-docs-first.md) - read a repo's docs/ before designing; use the tool's own features, one step at a time.
 * [session-path-not-config](session-path-not-config.md) - wrong `which`/PATH: compare a clean login shell first; skogai env lines are session-only.
