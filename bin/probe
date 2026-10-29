@@ -1,0 +1,90 @@
+#!/bin/bash
+# probe [-c <context-file>]... <probe-file>...
+# Asks a fresh, tool-less claude each probe question with only the context files
+# as knowledge. Exit 0 all pass, 1 any fail, 2 usage error.
+set -uo pipefail
+
+INSTRUCTION='Answer only from the CONTEXT below. Do not use any other knowledge.
+Reply with one short line. If the context does not answer the question, reply exactly UNKNOWN.
+
+CONTEXT:'
+
+usage() {
+    echo "usage: probe [-c <context-file>]... <probe-file>..." >&2
+    [ -n "${1:-}" ] && echo "probe: $1" >&2
+    exit 2
+}
+
+load_probes() {
+    local f
+    for f in "$@"; do
+        [ -r "$f" ] || usage "cannot read probe file: $f"
+        jq -R -s -c '
+            [split("\n")[] | select(test("\\S"))
+             | (try fromjson catch error("malformed line"))
+             | if type == "object"
+                  and keys == ["expect", "id", "question", "source"]
+                  and ([.[] | type == "string"] | all)
+               then . else error("malformed probe") end]' "$f" \
+            || usage "malformed probe in $f"
+    done | jq -s -c 'add // []'
+}
+
+validate() {
+    local probes=$1 expect rc
+    [ "$(jq 'length' <<<"$probes")" -gt 0 ] || usage "no probes"
+    jq -e '[.[].id] | length == (unique | length)' <<<"$probes" >/dev/null \
+        || usage "duplicate probe id"
+    while IFS= read -r expect; do
+        rc=0
+        grep -Eiq -- "$expect" <<<"" || rc=$?
+        [ "$rc" -le 1 ] || usage "invalid regex: $expect"
+    done < <(jq -r '.[].expect' <<<"$probes")
+}
+
+ask() {
+    local system=$1 question=$2 dir answer rc=0
+    dir=$(mktemp -d)
+    answer=$(cd "$dir" && timeout "${PROBE_TIMEOUT:-120}" claude -p --safe-mode --tools '' \
+        --strict-mcp-config --no-session-persistence --model "${PROBE_MODEL:-haiku}" \
+        --system-prompt-file "$system" "$question") || rc=$?
+    rmdir "$dir"
+    if [ "$rc" -ne 0 ]; then
+        echo "<error>"
+        return
+    fi
+    tr '\n' ' ' <<<"$answer" | tr -s ' ' | sed 's/^ //; s/ $//'
+}
+
+main() {
+    local contexts=() system probes n i id question expect answer passed=0
+    while [ $# -gt 0 ] && [ "$1" = "-c" ]; do
+        [ $# -ge 2 ] || usage "-c needs a file"
+        [ -r "$2" ] || usage "cannot read context file: $2"
+        contexts+=("$2")
+        shift 2
+    done
+    [ $# -gt 0 ] || usage
+    probes=$(load_probes "$@") || exit 2
+    validate "$probes"
+    system=$(mktemp)
+    trap "rm -f '$system'" EXIT
+    { printf '%s\n' "$INSTRUCTION"; cat ${contexts[@]+"${contexts[@]}"} </dev/null; } >"$system"
+    n=$(jq 'length' <<<"$probes")
+    for ((i = 0; i < n; i++)); do
+        id=$(jq -r ".[$i].id" <<<"$probes")
+        question=$(jq -r ".[$i].question" <<<"$probes")
+        expect=$(jq -r ".[$i].expect" <<<"$probes")
+        answer=$(ask "$system" "$question")
+        if grep -Eiq -- "$expect" <<<"$answer"; then
+            echo "PASS $id: $answer"
+            passed=$((passed + 1))
+        else
+            echo "FAIL $id: $answer (expected /$expect/)"
+        fi
+    done
+    echo "score $passed/$n"
+    [ "$passed" -eq "$n" ]
+}
+
+main "$@"

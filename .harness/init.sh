@@ -1,6 +1,6 @@
 #!/bin/bash
 # Harness init.sh - bash/mise/jq orchestration layer
-# Usage: .harness/init.sh [smoke_test|full_test|machine_check|focused_test <test_file>]
+# Usage: .harness/init.sh [smoke_test|full_test|machine_check|probe_test|coverage|focused_test <test_file>]
 # Default: full_test
 #
 # smoke_test   — bash -n on tracked *.sh, jq parse on tracked *.json (<15s).
@@ -12,6 +12,10 @@
 # machine_check — bats files under tests/machine/ against the live machine.
 #                Never part of full_test: machine drift is a finding, not a
 #                broken build.
+# probe_test   — bin/probe with every protocol/*.md as context over every
+#                tests/probes/*.jsonl. Live claude calls; never part of
+#                smoke_test or full_test.
+# coverage     — tests/unit under kcov, scoped to bin/; report outside the repo.
 
 set -e
 
@@ -50,6 +54,13 @@ smoke() {
     return $failed
 }
 
+protocol_context() {
+    local f
+    for f in protocol/*.md; do
+        [ -f "$f" ] && printf -- '-c %s ' "$f"
+    done
+}
+
 run_focused() {
     local rc=0
     "$@" || rc=$?
@@ -70,6 +81,7 @@ case "$TARGET" in
         fi
         case "$FOCUS_FILE" in
             *.bats) run_focused bats "$FOCUS_FILE" ;;
+            *.jsonl) run_focused bin/probe $(protocol_context) "$FOCUS_FILE" ;;
             *)
                 echo "focused_test: no runner for '$FOCUS_FILE' -- skipped (exit 3)."
                 exit 3
@@ -92,6 +104,19 @@ case "$TARGET" in
         else
             echo "no bats tests under tests/machine/ yet"
         fi
+        ;;
+    probe_test)
+        echo "--- bin/probe protocol/ x tests/probes ---"
+        bin/probe $(protocol_context) tests/probes/*.jsonl
+        ;;
+    coverage)
+        out="${TMPDIR:-/tmp}/skogai-kcov"
+        rm -rf "$out"
+        mkdir -p "$out/runs"
+        PROBE_KCOV_DIR="$out/runs" bats -r tests/unit
+        kcov --merge "$out/merged" "$out"/runs/run.* >/dev/null
+        jq -r '.files[] | "\(.file | sub(".*/skogai/"; "")) \(.percent_covered)%"' \
+            "$out"/merged/kcov-merged/coverage.json
         ;;
     *)
         echo "unknown target: $TARGET" >&2

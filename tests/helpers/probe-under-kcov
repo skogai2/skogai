@@ -1,0 +1,5 @@
+#!/bin/bash
+# Runs bin/probe under kcov, one result dir per call in $PROBE_KCOV_DIR.
+root=$(realpath "$(dirname "$0")/../..")
+exec kcov --include-pattern="$root/bin/" "$(mktemp -d "$PROBE_KCOV_DIR/run.XXXXXX")" \
+    "$root/bin/probe" "$@"

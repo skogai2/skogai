@@ -1,0 +1,18 @@
+#!/bin/bash
+# Fake claude for bats: answers $FAKE_CLAUDE_ANSWER, exits $FAKE_CLAUDE_EXIT,
+# sleeps $FAKE_CLAUDE_SLEEP, logs argv and the system prompt file to $FAKE_CLAUDE_LOG.
+log=${FAKE_CLAUDE_LOG:-/dev/null}
+printf 'ARGV:' >>"$log"
+printf ' [%s]' "$@" >>"$log"
+printf '\nCWD: %s\n' "$PWD" >>"$log"
+while [ $# -gt 0 ]; do
+    if [ "$1" = "--system-prompt-file" ]; then
+        printf 'SYSTEM:\n' >>"$log"
+        cat "$2" >>"$log"
+        printf '\n' >>"$log"
+    fi
+    shift
+done
+[ -n "${FAKE_CLAUDE_SLEEP:-}" ] && sleep "$FAKE_CLAUDE_SLEEP"
+printf '%b\n' "${FAKE_CLAUDE_ANSWER:-UNKNOWN}"
+exit "${FAKE_CLAUDE_EXIT:-0}"
