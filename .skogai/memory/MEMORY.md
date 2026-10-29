@@ -22,3 +22,4 @@ or is forgotten.
 * [understand-before-fixing](understand-before-fixing.md) - demos are for my understanding, never offer fixes; skogparse emits skogai-notation, not json.
 * [skogai-notation-runtime](skogai-notation-runtime.md) - skogparse/skogcli config: $ refs, @ actions, missing @ is intent for an agent; aichat hooks.
 * [studio-harvest](studio-harvest.md) - studio base is 675d6fc; todo-branch gamemaker dump is harvest material, concept level first.
+* [subagent-briefs-are-mine](subagent-briefs-are-mine.md) - orchestration: brief + judge are the hard part; preconditions, clean env, mechanical stops.
