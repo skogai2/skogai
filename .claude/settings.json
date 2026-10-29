@@ -1,22 +1,45 @@
 {
-  "syncClaudeAiSkills": false,
-  "env": {
-    "ENABLE_CLAUDEAI_MCP_SERVERS": "false",
-    "CLAUDE_CODE_DISABLE_POLICY_SKILLS": "1",
-    "CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL": "1"
-  },
-  "permissions": {
-    "allow": [
-      "Bash(gita *)",
-      "Bash(git *)",
-      "Bash(okn *)",
-      "Bash(herdr *)",
-      "Bash(wt *)"
-    ],
-    "defaultMode": "auto"
-  },
-  "model": "opus",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "atuin hook claude-code"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "concord hook pre-tool-use"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "^(startup|resume|clear|compact|fork)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/home/skogix/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "concord hook session-start"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Bash",
@@ -39,29 +62,6 @@
         ]
       }
     ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "atuin hook claude-code"
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "matcher": "^(startup|resume|clear|compact|fork)$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash '/home/skogix/.claude/hooks/herdr-agent-state.sh' session",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
     "WorktreeCreate": [
       {
         "hooks": [
@@ -74,6 +74,23 @@
       }
     ]
   },
+  "syncClaudeAiSkills": false,
+  "env": {
+    "ENABLE_CLAUDEAI_MCP_SERVERS": "false",
+    "CLAUDE_CODE_DISABLE_POLICY_SKILLS": "1",
+    "CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL": "1"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(gita *)",
+      "Bash(git *)",
+      "Bash(okn *)",
+      "Bash(herdr *)",
+      "Bash(wt *)"
+    ],
+    "defaultMode": "auto"
+  },
+  "model": "opus",
   "statusLine": {
     "type": "command",
     "command": "wt list statusline --format=claude-code"

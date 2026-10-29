@@ -19,3 +19,5 @@ or is forgotten.
 * [rejection-is-a-value](rejection-is-a-value.md) - invalid input is an answer, not an error exit; same output whatever exists.
 * [read-vendored-docs-first](read-vendored-docs-first.md) - read a repo's docs/ before designing; use the tool's own features, one step at a time.
 * [session-path-not-config](session-path-not-config.md) - wrong `which`/PATH: compare a clean login shell first; skogai env lines are session-only.
+* [understand-before-fixing](understand-before-fixing.md) - demos are for my understanding, never offer fixes; skogparse emits skogai-notation, not json.
+* [skogai-notation-runtime](skogai-notation-runtime.md) - skogparse/skogcli config: $ refs, @ actions, missing @ is intent for an agent; aichat hooks.

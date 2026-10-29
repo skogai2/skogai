@@ -86,7 +86,7 @@
       }
     },
     "meta": {
-      "last_updated": 1792955107.7417781,
+      "last_updated": 1793223194.9195433,
       "version": 2
     },
     "chattest": {
@@ -139,7 +139,7 @@
     "true": "$ json.true",
     "void": "$ json._",
     "increment": "[$ json.int.zero * $ json.int.one]",
-    "datetime": "[@date:unix]",
+    "datetime": "[@date:now]",
     "list": "the ordering of something",
     "eid": "[$ entity.id * $ entity.gen]",
     "entity": {
@@ -178,11 +178,13 @@
       "parent": "$ eid"
     },
     "claude": {
-      "readme": "[@file:\"/home/skogix/claude/CLAUDE.md\"]"
+      "readme": "[@file:\"/home/skogix/claude/CLAUDE.md\"]",
+      "usage": "[@check-claude-usage]"
     },
     "skogix": {
-      "notation": "[@file:\"/home/skogix/dot-skogai/personal/skogix/notation.md\"]",
-      "readme": "[@file:\"/home/skogix/dot-skogai/personal/skogix/user.md\"]"
+      "notation": "[@file:\"/home/skogix/skogix/.personal/docs/notation.md\"]",
+      "readme": "[@file:\"/home/skogix/dot-skogai/personal/skogix/user.md\"]",
+      "poetry": "[@file:\"/home/skogix/skogix/.personal/docs/notation-poetry.md\"]"
     }
   },
   "credentials": {}
