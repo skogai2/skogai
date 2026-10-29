@@ -23,3 +23,4 @@ or is forgotten.
 * [skogai-notation-runtime](skogai-notation-runtime.md) - skogparse/skogcli config: $ refs, @ actions, missing @ is intent for an agent; aichat hooks.
 * [studio-harvest](studio-harvest.md) - studio base is 675d6fc; todo-branch gamemaker dump is harvest material, concept level first.
 * [subagent-briefs-are-mine](subagent-briefs-are-mine.md) - orchestration: brief + judge are the hard part; preconditions, clean env, mechanical stops.
+* [no-chained-commands](no-chained-commands.md) - one command per Bash call; chains defeat narrow permission rules.
