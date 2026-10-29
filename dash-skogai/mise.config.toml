@@ -1,0 +1,4 @@
+[env]
+SKOGAI_CONFIG_SYSTEM_DIR = "./system"
+SKOGAI_CONFIG_LOCAL_DIR = "./local"
+SKOGAI_CONFIG_GLOBAL_DIR = "./global"

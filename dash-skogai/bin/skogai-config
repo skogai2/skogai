@@ -1,28 +1,22 @@
 #!/usr/bin/env bash
 # @describe read and write key/value config across system, global and local layers
-# @meta require-tools git
-# @env SKOGAI_SYSTEM_DIR=/etc/skogai  dir of the system layer config
-# @env SKOGAI_CONFIG_DIR=`_default_config_dir`  dir of the global layer config, default ~/.config/skogai
-# @env SKOGAI_LOCAL_DIR=.skogai  dir of the local layer config; relative is from the git root, or pwd
+# @meta require-tools git,yq
+# @meta binname config
+# @env SKOGAI_CONFIG_SYSTEM_DIR=system  dir of the system layer config
+# @env SKOGAI_CONFIG_SYSTEM_FILE=mise.config.toml name of the system config file
+# @env SKOGAI_CONFIG_GLOBAL_DIR=global  dir of the global layer config
+# @env SKOGAI_CONFIG_GLOBAL_FILE=mise.config.toml name of the global file
+# @env SKOGAI_CONFIG_LOCAL_DIR=local  dir of the local layer config
+# @env SKOGAI_CONFIG_LOCAL_FILE=mise.config.toml name of the local config file
 set -euo pipefail
-
-_default_config_dir() { echo "$HOME/.config/skogai"; }
 
 # joins the items of a list value; `get` prints one item per line
 SEP=$'\x1f'
 
 # layers in fold order, later wins: system, global, local
 _layer_file() {
-    local dir
-    case "$1" in
-    system) dir="$SKOGAI_SYSTEM_DIR" ;;
-    global) dir="$SKOGAI_CONFIG_DIR" ;;
-    local)
-        dir="$SKOGAI_LOCAL_DIR"
-        [[ $dir == /* ]] || dir="$(git rev-parse --show-toplevel 2>/dev/null || pwd)/$dir"
-        ;;
-    esac
-    echo "$dir/config"
+    local dir="SKOGAI_CONFIG_${1^^}_DIR" file="SKOGAI_CONFIG_${1^^}_FILE"
+    echo "${!dir}/${!file}"
 }
 
 # x.md -> x.local.md

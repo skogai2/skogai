@@ -8,7 +8,9 @@
 - `./`: the meta top-layer, here we are creating for someone how we work on dash (CLAUDE.md, SKOGAI.md, TODO.md)
 - `type/`: one file per type, each acting as a module
 - `src/`: the future dot, an okn bundle. check with `okn validate src`
-- `tmp/`: untyped or undecided
+- `Argcfile.sh`, `bin/`: the cli, run as `argc <cmd>`. see [skogai-config](bin/skogai-config.md)
+- `system/`, `global/`, `local/`, `mise.config.toml`: config layers for `argc config`
+- `tmp/`: untyped or undecided. `tmp/docs/` holds argc docs
 
 # design goals
 

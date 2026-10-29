@@ -1,41 +1,43 @@
----
-type: type
-title: config
-description: key/value settings, folded across the system, global and local layers.
-fields: [type, title]
-owns: [config]
----
+# skogai-config
 
-# config
-
-a config is a [git config](https://git-scm.com/docs/git-config#_configuration_file) file of `section.key = value` pairs, read and written with `skogai-config`, registered as `argc config`.
+key/value settings, folded across the system, global and local layers. run as `argc config <cmd>` from anywhere under the dash root: `Argcfile.sh` defines `config` and hands it to `bin/skogai-config`.
 
 ## layers
 
-folded in order, later wins:
+each layer is one mise toml file, folded in order, later wins:
 
-1. **system**: `$SKOGAI_SYSTEM_DIR/config`, default `/etc/skogai/config`. the defaults; `config` in dash is installed here.
-2. **global**: `$SKOGAI_CONFIG_DIR/config`, default `~/.config/skogai/config`.
-3. **local**: `$SKOGAI_LOCAL_DIR/config`, default `.skogai/config`. a relative dir is from the git root, or pwd outside a repo.
-4. **file**: with `--file x.md` (repeatable), the frontmatter of `x.md`, then of `x.local.md`. nested keys flatten to `a.b.c`, `_` reads as `-`, and `--scope s` mounts them under `s.`. needs `yq`.
-5. **env**: key `a.b-c` reads env `SKOGAI_A_BC`, which overrides every layer. `.` is a relation and becomes `_`; `-` is part of a name and is dropped.
+1. **system**: `$SKOGAI_CONFIG_SYSTEM_DIR/$SKOGAI_CONFIG_SYSTEM_FILE`
+2. **global**: `$SKOGAI_CONFIG_GLOBAL_DIR/$SKOGAI_CONFIG_GLOBAL_FILE`
+3. **local**: `$SKOGAI_CONFIG_LOCAL_DIR/$SKOGAI_CONFIG_LOCAL_FILE`
 
-## commands
+the defaults are the `@env` lines in `bin/skogai-config` (`system/mise.config.toml` and so on), and `mise.config.toml` at the dash root sets the same `_DIR` vars for `mise --env config`. a relative dir is from the dash root: argc cds to the folder holding `Argcfile.sh`, and `ARGC_PWD` is the caller's dir.
 
-- `skogai-config get <key> [--show-origin] [--file x.md]... [--scope s]`: exit `1` if unset, `2` if a layer can't be read. a list prints one item per line.
-- `skogai-config set <key> <value> [--global | --file x.md [--scope s]]`: writes local unless `--global`. `--file` writes `x.local.md`, never `x.md`; the value is read as yaml.
-- `skogai-config unset <key> [--global | --file x.md [--scope s]]`
-- `skogai-config list [--show-origin] [--file x.md]... [--scope s]`: a list prints one line per item.
-- `skogai-config env [--file x.md]... [--scope s]`: the resolved config as `export` lines, for `mise` `_.source` or `eval`. a list's items are newline-separated.
-- `skogai-config files [--file x.md]...`: the path of each layer, and whether it exists.
+keys live under `_.` (mise's free-form namespace), e.g. `_.skogai.config.system.dir`.
 
-## merge
+## mise does the work
 
-every key is replaced by the later layer. a key set twice in one layer resolves to its last value.
+don't rebuild what mise already does:
 
-in a file layer, a frontmatter list is one value, replaced whole. `null` (`~`) removes the key, so it falls through to the default.
+- read one key from one layer: `mise config get --file <layer> <key>`. a missing key exits `1`.
+- write one key: `mise config set --file <layer> <key> <value>`.
+- resolved env with the file each value came from: `mise env --env config --json-extended`.
+- no unset in mise.
 
-## keys
+## status
 
-- `stage.on-stop`, `commit.on-stop`, `merge.on-stop`: git automation on stop.
-- `stage.on-user-prompt-submit`, `commit.on-user-prompt-submit`, `merge.on-user-prompt-submit`: git automation on prompt submit.
+- works: `argc config files`, `argc config --help`, completion.
+- broken: `get`, `list`, `env`, `set`, `unset` still read and write git-config format (`git config -f`), so they fail on the toml layers with `fatal: bad config line 1`.
+- next: `get` as a fold over layers, local first, through `mise config get --file`. then `set` through `mise config set --file`. then decide whether `--file x.md` frontmatter layers, `list` and `env` are still needed next to `mise env`.
+
+## commands (pre-mise, still in the script)
+
+- `get <key> [--show-origin] [--file x.md]... [--scope s]`
+- `set <key> <value> [--global | --file x.md [--scope s]]`
+- `unset <key> [--global | --file x.md [--scope s]]`
+- `list [--show-origin] [--file x.md]... [--scope s]`
+- `env [--file x.md]... [--scope s]`
+- `files [--file x.md]...`
+
+## history
+
+`bin/skogai` (2026-10-16), renamed `bin/skogai-config` (e4b1414), deleted by accident in f8ea24f when a `git mv` of its doc failed, restored from `f8ea24f^`. the old git-config version and its `type/config.md` are in that commit.

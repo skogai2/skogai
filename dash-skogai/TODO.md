@@ -16,7 +16,7 @@
 - [ ] schema: `fields` is a map of key -> value, not a list of names. required for every instance: `type`, `title`, `owns` (every instance has a living space: tool/gh lives under type/tool, type/tool under the base type). maybe `created` / `edited`. allow the okf base instead of `additionalProperties: false`
 - [ ] relations are one step: gh is tool/gh, tool is type/tool, repo skogai is gh/skogai. sharing is several direct relations (tool/gh, cli/gh, git/gh), never a chain. every `<variable>` in a path is defined by the instance itself or its parent
 - [ ] skogai cli: how does a type declare that a file is derived, and by what function?
-- [ ] agent prompts: `bin/skogai` has only `config` so far. until it has `check`, `plan` and `apply`, an agent runs `check`, `plan` and `apply` from `workflows/skogai.md` (owned by tool skogai). init elsewhere is `apply` on an empty dot. `check` is written and runs as `mise run dash:check [dot]`; `plan` and `apply` wait on the open cli items above
+- [ ] agent prompts: the cli has only `config` so far (`argc config`). until it has `check`, `plan` and `apply`, an agent runs `check`, `plan` and `apply` from `workflows/skogai.md` (owned by tool skogai). init elsewhere is `apply` on an empty dot. `check` is written and runs as `mise run dash:check [dot]`; `plan` and `apply` wait on the open cli items above
 - [ ] router: decision 0006 keeps routing out of dash until the type layer works. `type/router.md` is a draft folded from `tmp/routing/`. keep it as a draft, or move it back to tmp?
 - [ ] router: "frontmatter `type` names the root xml block" (router -> `<routes>`). make it the rule for every type, or keep it router-only?
 - [ ] router: permalink `repo/file` resolves to `~/repo`, `~/.local/src/repo` or `projects/repo`. replaced by "refs resolve to commits", or does it belong in repo?
@@ -24,3 +24,4 @@
 - [ ] tmp/routing scripts: validators overlap okn and `check` ("don't rebuild okn"). port the router check into `check`, or drop
 - [ ] tmp/routing references: `at-linking.md` and `dynamic-output-blocks.md` are claude code knowledge, not dash. move to knowledge, or to marketplace?
 - [ ] graph: `README.md` is derived (`mise run dash:graph`) but has no owner. which type writes it, `type` or `router`? and should `check` regenerate and compare it, like `DECISIONS.md`?
+- [ ] skogai-config: port get/set/list/env/unset from `git config -f` to mise toml layers. see [status](bin/skogai-config.md#status)

@@ -10,7 +10,7 @@ the cli that turns dash into a dot. it is a function over values: `check` and `p
 ## values
 
 - **dash**: type definitions and functions, named by ref and resolved to a commit at use.
-- **layers**: `base` (dash@ref), `global` (`~/.skogai`), `local` (`<repo>/.skogai`). key/value settings use [config](../config.md).
+- **layers**: `base` (dash@ref), `global` (`~/.skogai`), `local` (`<repo>/.skogai`). key/value settings use [skogai-config](../../bin/skogai-config.md).
 - **resolved**: `fold(merge, [base, global, local])`, later layer wins.
 - **dot**: the resolved value written to disk, a closed union of skogai types.
 
@@ -18,7 +18,7 @@ the cli that turns dash into a dot. it is a function over values: `check` and `p
 
 ### `skogai config`
 
-implemented in `bin/skogai`. see [config](../config.md).
+implemented in `bin/skogai-config`, run as `argc config`. see [skogai-config](../../bin/skogai-config.md).
 
 ### `skogai check [<dot>]`
 

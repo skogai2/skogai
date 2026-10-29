@@ -1,0 +1,7 @@
+[_.skogai.config.local]
+dir = "./local"
+
+[env]
+
+[env._]
+SKOGAI_CONFIG_LOCAL_DIR = "./local"
