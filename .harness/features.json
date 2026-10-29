@@ -1,0 +1,196 @@
+{
+  "project": "skogai",
+  "created": "2026-10-29T10:21:07Z",
+  "total_features": 6,
+  "passing": 0,
+  "features": [
+    {
+      "id": "F001",
+      "description": "Machine-check framework and finding protocol. A check is an executable bash script bin/checks/<name>. Checks are read-only: they never run mise apply/sync/pull/save/install/undo/rollback, never run `mise bootstrap` without --dry-run, and never write outside the findings directory. Tool invocations (mise and any probed binary) go through run_tool in bin/checks/lib.sh, which runs them under `timeout ${CHECK_TIMEOUT:-60}` (a caller may pass a per-call timeout; the effective timeout is the smaller of the per-call value and CHECK_TIMEOUT); helper processes such as jq, find, readlink and sha1sum are not wrapped. A check exits 0 when it has no findings and 1 when it has any, and always writes its findings as a JSON array to ${SKOGAI_FINDINGS_DIR:-<repo>/.skogai/logs/findings}/<name>.json (directory created if missing; .skogai/logs is gitignored). Finding ids are unique within one findings file; a repeated id collapses into one finding. A finding is an object with exactly: id (string \"<check>/<slug>\", derived only from stable inputs such as condition names, entry names or a hash of the observed text, never from ordinals), check (string), observed (string), expected (string), suggested_fix (string, static text written by the check author), outside_repo (boolean: true when the fix changes state outside this repo). Redaction: observed may quote tool output lines (mise warnings, errors, doctor messages) but a check never reads the contents of user files or the values of user env vars. Tool errors: a tool that is missing, times out, exits non-zero where JSON was expected (default; run_tool takes an allow-nonzero flag a caller sets per invocation), prints unparseable JSON, or prints JSON missing an expected key or with the wrong type yields a finding with id \"<check>/tool-error/<tool-slug>\" (tool-slug names the invocation, e.g. status-json); conditions that depend on that output are skipped, all other conditions are still evaluated. tests/helpers/fake-mise.bash is a bats helper that prepends a fake `mise` to PATH. The fake reads FAKE_MISE_CASE (a fixture directory) and, for its argument string slugged as lowercase words joined by '-' (e.g. `dot status --json` -> dot-status-json), prints <case>/<slug>.stdout to stdout and <case>/<slug>.stderr to stderr if present and exits with the integer in <case>/<slug>.exit (default 0); an argument string with no fixture exits 127. Coverage: init.sh full_test runs tests/unit under kcov with --include-path=bin/checks and output in ${TMPDIR:-/tmp}/skogai-kcov (outside the repo) and prints the per-file and total coverage; each check feature's coverage gate is >= 95% on its own bin/checks/<name> (lib.sh belongs to this feature), recorded by the lead in features.json. Acceptance: tests/unit/framework.bats runs a sample check (tests/helpers/sample-check) through fake-mise with SKOGAI_FINDINGS_DIR in a temp dir and CHECK_TIMEOUT=1, and proves (1) healthy fixture -> exit 0 and findings file is []; (2) broken fixture -> exit 1 and every finding has exactly the six fields with the right types; (3) missing mise, a timed-out tool, non-zero exit, bad JSON, and a missing key each yield one <check>/tool-error/<tool-slug> finding.",
+      "priority": 1,
+      "status": "pending",
+      "scope": [
+        "bin/checks/lib.sh",
+        "tests/helpers/",
+        "tests/unit/framework.bats",
+        "tests/unit/fixtures/framework/",
+        ".harness/init.sh"
+      ],
+      "depends_on": [],
+      "assigned_to": null,
+      "test_file": "tests/unit/framework.bats",
+      "coverage": null,
+      "notes": null,
+      "correction_cycles": 0,
+      "scope_expansions": [],
+      "approaches_tried": [],
+      "failure_reason": null,
+      "discovered_via": null,
+      "qa_binding": "unit",
+      "spec": {
+        "hash": "6fe973695e8fed28c4b1cb1d4216c9171cb48604dcb838de9d2734ee1820b17e",
+        "verdict": "PASS",
+        "sv_version": "1.0",
+        "verified_at": "2026-10-29T15:42:42Z",
+        "source": "conversation"
+      }
+    },
+    {
+      "id": "F002",
+      "description": "Dotfiles check bin/checks/dotfiles. Runs `mise dot status --json` (tool-slug status-json) and `mise dot status --missing` (tool-slug status-missing; its non-zero exit is a condition, not a tool error). One finding per failed condition, id dotfiles/<condition>: watcher (.history.watcher != \"running\"); conflicts (.history.sync.conflicts non-empty); last-error (.history.sync.last_error not null); sync-failures (.history.sync.consecutive_failures > 0); origin (.history.sync.origin != \"https://github.com/skogai2/.dotfiles\"); branch (.history.sync.branch != \"main\"); mode (.history.sync.mode != \"sync\"); fetch-stale (.history.sync.last_fetch missing, not parseable as ISO8601, or older than 24h before now, where now is ${SKOGAI_NOW:-current UTC time} in ISO8601); pending-operations (.history.pending_operations > 0); missing (`mise dot status --missing` exits non-zero); and for each stderr line of either command matching `invalid file entry`, one finding with id dotfiles/invalid-entry/<entry name as printed between the quotes>. last_publish is not checked. All findings have outside_repo true. Acceptance: tests/unit/dotfiles.bats uses fake-mise fixtures with SKOGAI_NOW fixed: one healthy fixture yields exit 0 and []; one fixture per condition above yields exactly that finding. tests/machine/dotfiles.bats runs the check against the live machine and asserts exit 0.",
+      "priority": 1,
+      "status": "pending",
+      "scope": [
+        "bin/checks/dotfiles",
+        "tests/unit/dotfiles.bats",
+        "tests/unit/fixtures/dotfiles/",
+        "tests/machine/dotfiles.bats"
+      ],
+      "depends_on": [
+        "F001"
+      ],
+      "assigned_to": null,
+      "test_file": "tests/unit/dotfiles.bats",
+      "coverage": null,
+      "notes": null,
+      "correction_cycles": 0,
+      "scope_expansions": [],
+      "approaches_tried": [],
+      "failure_reason": null,
+      "discovered_via": null,
+      "qa_binding": "unit",
+      "spec": {
+        "hash": "125a8e470bb010d3c9163dabfd08d504206dd3d41be4edfccf716834b93db992",
+        "verdict": "PASS",
+        "sv_version": "1.0",
+        "verified_at": "2026-10-29T15:42:42Z",
+        "source": "conversation"
+      }
+    },
+    {
+      "id": "F003",
+      "description": "Bootstrap check bin/checks/bootstrap. Runs `mise bootstrap --dry-run` (tool-slug dry-run; never without --dry-run). Only lines whose text, after leading whitespace, starts with `mise ERROR` or `mise WARN` count. Findings: non-zero exit -> id bootstrap/dry-run-failed, observed = the first `mise ERROR` line, or \"exit <code>, no mise ERROR line\" if there is none; each distinct `mise WARN` line -> id bootstrap/warning/<first 8 hex of sha1 of the line>, observed = that line. A non-zero exit is a finding, not a tool error; only a missing mise or a timeout is a tool error. Planned changes printed by a successful dry run are not findings. All findings have outside_repo true. Acceptance: tests/unit/bootstrap.bats uses fake-mise fixtures for: exit 0 with planned changes (including a planned line that contains the word WARN without the prefix) -> exit 0 and []; exit 1 with a `mise ERROR` line -> one dry-run-failed finding quoting it; exit 1 with no ERROR line -> one dry-run-failed finding with the fallback observed text; exit 0 with two distinct `mise WARN` lines -> two warning findings whose ids are identical across two runs. tests/machine/bootstrap.bats runs it live and asserts exit 0.",
+      "priority": 1,
+      "status": "pending",
+      "scope": [
+        "bin/checks/bootstrap",
+        "tests/unit/bootstrap.bats",
+        "tests/unit/fixtures/bootstrap/",
+        "tests/machine/bootstrap.bats"
+      ],
+      "depends_on": [
+        "F001"
+      ],
+      "assigned_to": null,
+      "test_file": "tests/unit/bootstrap.bats",
+      "coverage": null,
+      "notes": null,
+      "correction_cycles": 0,
+      "scope_expansions": [],
+      "approaches_tried": [],
+      "failure_reason": null,
+      "discovered_via": null,
+      "qa_binding": "unit",
+      "spec": {
+        "hash": "9ea0b6882708159ff62b29affcdda63802012b160b752bf66a7043fcbca78867",
+        "verdict": "PASS",
+        "sv_version": "1.0",
+        "verified_at": "2026-10-29T15:42:42Z",
+        "source": "conversation"
+      }
+    },
+    {
+      "id": "F004",
+      "description": "Doctor check bin/checks/doctor. Runs `mise doctor --json` (tool-slug doctor-json). mise doctor exits 1 when it has problems, so it calls run_tool with the allow-nonzero flag and ignores the exit code as long as stdout is valid JSON; invalid JSON, a missing .errors key, or .errors that is neither null nor an array of strings is a tool error. null counts as empty. Each error string yields one finding with id doctor/<first 8 hex of sha1 of the string> and observed = the string; outside_repo true. .warnings are not findings. Acceptance: tests/unit/doctor.bats uses fake-mise fixtures: errors null -> exit 0 and []; errors [] -> exit 0 and []; two errors with exit 1 -> two findings with distinct ids that are identical across two runs; .errors as a number -> one doctor/tool-error/doctor-json finding. tests/machine/doctor.bats runs it live and asserts exit 0.",
+      "priority": 2,
+      "status": "pending",
+      "scope": [
+        "bin/checks/doctor",
+        "tests/unit/doctor.bats",
+        "tests/unit/fixtures/doctor/",
+        "tests/machine/doctor.bats"
+      ],
+      "depends_on": [
+        "F001"
+      ],
+      "assigned_to": null,
+      "test_file": "tests/unit/doctor.bats",
+      "coverage": null,
+      "notes": null,
+      "correction_cycles": 0,
+      "scope_expansions": [],
+      "approaches_tried": [],
+      "failure_reason": null,
+      "discovered_via": null,
+      "qa_binding": "unit",
+      "spec": {
+        "hash": "2bf02287654a7061eeb2b8752de41766e3eea6e0318ef1ed41d213f90ceb9109",
+        "verdict": "PASS",
+        "sv_version": "1.0",
+        "verified_at": "2026-10-29T15:42:42Z",
+        "source": "conversation"
+      }
+    },
+    {
+      "id": "F005",
+      "description": "Wiring check bin/checks/wiring. Root is ${SKOGAI_ROOT:-the repo root}. One finding per symlink directly under <root>/.claude/ that does not resolve (id wiring/dangling/<name>, outside_repo false). Binaries are ${WIRING_BINS:-claude herdr atuin wt okn gita gh mise argc jq yq fnox age} (space-separated). For each: `command -v` fails -> wiring/missing/<bin>; otherwise its probe runs through run_tool with a 10s timeout, and a non-zero exit or a timeout -> wiring/broken/<bin>; both outside_repo true. The probe is `<bin> --version`; the script holds a per-binary override map for binaries that only answer `--help`. Probes must not need network or login. Acceptance: tests/unit/wiring.bats builds a temp root with one good and one dangling symlink and a temp PATH with fake binaries (one exiting 0, one exiting 1, one sleeping past CHECK_TIMEOUT) plus one absent name, and asserts exactly the expected findings: dangling, broken (x2), missing. tests/machine/wiring.bats runs it live and asserts exit 0; it stays red while .claude/agents is dangling, which is a finding for skogix, not a feature failure.",
+      "priority": 2,
+      "status": "pending",
+      "scope": [
+        "bin/checks/wiring",
+        "tests/unit/wiring.bats",
+        "tests/machine/wiring.bats"
+      ],
+      "depends_on": [
+        "F001"
+      ],
+      "assigned_to": null,
+      "test_file": "tests/unit/wiring.bats",
+      "coverage": null,
+      "notes": null,
+      "correction_cycles": 0,
+      "scope_expansions": [],
+      "approaches_tried": [],
+      "failure_reason": null,
+      "discovered_via": null,
+      "qa_binding": "unit",
+      "spec": {
+        "hash": "7c69ef63d1ab3fec272ebde5a5870681c3340c74ab0aad10069c41cf75809ff1",
+        "verdict": "PASS",
+        "sv_version": "1.0",
+        "verified_at": "2026-10-29T15:42:42Z",
+        "source": "conversation"
+      }
+    },
+    {
+      "id": "F006",
+      "description": "Prune inventory. Write .harness/prune-inventory.md: a table with one row per top-level entry under tmp/, dash-skogai/tmp/ and .skogai/ (excluding .skogai/agents, .skogai/skills, .skogai/logs), with columns path, size (du -sh), last git commit date for the path (or 'untracked'), proposed action (keep / move:<target> / delete) and a one-line reason, plus an empty 'skogix' column. config/backups is out of scope. After skogix fills the 'skogix' column, apply exactly the rows skogix marked, nothing else, in one commit per action type; deletions of untracked entries have no diff and are listed in the commit message of the delete commit. Acceptance (manual): the inventory covers every top-level entry in those three directories, and the applied commits touch only rows skogix marked.",
+      "priority": 3,
+      "status": "pending",
+      "scope": [
+        "tmp/",
+        "dash-skogai/tmp/",
+        ".skogai/",
+        ".harness/prune-inventory.md"
+      ],
+      "depends_on": [],
+      "assigned_to": null,
+      "test_file": null,
+      "coverage": null,
+      "notes": null,
+      "correction_cycles": 0,
+      "scope_expansions": [],
+      "approaches_tried": [],
+      "failure_reason": null,
+      "discovered_via": null,
+      "qa_binding": "manual",
+      "spec": {
+        "hash": "b482a32cd35d0c83fc82a3052fa6d6be9cf76c2ab28ee176dcda644330b04955",
+        "verdict": "PASS",
+        "sv_version": "1.0",
+        "verified_at": "2026-10-29T15:42:42Z",
+        "source": "conversation"
+      }
+    }
+  ]
+}

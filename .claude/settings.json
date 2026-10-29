@@ -7,11 +7,19 @@
   },
   "permissions": {
     "allow": [
-      "Bash(gita *)",
+      "Bash(\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/*.sh*)",
+      "Bash(bash .harness/init.sh*)",
       "Bash(git *)",
-      "Bash(okn *)",
+      "Bash(git config user.email)",
+      "Bash(git config user.name)",
+      "Bash(git log*)",
+      "Bash(git rev-parse*)",
+      "Bash(git status*)",
+      "Bash(gita *)",
       "Bash(herdr *)",
-      "Bash(wt *)"
+      "Bash(okn *)",
+      "Bash(wt *)",
+      "Read(./.harness/**)"
     ],
     "defaultMode": "auto"
   },
@@ -48,6 +56,32 @@
             "command": "atuin hook claude-code"
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/enforce-scope.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/enforce-scope.sh"
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/verify-git-identity.sh"
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/commit-gate.sh"
+          }
+        ]
       }
     ],
     "SessionStart": [
@@ -58,6 +92,16 @@
             "type": "command",
             "command": "bash '/home/skogix/.claude/hooks/herdr-agent-state.sh' session",
             "timeout": 10
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/verify-task-quality.sh"
           }
         ]
       }
@@ -76,7 +120,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "wt list statusline --format=claude-code"
+    "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/statusline.sh"
   },
   "enabledPlugins": {
     "nelson@synced": false,

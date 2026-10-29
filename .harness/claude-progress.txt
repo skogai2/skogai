@@ -1,0 +1,15 @@
+# Claude Progress Log
+# Project: skogai
+# Created: 2026-10-29
+
+## Session 1 - Initialization
+- Created harness scaffolding via stamp.sh (mode=new)
+- Detected stack: bash (mise/jq/argc); no PostToolUse build hook available
+- Git identity: Emil Skogsund <emil@skogsund.se>, SSH authenticates as Skogix; remote is HTTPS
+- Moved prior .claude/settings.json aside and merged it back over the stamped one
+- Configured .harness/init.sh (bash -n, jq, bats)
+- Workflow sizing: large
+- Interrupted by mise config incident (12:41 rewrite, secret leak via sync); filters restored, skogix rotated secrets and reviewed the commented bootstrap blocks
+- init.sh split: full_test = tests/unit, machine_check = tests/machine
+- Spec gate run 1: BLOCK (30 questions); proposal restructured to F001-F006 and re-gated
+- Spec gate: PASS on run 3 (F001-F006); features.json written; live-agent tests deferred to /harness-issue-prep
