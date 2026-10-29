@@ -21,7 +21,22 @@ don't rebuild what mise already does:
 - read one key from one layer: `mise config get --file <layer> <key>`. a missing key exits `1`.
 - write one key: `mise config set --file <layer> <key> <value>`.
 - resolved env with the file each value came from: `mise env --env config --json-extended`.
-- no unset in mise.
+- unset in mise is set via 'foo=false'.
+- when the files are in real use/not in sandbox mode the layers are simple flags and the <module> is simply --env=<module>.
+  - example1: 
+  ```bash 
+  mise config --env exampleenv get --system
+  [fizz]
+  buzz = "bazz"
+
+  [fizz.exampleenv.system]
+  path = "/etc/mise/config.exampleenv.toml"
+
+  cat /etc/mise/config.exampleenv.toml 
+  [fizz]
+  buzz = "bazz"
+  exampleenv.system.path = "/etc/mise/config.exampleenv.toml"
+  ```
 
 ## status
 
