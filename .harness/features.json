@@ -6,21 +6,23 @@
   "features": [
     {
       "id": "F001",
-      "description": "Machine-check framework and finding protocol. A check is an executable bash script bin/checks/<name>. Checks are read-only: they never run mise apply/sync/pull/save/install/undo/rollback, never run `mise bootstrap` without --dry-run, and never write outside the findings directory. Tool invocations (mise and any probed binary) go through run_tool in bin/checks/lib.sh, which runs them under `timeout ${CHECK_TIMEOUT:-60}` (a caller may pass a per-call timeout; the effective timeout is the smaller of the per-call value and CHECK_TIMEOUT); helper processes such as jq, find, readlink and sha1sum are not wrapped. A check exits 0 when it has no findings and 1 when it has any, and always writes its findings as a JSON array to ${SKOGAI_FINDINGS_DIR:-<repo>/.skogai/logs/findings}/<name>.json (directory created if missing; .skogai/logs is gitignored). Finding ids are unique within one findings file; a repeated id collapses into one finding. A finding is an object with exactly: id (string \"<check>/<slug>\", derived only from stable inputs such as condition names, entry names or a hash of the observed text, never from ordinals), check (string), observed (string), expected (string), suggested_fix (string, static text written by the check author), outside_repo (boolean: true when the fix changes state outside this repo). Redaction: observed may quote tool output lines (mise warnings, errors, doctor messages) but a check never reads the contents of user files or the values of user env vars. Tool errors: a tool that is missing, times out, exits non-zero where JSON was expected (default; run_tool takes an allow-nonzero flag a caller sets per invocation), prints unparseable JSON, or prints JSON missing an expected key or with the wrong type yields a finding with id \"<check>/tool-error/<tool-slug>\" (tool-slug names the invocation, e.g. status-json); conditions that depend on that output are skipped, all other conditions are still evaluated. tests/helpers/fake-mise.bash is a bats helper that prepends a fake `mise` to PATH. The fake reads FAKE_MISE_CASE (a fixture directory) and, for its argument string slugged as lowercase words joined by '-' (e.g. `dot status --json` -> dot-status-json), prints <case>/<slug>.stdout to stdout and <case>/<slug>.stderr to stderr if present and exits with the integer in <case>/<slug>.exit (default 0); an argument string with no fixture exits 127. Coverage: init.sh full_test runs tests/unit under kcov with --include-path=bin/checks and output in ${TMPDIR:-/tmp}/skogai-kcov (outside the repo) and prints the per-file and total coverage; each check feature's coverage gate is >= 95% on its own bin/checks/<name> (lib.sh belongs to this feature), recorded by the lead in features.json. Acceptance: tests/unit/framework.bats runs a sample check (tests/helpers/sample-check) through fake-mise with SKOGAI_FINDINGS_DIR in a temp dir and CHECK_TIMEOUT=1, and proves (1) healthy fixture -> exit 0 and findings file is []; (2) broken fixture -> exit 1 and every finding has exactly the six fields with the right types; (3) missing mise, a timed-out tool, non-zero exit, bad JSON, and a missing key each yield one <check>/tool-error/<tool-slug> finding.",
+      "description": "Protocol and probe runner. The protocol is the agent-facing record of how this system works, kept in protocol/ (repo root), one markdown file per section; protocol/README.md defines the entry format and lists the sections. An entry states a situation or question, the answer (or the literal word UNKNOWN when it is not known yet; unknowns are written down, never omitted), its source (the command or file it was learned from) and the date learned. Redaction: protocol files may quote command names, subcommands, flags and well-known config or repo paths, never argument values taken from shell history (free-text strings, URLs, tokens), env var values, or file contents. F001 writes protocol/README.md and protocol/incidents.md, whose first entry is the 2026-10-29 mise config incident (what happened, impact, what was done, what is still open). Probes live in tests/probes/<feature>.jsonl, one JSON object per line with exactly: id (string, unique across all probe files), question (string), expect (string, extended regex matched case-insensitively against the answer), source (string: where the expected answer was established, written before the protocol entry it tests). bin/probe [-c <context-file>]... <probe-file>... runs each probe as `claude -p --safe-mode --tools '' --strict-mcp-config --no-session-persistence --model ${PROBE_MODEL:-haiku}` from an empty temp directory under `timeout ${PROBE_TIMEOUT:-120}`, with a system prompt made of a fixed instruction (answer only from the context, one short line, reply exactly UNKNOWN if the context does not answer) followed by the concatenated context files, and the question as the prompt. It prints one line per probe `PASS <id>: <answer>` or `FAIL <id>: <answer> (expected /<expect>/)`, then `score <passed>/<total>`; exit 0 when every probe passes, 1 when any fails, 2 on usage error (no probe file, unreadable file, malformed probe line). A claude call that exits non-zero or times out counts as FAIL with answer `<error>`. .harness/init.sh gains target probe_test: bin/probe with every protocol/*.md as context over every tests/probes/*.jsonl; probe_test is never part of smoke_test or full_test. Acceptance: (1) tests/unit/probe.bats, with a fake claude on PATH (tests/helpers/), proves pass, fail, score line, exit codes 0/1/2, timeout and non-zero exit counted as FAIL, and that context file contents reach the system prompt; bin/probe coverage >= 95% under kcov; (2) tests/probes/f001.jsonl holds at least: what word marks a not-yet-known answer in the protocol (UNKNOWN, as a literal answer word; source protocol/README.md design), what happened to ~/.config/mise/config.toml on 2026-10-29, and who to contact when the network is down (expect UNKNOWN); (3) `.harness/init.sh probe_test` passes every f001 probe; (4) negative control: bin/probe -c /dev/null tests/probes/f001.jsonl fails every probe whose expect is not UNKNOWN. Runner details: before any claude call bin/probe validates every probe file and exits 2 on a duplicate id (within or across files), on zero probes in total, or on an expect that is not a valid extended regex; the system prompt is written to a temp file and passed with --system-prompt-file so context size is not bound by argv limits; newlines in an answer are collapsed to single spaces before matching and printing. focused_test given a *.jsonl file runs bin/probe with every protocol/*.md as context over that one file. The incident entry and its probe take their facts from the 2026-10-29 incident entry under Gotchas in .harness/context_summary.md. A probe-tested acceptance criterion (here and in F002-F006) is met when two consecutive runs pass every probe. Ordering proof: tests/probes/f001.jsonl is committed in a commit that precedes the commit adding protocol/README.md and protocol/incidents.md; git log is the artifact.",
       "priority": 1,
-      "status": "pending",
+      "status": "in-progress",
       "scope": [
-        "bin/checks/lib.sh",
+        "protocol/README.md",
+        "protocol/incidents.md",
+        "bin/probe",
+        "tests/unit/probe.bats",
         "tests/helpers/",
-        "tests/unit/framework.bats",
-        "tests/unit/fixtures/framework/",
+        "tests/probes/f001.jsonl",
         ".harness/init.sh"
       ],
       "depends_on": [],
-      "assigned_to": null,
-      "test_file": "tests/unit/framework.bats",
+      "assigned_to": "single-session",
+      "test_file": "tests/unit/probe.bats",
       "coverage": null,
-      "notes": null,
+      "notes": "rewritten 2026-10-29: protocol + probes replace check framework (skogix)",
       "correction_cycles": 0,
       "scope_expansions": [],
       "approaches_tried": [],
@@ -28,167 +30,163 @@
       "discovered_via": null,
       "qa_binding": "unit",
       "spec": {
-        "hash": "6fe973695e8fed28c4b1cb1d4216c9171cb48604dcb838de9d2734ee1820b17e",
+        "hash": "916c91acc03030f67342d9c63094f3f435d440e910cae9b058bb58e15e2e52dd",
         "verdict": "PASS",
         "sv_version": "1.0",
-        "verified_at": "2026-10-29T15:42:42Z",
+        "verified_at": "2026-10-29T21:09:23Z",
         "source": "conversation"
       }
     },
     {
       "id": "F002",
-      "description": "Dotfiles check bin/checks/dotfiles. Runs `mise dot status --json` (tool-slug status-json) and `mise dot status --missing` (tool-slug status-missing; its non-zero exit is a condition, not a tool error). One finding per failed condition, id dotfiles/<condition>: watcher (.history.watcher != \"running\"); conflicts (.history.sync.conflicts non-empty); last-error (.history.sync.last_error not null); sync-failures (.history.sync.consecutive_failures > 0); origin (.history.sync.origin != \"https://github.com/skogai2/.dotfiles\"); branch (.history.sync.branch != \"main\"); mode (.history.sync.mode != \"sync\"); fetch-stale (.history.sync.last_fetch missing, not parseable as ISO8601, or older than 24h before now, where now is ${SKOGAI_NOW:-current UTC time} in ISO8601); pending-operations (.history.pending_operations > 0); missing (`mise dot status --missing` exits non-zero); and for each stderr line of either command matching `invalid file entry`, one finding with id dotfiles/invalid-entry/<entry name as printed between the quotes>. last_publish is not checked. All findings have outside_repo true. Acceptance: tests/unit/dotfiles.bats uses fake-mise fixtures with SKOGAI_NOW fixed: one healthy fixture yields exit 0 and []; one fixture per condition above yields exactly that finding. tests/machine/dotfiles.bats runs the check against the live machine and asserts exit 0.",
-      "priority": 1,
+      "description": "Tools section, protocol/tools.md. Maps what is installed (mise toolset, explicitly installed pacman packages count, AI agent CLIs) against what is actually used (atuin history counts all-time and last 90 days, split human vs agent where atuin records the agent), and lists installed-but-unused tools. Each entry follows protocol/README.md (answer, source, date; UNKNOWN when not known) and the redaction rule. Probes in tests/probes/f002.jsonl, at least 8, each expected answer established from ground truth (atuin, mise, pacman) and recorded in source before the section is written; they cover at least: editor, shell, python runner, git client, terminal multiplexer, which AI CLIs are used most, and one installed-but-unused tool. Acceptance: `.harness/init.sh probe_test` passes every f002 probe, and bin/probe -c /dev/null tests/probes/f002.jsonl fails every probe whose expect is not UNKNOWN. Installed-but-unused means zero recorded uses in the last 90 days. Ordering proof: the probe file is committed in a commit that precedes the commit adding the protocol section; git log is the artifact. tests/probes/f002.jsonl includes the probe what editor skogix uses (expect nvim; source atuin top commands).",
+      "priority": 2,
       "status": "pending",
       "scope": [
-        "bin/checks/dotfiles",
-        "tests/unit/dotfiles.bats",
-        "tests/unit/fixtures/dotfiles/",
-        "tests/machine/dotfiles.bats"
+        "protocol/tools.md",
+        "tests/probes/f002.jsonl"
       ],
       "depends_on": [
         "F001"
       ],
       "assigned_to": null,
-      "test_file": "tests/unit/dotfiles.bats",
+      "test_file": "tests/probes/f002.jsonl",
       "coverage": null,
-      "notes": null,
+      "notes": "rewritten 2026-10-29: protocol + probes replace check framework (skogix)",
       "correction_cycles": 0,
       "scope_expansions": [],
       "approaches_tried": [],
       "failure_reason": null,
       "discovered_via": null,
-      "qa_binding": "unit",
+      "qa_binding": "journey",
       "spec": {
-        "hash": "125a8e470bb010d3c9163dabfd08d504206dd3d41be4edfccf716834b93db992",
+        "hash": "d172a9830729e8c1e088221845d40c1d70a04668700c85fcf250caa3927ed857",
         "verdict": "PASS",
         "sv_version": "1.0",
-        "verified_at": "2026-10-29T15:42:42Z",
+        "verified_at": "2026-10-29T21:09:23Z",
         "source": "conversation"
       }
     },
     {
       "id": "F003",
-      "description": "Bootstrap check bin/checks/bootstrap. Runs `mise bootstrap --dry-run` (tool-slug dry-run; never without --dry-run). Only lines whose text, after leading whitespace, starts with `mise ERROR` or `mise WARN` count. Findings: non-zero exit -> id bootstrap/dry-run-failed, observed = the first `mise ERROR` line, or \"exit <code>, no mise ERROR line\" if there is none; each distinct `mise WARN` line -> id bootstrap/warning/<first 8 hex of sha1 of the line>, observed = that line. A non-zero exit is a finding, not a tool error; only a missing mise or a timeout is a tool error. Planned changes printed by a successful dry run are not findings. All findings have outside_repo true. Acceptance: tests/unit/bootstrap.bats uses fake-mise fixtures for: exit 0 with planned changes (including a planned line that contains the word WARN without the prefix) -> exit 0 and []; exit 1 with a `mise ERROR` line -> one dry-run-failed finding quoting it; exit 1 with no ERROR line -> one dry-run-failed finding with the fallback observed text; exit 0 with two distinct `mise WARN` lines -> two warning findings whose ids are identical across two runs. tests/machine/bootstrap.bats runs it live and asserts exit 0.",
-      "priority": 1,
+      "description": "Information section, protocol/information.md. Maps where knowledge and configuration live: docs (~/skogai/docs, .skogai/), config repos (~/.config/skogai, ~/.skogai, /skogai, ~/.config/containers/systemd, dash-skogai), the dotfiles repo and mise history repo, mise config files and their layering; for each: path, whether it is a git repo, its remote, last commit date (as a currency signal) and what it is for. Each entry follows protocol/README.md and the redaction rule. Probes in tests/probes/f003.jsonl, at least 8, ground truth recorded in source before the section is written; they cover at least: where dotfiles are published, where mise checkpoints live, which mise config files load and in what order, where agent skills live, and one location whose purpose is UNKNOWN. Acceptance: `.harness/init.sh probe_test` passes every f003 probe, and bin/probe -c /dev/null tests/probes/f003.jsonl fails every probe whose expect is not UNKNOWN. Config load order is established from /home/skogix/skogai with MISE_ENV unset (mise config ls). Ordering proof: the probe file is committed in a commit that precedes the commit adding the protocol section; git log is the artifact.",
+      "priority": 2,
       "status": "pending",
       "scope": [
-        "bin/checks/bootstrap",
-        "tests/unit/bootstrap.bats",
-        "tests/unit/fixtures/bootstrap/",
-        "tests/machine/bootstrap.bats"
+        "protocol/information.md",
+        "tests/probes/f003.jsonl"
       ],
       "depends_on": [
         "F001"
       ],
       "assigned_to": null,
-      "test_file": "tests/unit/bootstrap.bats",
+      "test_file": "tests/probes/f003.jsonl",
       "coverage": null,
-      "notes": null,
+      "notes": "rewritten 2026-10-29: protocol + probes replace check framework (skogix)",
       "correction_cycles": 0,
       "scope_expansions": [],
       "approaches_tried": [],
       "failure_reason": null,
       "discovered_via": null,
-      "qa_binding": "unit",
+      "qa_binding": "journey",
       "spec": {
-        "hash": "9ea0b6882708159ff62b29affcdda63802012b160b752bf66a7043fcbca78867",
+        "hash": "586281abcb2900bc23b392c1d7bed1afa7b126c16bf9e5efe81a8f063be01075",
         "verdict": "PASS",
         "sv_version": "1.0",
-        "verified_at": "2026-10-29T15:42:42Z",
+        "verified_at": "2026-10-29T21:09:23Z",
         "source": "conversation"
       }
     },
     {
       "id": "F004",
-      "description": "Doctor check bin/checks/doctor. Runs `mise doctor --json` (tool-slug doctor-json). mise doctor exits 1 when it has problems, so it calls run_tool with the allow-nonzero flag and ignores the exit code as long as stdout is valid JSON; invalid JSON, a missing .errors key, or .errors that is neither null nor an array of strings is a tool error. null counts as empty. Each error string yields one finding with id doctor/<first 8 hex of sha1 of the string> and observed = the string; outside_repo true. .warnings are not findings. Acceptance: tests/unit/doctor.bats uses fake-mise fixtures: errors null -> exit 0 and []; errors [] -> exit 0 and []; two errors with exit 1 -> two findings with distinct ids that are identical across two runs; .errors as a number -> one doctor/tool-error/doctor-json finding. tests/machine/doctor.bats runs it live and asserts exit 0.",
+      "description": "Working solutions section, protocol/solutions.md. Maps how things actually get done: recurring successful command sequences and workflows from atuin (by working directory and by frequency), e.g. the machine convergence chain (mise dotfiles status --missing, dotfiles sync, bootstrap --update, doctor), git workflow, how agents are launched; each written as situation -> what works, with source and date, following protocol/README.md and the redaction rule. Probes in tests/probes/f004.jsonl, at least 8, ground truth recorded in source before the section is written; they cover at least: how to converge the machine, how to check dotfiles are tracked, how to start an agent session in a worktree, and one situation with no known working solution (UNKNOWN). Acceptance: `.harness/init.sh probe_test` passes every f004 probe, and bin/probe -c /dev/null tests/probes/f004.jsonl fails every probe whose expect is not UNKNOWN. Ordering proof: the probe file is committed in a commit that precedes the commit adding the protocol section; git log is the artifact.",
       "priority": 2,
       "status": "pending",
       "scope": [
-        "bin/checks/doctor",
-        "tests/unit/doctor.bats",
-        "tests/unit/fixtures/doctor/",
-        "tests/machine/doctor.bats"
+        "protocol/solutions.md",
+        "tests/probes/f004.jsonl"
       ],
       "depends_on": [
         "F001"
       ],
       "assigned_to": null,
-      "test_file": "tests/unit/doctor.bats",
+      "test_file": "tests/probes/f004.jsonl",
       "coverage": null,
-      "notes": null,
+      "notes": "rewritten 2026-10-29: protocol + probes replace check framework (skogix)",
       "correction_cycles": 0,
       "scope_expansions": [],
       "approaches_tried": [],
       "failure_reason": null,
       "discovered_via": null,
-      "qa_binding": "unit",
+      "qa_binding": "journey",
       "spec": {
-        "hash": "2bf02287654a7061eeb2b8752de41766e3eea6e0318ef1ed41d213f90ceb9109",
+        "hash": "2205b8994c078b896b909ba0db3b9b3833f83b03998b6c7d43cd6b2b5e671ca0",
         "verdict": "PASS",
         "sv_version": "1.0",
-        "verified_at": "2026-10-29T15:42:42Z",
+        "verified_at": "2026-10-29T21:09:23Z",
         "source": "conversation"
       }
     },
     {
       "id": "F005",
-      "description": "Wiring check bin/checks/wiring. Root is ${SKOGAI_ROOT:-the repo root}. One finding per symlink directly under <root>/.claude/ that does not resolve (id wiring/dangling/<name>, outside_repo false). Binaries are ${WIRING_BINS:-claude herdr atuin wt okn gita gh mise argc jq yq fnox age} (space-separated). For each: `command -v` fails -> wiring/missing/<bin>; otherwise its probe runs through run_tool with a 10s timeout, and a non-zero exit or a timeout -> wiring/broken/<bin>; both outside_repo true. The probe is `<bin> --version`; the script holds a per-binary override map for binaries that only answer `--help`. Probes must not need network or login. Acceptance: tests/unit/wiring.bats builds a temp root with one good and one dangling symlink and a temp PATH with fake binaries (one exiting 0, one exiting 1, one sleeping past CHECK_TIMEOUT) plus one absent name, and asserts exactly the expected findings: dangling, broken (x2), missing. tests/machine/wiring.bats runs it live and asserts exit 0; it stays red while .claude/agents is dangling, which is a finding for skogix, not a feature failure.",
+      "description": "Breaks section, protocol/breaks.md. Maps what fails: atuin failed commands (non-zero exit) grouped by command name and subcommand with counts, all-time and last 90 days, split human vs agent where atuin records the agent, plus known gotchas from .harness/context_summary.md; for the top failures, the most common cause when it can be read from captured output (atuin_output), else UNKNOWN. Follows protocol/README.md and the redaction rule (no error text containing paths to user files' contents, tokens or env values). Probes in tests/probes/f005.jsonl, at least 8, ground truth recorded in source before the section is written; they cover at least: the most-failing command for skogix, the most-failing command for agents, the mise binary shadowing gotcha, and one failure whose cause is UNKNOWN. Acceptance: `.harness/init.sh probe_test` passes every f005 probe, and bin/probe -c /dev/null tests/probes/f005.jsonl fails every probe whose expect is not UNKNOWN. A failure is an exit code other than 0 and 130, excluding exit 1 from grep, rg, diff, test and [. Most-failing ranks by raw failure count; the failure rate is shown alongside. Ordering proof: the probe file is committed in a commit that precedes the commit adding the protocol section; git log is the artifact. A command name is the first word after stripping leading sudo, env and VAR=value prefixes; ties rank alphabetically.",
       "priority": 2,
       "status": "pending",
       "scope": [
-        "bin/checks/wiring",
-        "tests/unit/wiring.bats",
-        "tests/machine/wiring.bats"
+        "protocol/breaks.md",
+        "tests/probes/f005.jsonl"
       ],
       "depends_on": [
         "F001"
       ],
       "assigned_to": null,
-      "test_file": "tests/unit/wiring.bats",
+      "test_file": "tests/probes/f005.jsonl",
       "coverage": null,
-      "notes": null,
+      "notes": "rewritten 2026-10-29: protocol + probes replace check framework (skogix)",
       "correction_cycles": 0,
       "scope_expansions": [],
       "approaches_tried": [],
       "failure_reason": null,
       "discovered_via": null,
-      "qa_binding": "unit",
+      "qa_binding": "journey",
       "spec": {
-        "hash": "7c69ef63d1ab3fec272ebde5a5870681c3340c74ab0aad10069c41cf75809ff1",
+        "hash": "edfe97789f3107dc7557cc4de6594badfd5742562a465ddf01b7eea345156434",
         "verdict": "PASS",
         "sv_version": "1.0",
-        "verified_at": "2026-10-29T15:42:42Z",
+        "verified_at": "2026-10-29T21:09:23Z",
         "source": "conversation"
       }
     },
     {
       "id": "F006",
-      "description": "Prune inventory. Write .harness/prune-inventory.md: a table with one row per top-level entry under tmp/, dash-skogai/tmp/ and .skogai/ (excluding .skogai/agents, .skogai/skills, .skogai/logs), with columns path, size (du -sh), last git commit date for the path (or 'untracked'), proposed action (keep / move:<target> / delete) and a one-line reason, plus an empty 'skogix' column. config/backups is out of scope. After skogix fills the 'skogix' column, apply exactly the rows skogix marked, nothing else, in one commit per action type; deletions of untracked entries have no diff and are listed in the commit message of the delete commit. Acceptance (manual): the inventory covers every top-level entry in those three directories, and the applied commits touch only rows skogix marked.",
+      "description": "Scale and trade-offs section, protocol/scale.md. States the size of the system (shell command totals and unique counts, tools installed, repos, tracked dotfiles entries, AI CLIs, agent vs human command share) and, per layer named in F002-F005 (mise dotfiles, bootstrap, agent CLIs, config repos), what it costs (failures from F005) and what it gives (usage from F002/F004), each with source. Includes an inventory of the top-level entries under tmp/, dash-skogai/tmp/ and .skogai/ (excluding .skogai/skills, .skogai/logs) with size, last commit date or 'untracked', and a proposed keep/move/delete with a one-line reason; F006 changes nothing on disk outside protocol/scale.md and its probe file, and any pruning is a separate feature skogix approves. Follows protocol/README.md and the redaction rule. Probes in tests/probes/f006.jsonl, at least 8, ground truth recorded in source before the section is written; they cover at least: total commands recorded, share run by agents, number of tools installed vs used, the costliest layer by failures, and one trade-off that is UNKNOWN. Acceptance: `.harness/init.sh probe_test` passes every f006 probe, and bin/probe -c /dev/null tests/probes/f006.jsonl fails every probe whose expect is not UNKNOWN. Layer attribution is a command-name table written into scale.md (mise dot*/dotfiles -> dotfiles; mise bootstrap, pacman, systemctl -> bootstrap; claude and other AI CLIs -> agent CLIs; git run inside a config repo directory -> config repos). Maintenance cost per layer is recorded as an UNKNOWN entry (no agreed measure yet). Agent share is given for the last 90 days and all-time, each with the fraction of history that carries agent tagging. Ordering proof: the probe file is committed in a commit that precedes the commit adding the protocol section; git log is the artifact.",
       "priority": 3,
       "status": "pending",
       "scope": [
-        "tmp/",
-        "dash-skogai/tmp/",
-        ".skogai/",
-        ".harness/prune-inventory.md"
+        "protocol/scale.md",
+        "tests/probes/f006.jsonl"
       ],
-      "depends_on": [],
+      "depends_on": [
+        "F002",
+        "F003",
+        "F004",
+        "F005"
+      ],
       "assigned_to": null,
-      "test_file": null,
+      "test_file": "tests/probes/f006.jsonl",
       "coverage": null,
-      "notes": null,
+      "notes": "rewritten 2026-10-29: protocol + probes replace check framework (skogix)",
       "correction_cycles": 0,
       "scope_expansions": [],
       "approaches_tried": [],
       "failure_reason": null,
       "discovered_via": null,
-      "qa_binding": "manual",
+      "qa_binding": "journey",
       "spec": {
-        "hash": "b482a32cd35d0c83fc82a3052fa6d6be9cf76c2ab28ee176dcda644330b04955",
+        "hash": "fcd2e18da9c202cc8f7971cccf1b061c8f3391a5a3e043aaf7addd3d28a41049",
         "verdict": "PASS",
         "sv_version": "1.0",
-        "verified_at": "2026-10-29T15:42:42Z",
+        "verified_at": "2026-10-29T21:09:23Z",
         "source": "conversation"
       }
     }
