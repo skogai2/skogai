@@ -47,7 +47,7 @@ ask() {
     dir=$(mktemp -d)
     answer=$(cd "$dir" && timeout "${PROBE_TIMEOUT:-120}" claude -p --safe-mode --tools '' \
         --strict-mcp-config --no-session-persistence --model "${PROBE_MODEL:-haiku}" \
-        --system-prompt-file "$system" "$question") || rc=$?
+        --system-prompt-file "$system" "$question" </dev/null) || rc=$?
     rmdir "$dir"
     if [ "$rc" -ne 0 ]; then
         echo "<error>"

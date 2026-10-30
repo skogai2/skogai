@@ -172,3 +172,10 @@ setup() {
     [ "${#lines[@]}" -eq 2 ]
     [ -z "$(ls -A "$TMPDIR")" ]
 }
+
+@test "claude gets /dev/null as stdin so it never waits for input" {
+    probe_line a "q" 'x' >"$P"
+    FAKE_CLAUDE_ANSWER=x run "$PROBE_BIN" "$P" <<<"stray input"
+    [ "$status" -eq 0 ]
+    grep -q '^STDIN: /dev/null$' "$FAKE_CLAUDE_LOG"
+}

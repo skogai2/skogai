@@ -5,6 +5,7 @@ log=${FAKE_CLAUDE_LOG:-/dev/null}
 printf 'ARGV:' >>"$log"
 printf ' [%s]' "$@" >>"$log"
 printf '\nCWD: %s\n' "$PWD" >>"$log"
+printf 'STDIN: %s\n' "$(readlink /proc/self/fd/0)" >>"$log"
 while [ $# -gt 0 ]; do
     if [ "$1" = "--system-prompt-file" ]; then
         printf 'SYSTEM:\n' >>"$log"
