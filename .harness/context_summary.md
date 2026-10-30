@@ -4,8 +4,8 @@ Persistent record of architectural decisions, discovered patterns, gotchas, and 
 This file is referenced in CLAUDE.md and loaded every session.
 
 ## Active Context
-- Currently working on: F001-F005 passing (protocol README, incidents, tools, information, solutions, breaks)
-- Next up: F006 (scale and trade-offs), which builds on F002-F005
+- Currently working on: all six features passing; protocol/ covers incidents, tools, information, solutions, breaks, scale
+- Next up: skogix decides on the scratch-dir proposals in protocol/scale.md (a pruning feature), and which UNKNOWNs to chase first (sync exit 1, network-down contact)
 
 ## Cross-Cutting Concerns
 - Stack: bash + mise (tasks/tools) + jq/yq + argc; tests in bats, coverage via kcov on bin/checks
@@ -30,6 +30,7 @@ This file is referenced in CLAUDE.md and loaded every session.
 - haiku twice wrote "skogix2/.dotfiles" for skogai2/.dotfiles when paraphrasing; probes that care about exact names must expect them literally
 - Commands run with Claude Code's `!` prefix are not recorded in atuin: the 2026-10-29 21:18 convergence run that succeeded is missing there, so atuin alone made the chain look always-failing
 - haiku sometimes answers UNKNOWN for a fact that is in the context (seen ~10% per probe at 25 KB of protocol, separators made no difference); a single failing probe is noise until it repeats. One fact per `###` heading still helps: facts buried in another entry's answer are missed more
+- `claude -p` reads stdin when it is not a TTY and waits 3s with a warning; bin/probe passes </dev/null
 - commit-gate hook rejects `git add` and `git commit` in one Bash call; when a rejected call also held the add, the next commit silently picks up only the earlier-staged files. Check `git show --stat` after any hook rejection
 
 ## Domain: Machine checks
@@ -57,7 +58,16 @@ This file is referenced in CLAUDE.md and loaded every session.
      Populated by the retrospective step at session end.
      These transfer to new projects: harness-init can import them as starting context. -->
 - Restoring a config "as it was" must restore its filters first: an entry without its excludes is worse than a missing entry
+- A spec gate proves a spec is testable, not that it is worth building; before gating, state in one sentence what changes in the world if the feature works (watching)
+- When agents report history-derived claims, cross-check against anything the lead itself saw in-session; history sources have blind spots (backlog)
 - The spec gate earns its cost on the first proposal: it caught a test-layout contradiction (machine checks under a recursive full_test) before any code existed
+
+## Meta-Session 2026-10-30
+- Scope accuracy: planned to build F001 as a check framework; skogix rejected it as testing nothing, and all six specs were rewritten mid-session into protocol + probes. The real scope was "learn the system", not "guard the system"
+- Model calibration: Sonnet agents in herdr workspaces did F002-F006 with zero lead rework beyond one factual correction (F004) and one restructured entry (F003); no correction cycles >= 3
+- Discovery lineage: atuin blind spot (`!` commands) and the probe runner's stdin wait were both found by verifying agent output, not by the agents
+- Approach patterns: probe files committed before sections plus a no-context negative control made agent output checkable in minutes; lead re-running every probe set caught nothing false-positive but did catch a half-true claim only by cross-checking against what skogix ran in-session
+- Plan approval: the spec gate passed a spec that tested nothing (it checks testability, not worth); skogix's "what does this actually do" was the check that mattered
 
 ## Meta-Session 2026-10-29
 - Scope accuracy: init stretched across an unplanned dotfiles incident; the incident directly shaped F002's invalid-entry finding

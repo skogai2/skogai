@@ -2,7 +2,7 @@
   "project": "skogai",
   "created": "2026-10-29T10:21:07Z",
   "total_features": 6,
-  "passing": 5,
+  "passing": 6,
   "features": [
     {
       "id": "F001",
@@ -206,7 +206,7 @@
       "id": "F006",
       "description": "Scale and trade-offs section, protocol/scale.md. States the size of the system (shell command totals and unique counts, tools installed, repos, tracked dotfiles entries, AI CLIs, agent vs human command share) and, per layer named in F002-F005 (mise dotfiles, bootstrap, agent CLIs, config repos), what it costs (failures from F005) and what it gives (usage from F002/F004), each with source. Includes an inventory of the top-level entries under tmp/, dash-skogai/tmp/ and .skogai/ (excluding .skogai/skills, .skogai/logs) with size, last commit date or 'untracked', and a proposed keep/move/delete with a one-line reason; F006 changes nothing on disk outside protocol/scale.md and its probe file, and any pruning is a separate feature skogix approves. Follows protocol/README.md and the redaction rule. Probes in tests/probes/f006.jsonl, at least 8, ground truth recorded in source before the section is written; they cover at least: total commands recorded, share run by agents, number of tools installed vs used, the costliest layer by failures, and one trade-off that is UNKNOWN. Acceptance: `.harness/init.sh probe_test` passes every f006 probe, and bin/probe -c /dev/null tests/probes/f006.jsonl fails every probe whose expect is not UNKNOWN. Layer attribution is a command-name table written into scale.md (mise dot*/dotfiles -> dotfiles; mise bootstrap, pacman, systemctl -> bootstrap; claude and other AI CLIs -> agent CLIs; git run inside a config repo directory -> config repos). Maintenance cost per layer is recorded as an UNKNOWN entry (no agreed measure yet). Agent share is given for the last 90 days and all-time, each with the fraction of history that carries agent tagging. Ordering proof: the probe file is committed in a commit that precedes the commit adding the protocol section; git log is the artifact.",
       "priority": 3,
-      "status": "pending",
+      "status": "passing",
       "scope": [
         "protocol/scale.md",
         "tests/probes/f006.jsonl"
@@ -223,7 +223,9 @@
       "notes": "rewritten 2026-10-29: protocol + probes replace check framework (skogix)",
       "correction_cycles": 0,
       "scope_expansions": [],
-      "approaches_tried": [],
+      "approaches_tried": [
+        "Sonnet agent in herdr workspace f006-scale built on the committed F002-F005 sections; lead re-verified: two runs 17/17, 17/17, negative control 1/17 (the UNKNOWN probe)"
+      ],
       "failure_reason": null,
       "discovered_via": null,
       "qa_binding": "journey",
@@ -233,6 +235,12 @@
         "sv_version": "1.0",
         "verified_at": "2026-10-29T21:09:23Z",
         "source": "conversation"
+      },
+      "proof": {
+        "claim": "protocol/scale.md lets a tool-less agent answer the F006 probes",
+        "evidence_type": "journey",
+        "artifact": "tests/probes/f006.jsonl",
+        "not_established": "agent went idle before writing its own report; layer attribution is by command name, so unused-tool counts are an upper bound; inventory is proposals only, nothing pruned"
       }
     }
   ]
