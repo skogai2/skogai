@@ -24,3 +24,5 @@ or is forgotten.
 * [studio-harvest](studio-harvest.md) - studio base is 675d6fc; todo-branch gamemaker dump is harvest material, concept level first.
 * [subagent-briefs-are-mine](subagent-briefs-are-mine.md) - orchestration: brief + judge are the hard part; preconditions, clean env, mechanical stops.
 * [no-chained-commands](no-chained-commands.md) - one command per Bash call; chains defeat narrow permission rules.
+* [track-then-trim](track-then-trim.md) - dotfiles: unsure means track, trim noise within the hour; outside ~/.config too; agents start read-only.
+* [secrets-burned-on-contact](secrets-burned-on-contact.md) - secrets that touched git or an agent are already rotated; only history rewrite is open.
