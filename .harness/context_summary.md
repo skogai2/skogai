@@ -4,8 +4,8 @@ Persistent record of architectural decisions, discovered patterns, gotchas, and 
 This file is referenced in CLAUDE.md and loaded every session.
 
 ## Active Context
-- Currently working on: F001 (protocol + bin/probe) built; awaiting skogix's call on the coverage gate (83.05% raw, see Gotchas)
-- Next up: F002-F005 (tools, information, solutions, breaks) in parallel, then F006 (scale)
+- Currently working on: F001-F005 passing (protocol README, incidents, tools, information, solutions, breaks)
+- Next up: F006 (scale and trade-offs), which builds on F002-F005
 
 ## Cross-Cutting Concerns
 - Stack: bash + mise (tasks/tools) + jq/yq + argc; tests in bats, coverage via kcov on bin/checks
@@ -19,6 +19,7 @@ This file is referenced in CLAUDE.md and loaded every session.
 - The old read-only check framework (fake mise, findings JSON) was rejected by skogix: it tested nothing real. Replaced by protocol/ (agent-facing knowledge, mostly UNKNOWN at first, grown on the job) tested by probes (2026-10-29)
 - A probe = question + expected regex + ground-truth source; bin/probe asks `claude -p --safe-mode --tools ''` from an empty dir with only protocol/*.md as system prompt. --safe-mode verified to block CLAUDE.md leakage (2026-10-29)
 - Probe files are committed before the protocol section they test; a probe criterion is met on two consecutive passing runs (haiku is not deterministic) (2026-10-29)
+- herdr workspaces (one Sonnet `claude` per feature, `herdr agent start` + `agent prompt` with a brief file) worked for parallel discovery features with disjoint files and no commits by agents; the lead commits probes before sections (2026-10-30)
 - F006 maintenance cost is an UNKNOWN entry by design; no agreed measure yet (2026-10-29)
 
 ### Gotchas
@@ -27,6 +28,8 @@ This file is referenced in CLAUDE.md and loaded every session.
 - `trap '... $local_var' EXIT` inside a function fails under `set -u` once the function has returned; expand the value when setting the trap
 - Probe regexes should match meaning, not formatting: an anchored `^UNKNOWN$` failed the correct answer "The literal word `UNKNOWN`."
 - haiku twice wrote "skogix2/.dotfiles" for skogai2/.dotfiles when paraphrasing; probes that care about exact names must expect them literally
+- Commands run with Claude Code's `!` prefix are not recorded in atuin: the 2026-10-29 21:18 convergence run that succeeded is missing there, so atuin alone made the chain look always-failing
+- haiku sometimes answers UNKNOWN for a fact that is in the context (seen ~10% per probe at 25 KB of protocol, separators made no difference); a single failing probe is noise until it repeats. One fact per `###` heading still helps: facts buried in another entry's answer are missed more
 - commit-gate hook rejects `git add` and `git commit` in one Bash call; when a rejected call also held the add, the next commit silently picks up only the earlier-staged files. Check `git show --stat` after any hook rejection
 
 ## Domain: Machine checks

@@ -2,7 +2,7 @@
   "project": "skogai",
   "created": "2026-10-29T10:21:07Z",
   "total_features": 6,
-  "passing": 1,
+  "passing": 5,
   "features": [
     {
       "id": "F001",
@@ -50,7 +50,7 @@
       "id": "F002",
       "description": "Tools section, protocol/tools.md. Maps what is installed (mise toolset, explicitly installed pacman packages count, AI agent CLIs) against what is actually used (atuin history counts all-time and last 90 days, split human vs agent where atuin records the agent), and lists installed-but-unused tools. Each entry follows protocol/README.md (answer, source, date; UNKNOWN when not known) and the redaction rule. Probes in tests/probes/f002.jsonl, at least 8, each expected answer established from ground truth (atuin, mise, pacman) and recorded in source before the section is written; they cover at least: editor, shell, python runner, git client, terminal multiplexer, which AI CLIs are used most, and one installed-but-unused tool. Acceptance: `.harness/init.sh probe_test` passes every f002 probe, and bin/probe -c /dev/null tests/probes/f002.jsonl fails every probe whose expect is not UNKNOWN. Installed-but-unused means zero recorded uses in the last 90 days. Ordering proof: the probe file is committed in a commit that precedes the commit adding the protocol section; git log is the artifact. tests/probes/f002.jsonl includes the probe what editor skogix uses (expect nvim; source atuin top commands). Pass rate (skogix 2026-10-30): a probe criterion is met when two consecutive probe_test runs each score at least 60% on this feature's probe file; the negative control is unchanged.",
       "priority": 2,
-      "status": "pending",
+      "status": "passing",
       "scope": [
         "protocol/tools.md",
         "tests/probes/f002.jsonl"
@@ -64,7 +64,9 @@
       "notes": "skogix 2026-10-30: pass rate 60 for F001-F005 to get the framework running first",
       "correction_cycles": 0,
       "scope_expansions": [],
-      "approaches_tried": [],
+      "approaches_tried": [
+        "Sonnet agent in its own herdr workspace wrote the probes from atuin/mise/git ground truth, then protocol/tools.md; lead re-verified: two runs 12/12, 12/12, negative control 1/12 (the UNKNOWN probe)"
+      ],
       "failure_reason": null,
       "discovered_via": null,
       "qa_binding": "journey",
@@ -75,13 +77,19 @@
         "verified_at": "2026-10-29T21:09:23Z",
         "source": "conversation"
       },
-      "coverage_target": 60
+      "coverage_target": 60,
+      "proof": {
+        "claim": "protocol/tools.md lets a tool-less agent answer the F002 probes",
+        "evidence_type": "journey",
+        "artifact": "tests/probes/f002.jsonl",
+        "not_established": "two runs of a non-deterministic model; haiku occasionally answers UNKNOWN for facts that are present (~10%), which the 60% bar absorbs; probes and section were written by the same agent, so not author-blind"
+      }
     },
     {
       "id": "F003",
       "description": "Information section, protocol/information.md. Maps where knowledge and configuration live: docs (~/skogai/docs, .skogai/), config repos (~/.config/skogai, ~/.skogai, /skogai, ~/.config/containers/systemd, dash-skogai), the dotfiles repo and mise history repo, mise config files and their layering; for each: path, whether it is a git repo, its remote, last commit date (as a currency signal) and what it is for. Each entry follows protocol/README.md and the redaction rule. Probes in tests/probes/f003.jsonl, at least 8, ground truth recorded in source before the section is written; they cover at least: where dotfiles are published, where mise checkpoints live, which mise config files load and in what order, where agent skills live, and one location whose purpose is UNKNOWN. Acceptance: `.harness/init.sh probe_test` passes every f003 probe, and bin/probe -c /dev/null tests/probes/f003.jsonl fails every probe whose expect is not UNKNOWN. Config load order is established from /home/skogix/skogai with MISE_ENV unset (mise config ls). Ordering proof: the probe file is committed in a commit that precedes the commit adding the protocol section; git log is the artifact. Pass rate (skogix 2026-10-30): a probe criterion is met when two consecutive probe_test runs each score at least 60% on this feature's probe file; the negative control is unchanged.",
       "priority": 2,
-      "status": "pending",
+      "status": "passing",
       "scope": [
         "protocol/information.md",
         "tests/probes/f003.jsonl"
@@ -93,9 +101,11 @@
       "test_file": "tests/probes/f003.jsonl",
       "coverage": null,
       "notes": "skogix 2026-10-30: pass rate 60 for F001-F005 to get the framework running first",
-      "correction_cycles": 0,
+      "correction_cycles": 1,
       "scope_expansions": [],
-      "approaches_tried": [],
+      "approaches_tried": [
+        "Sonnet agent in its own herdr workspace wrote the probes from atuin/mise/git ground truth, then protocol/information.md; lead re-verified: two runs 10/11, 10/11, negative control 1/11 (the UNKNOWN probe)"
+      ],
       "failure_reason": null,
       "discovered_via": null,
       "qa_binding": "journey",
@@ -106,13 +116,19 @@
         "verified_at": "2026-10-29T21:09:23Z",
         "source": "conversation"
       },
-      "coverage_target": 60
+      "coverage_target": 60,
+      "proof": {
+        "claim": "protocol/information.md lets a tool-less agent answer the F003 probes",
+        "evidence_type": "journey",
+        "artifact": "tests/probes/f003.jsonl",
+        "not_established": "two runs of a non-deterministic model; haiku occasionally answers UNKNOWN for facts that are present (~10%), which the 60% bar absorbs; probes and section were written by the same agent, so not author-blind"
+      }
     },
     {
       "id": "F004",
       "description": "Working solutions section, protocol/solutions.md. Maps how things actually get done: recurring successful command sequences and workflows from atuin (by working directory and by frequency), e.g. the machine convergence chain (mise dotfiles status --missing, dotfiles sync, bootstrap --update, doctor), git workflow, how agents are launched; each written as situation -> what works, with source and date, following protocol/README.md and the redaction rule. Probes in tests/probes/f004.jsonl, at least 8, ground truth recorded in source before the section is written; they cover at least: how to converge the machine, how to check dotfiles are tracked, how to start an agent session in a worktree, and one situation with no known working solution (UNKNOWN). Acceptance: `.harness/init.sh probe_test` passes every f004 probe, and bin/probe -c /dev/null tests/probes/f004.jsonl fails every probe whose expect is not UNKNOWN. Ordering proof: the probe file is committed in a commit that precedes the commit adding the protocol section; git log is the artifact. Pass rate (skogix 2026-10-30): a probe criterion is met when two consecutive probe_test runs each score at least 60% on this feature's probe file; the negative control is unchanged.",
       "priority": 2,
-      "status": "pending",
+      "status": "passing",
       "scope": [
         "protocol/solutions.md",
         "tests/probes/f004.jsonl"
@@ -123,10 +139,12 @@
       "assigned_to": null,
       "test_file": "tests/probes/f004.jsonl",
       "coverage": null,
-      "notes": "skogix 2026-10-30: pass rate 60 for F001-F005 to get the framework running first",
-      "correction_cycles": 0,
+      "notes": "skogix 2026-10-30: pass rate 60 for F001-F005 to get the framework running first; lead corrected the convergence entry: a later `!` run (not in atuin) completed the chain",
+      "correction_cycles": 1,
       "scope_expansions": [],
-      "approaches_tried": [],
+      "approaches_tried": [
+        "Sonnet agent in its own herdr workspace wrote the probes from atuin/mise/git ground truth, then protocol/solutions.md; lead re-verified: two runs 12/12, 12/12, negative control 2/12 (the UNKNOWN probes)"
+      ],
       "failure_reason": null,
       "discovered_via": null,
       "qa_binding": "journey",
@@ -137,13 +155,19 @@
         "verified_at": "2026-10-29T21:09:23Z",
         "source": "conversation"
       },
-      "coverage_target": 60
+      "coverage_target": 60,
+      "proof": {
+        "claim": "protocol/solutions.md lets a tool-less agent answer the F004 probes",
+        "evidence_type": "journey",
+        "artifact": "tests/probes/f004.jsonl",
+        "not_established": "two runs of a non-deterministic model; haiku occasionally answers UNKNOWN for facts that are present (~10%), which the 60% bar absorbs; probes and section were written by the same agent, so not author-blind"
+      }
     },
     {
       "id": "F005",
       "description": "Breaks section, protocol/breaks.md. Maps what fails: atuin failed commands (non-zero exit) grouped by command name and subcommand with counts, all-time and last 90 days, split human vs agent where atuin records the agent, plus known gotchas from .harness/context_summary.md; for the top failures, the most common cause when it can be read from captured output (atuin_output), else UNKNOWN. Follows protocol/README.md and the redaction rule (no error text containing paths to user files' contents, tokens or env values). Probes in tests/probes/f005.jsonl, at least 8, ground truth recorded in source before the section is written; they cover at least: the most-failing command for skogix, the most-failing command for agents, the mise binary shadowing gotcha, and one failure whose cause is UNKNOWN. Acceptance: `.harness/init.sh probe_test` passes every f005 probe, and bin/probe -c /dev/null tests/probes/f005.jsonl fails every probe whose expect is not UNKNOWN. A failure is an exit code other than 0 and 130, excluding exit 1 from grep, rg, diff, test and [. Most-failing ranks by raw failure count; the failure rate is shown alongside. Ordering proof: the probe file is committed in a commit that precedes the commit adding the protocol section; git log is the artifact. A command name is the first word after stripping leading sudo, env and VAR=value prefixes; ties rank alphabetically. Pass rate (skogix 2026-10-30): a probe criterion is met when two consecutive probe_test runs each score at least 60% on this feature's probe file; the negative control is unchanged.",
       "priority": 2,
-      "status": "pending",
+      "status": "passing",
       "scope": [
         "protocol/breaks.md",
         "tests/probes/f005.jsonl"
@@ -157,7 +181,9 @@
       "notes": "skogix 2026-10-30: pass rate 60 for F001-F005 to get the framework running first",
       "correction_cycles": 0,
       "scope_expansions": [],
-      "approaches_tried": [],
+      "approaches_tried": [
+        "Sonnet agent in its own herdr workspace wrote the probes from atuin/mise/git ground truth, then protocol/breaks.md; lead re-verified: two runs 14/14, 14/14, negative control 2/14 (the UNKNOWN probes)"
+      ],
       "failure_reason": null,
       "discovered_via": null,
       "qa_binding": "journey",
@@ -168,7 +194,13 @@
         "verified_at": "2026-10-29T21:09:23Z",
         "source": "conversation"
       },
-      "coverage_target": 60
+      "coverage_target": 60,
+      "proof": {
+        "claim": "protocol/breaks.md lets a tool-less agent answer the F005 probes",
+        "evidence_type": "journey",
+        "artifact": "tests/probes/f005.jsonl",
+        "not_established": "two runs of a non-deterministic model; haiku occasionally answers UNKNOWN for facts that are present (~10%), which the 60% bar absorbs; probes and section were written by the same agent, so not author-blind"
+      }
     },
     {
       "id": "F006",
