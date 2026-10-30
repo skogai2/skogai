@@ -6165,3 +6165,88 @@ Want me to fix the `\ ` breakage, or pick up the marketplace merge question?
 - Bash: `for d in .agents .ai .claude .codex .rtk .skogai bin dash-skogai docs projects tmp tries; do echo "$d $(find $d -type f …`
 - Bash: `git ls-files | wc -l; git ls-files | cut -d/ -f1 | sort | uniq -c; rtk ls tmp | head; rtk du -sh tmp; rtk read bin/skogc…`
 
+## 2026-10-30 09:21 · turn 1ba200d1
+
+**User**
+
+> <task-notification>
+> skogai-core: its classic.PostToolBatch hook was skipped. "cc-plugin-sec-default" runs first and sent the event on past it.
+> </task-notification>
+
+**Assistant**
+
+skogix, I added 9 read-only rules to `.claude/settings.json` under `permissions.allow`. They're based on the 50 most recent sessions across all your projects, about 1,100 tool calls.
+
+| # | Pattern | Count | Notes |
+|---|---------|-------|-------|
+| 1 | `mcp__atuin-mcp__atuin_history` | 20 | shell history lookups |
+| 2 | `Bash(adb devices)` / `Bash(adb devices *)` | 13 | phone detection |
+| 3 | `Bash(mise dot history *)` | ~9 | dotfile history list/show/diff |
+| 4 | `Bash(lsusb)` / `Bash(lsusb *)` | 6 | USB device checks |
+| 5 | `mcp__atuin-mcp__atuin_output` | 5 | reading captured command output |
+| 6 | `Bash(mise dot status)` / `Bash(mise dot status *)` | 3 | dotfile status |
+
+- **Already covered:** `git *`, `herdr *`, `gita`, `okn` and `wt` were already in the list.
+- **Never prompt anyway:** `cat`, `ls`, `grep`, `jq`, `sed`, `find` and `git status/log/show/diff` are auto-allowed, so I added no rules for them.
+- **Skipped because they change things:** `git commit/add`, `rm`, `cp`, `mkdir`, `chmod`, `gio mount`, `skogcli config set`, `adb shell` (lock settings, input taps), and the concord `start/update/finish/transfer_work` tools.
+- **Skipped because they can run any code:** `python3`, `claude`, `ssh`, `mise exec`, `mise run`, `argc call`, `bats`, `gh api`.
+- **Too rare (under 3 uses):** `shellcheck`, `pacman -Si`, the `collie walky` read commands, and the atuin threads tools.
+
+The `jq` merge also sorted the existing allow list alphabetically; no entries were lost. Nothing is committed yet.
+
+**Actions**
+
+- ToolSearch: select:TaskStop
+- TaskStop: b94vdp7ev
+- Bash: `cd ~/.claude/projects && ls -t -- */*.jsonl | head -50 | tr '\n' '\0' | xargs -0 -r cat | jq -r 'select(.type=="assistan…`
+- Bash: `cd ~/.claude/projects && find . -maxdepth 2 -name '*.jsonl' -printf '%T@ %p\n' | sort -rn | head -50 | cut -d' ' -f2- | …`
+- Bash: `grep '^B' /dev/shm/fpp-calls.tsv | cut -f2 | grep -E '^(mise dot|mise [a-z]|adb |lsusb|pacman|herdr|skogcli|shellcheck|g…`
+- Bash: `jq '.permissions' .claude/settings.json; grep -cP '^B\tadb devices' /dev/shm/fpp-calls.tsv; grep -P '^B\t' /dev/shm/fpp-…`
+- Bash: `jq '.permissions.allow = (.permissions.allow + ["mcp__atuin-mcp__atuin_history","mcp__atuin-mcp__atuin_output","Bash(mis…`
+
+## 2026-10-30 17:17 · turn 22ca9205
+
+**User**
+
+> <task-notification>
+> skogai-core: its classic.PostToolBatch hook was skipped. "cc-plugin-sec-default" runs first and sent the event on past it.
+> </task-notification>
+
+**Assistant**
+
+skogix, the handover is at `/home/skogix/phone-backup-meta/SKOGIX-MOBILE.md`. I put it next to the backup instead of in the `skogai` repo, which is unrelated to the phone.
+
+- **What's in it:** the device details and how the phone is set up now, where every backup lives, how to reconnect, the adb commands that work the phone without touch, and the remaining tasks.
+- **Phone is unplugged:** it wasn't connected when I wrote this, so the phone's current settings in the file come from earlier in the session, not a fresh check.
+- **`verify/` folder:** there's a `~/phone-backup-meta/verify/` that I didn't create. I left it alone and noted it in the file.
+
+**Actions**
+
+- Write `/home/skogix/phone-backup-meta/SKOGIX-MOBILE.md`
+
+## 2026-10-30 17:18 · turn 51d66d4b
+
+**User**
+
+> no findings or assumptions from it / what did we actuall gain?
+
+**Assistant**
+
+**tl;dr:** We gained a measured snapshot of which tools are installed versus used, from atuin, mise and pacman. The 12/12 probe score proves very little. It shows the section repeats what I wrote into it, not that the facts are right.
+
+**Measured, not assumed**
+- The counts come from queries I ran: 252 pacman packages, 77 active mise entries, and atuin first-word counts split into all-time, last 90 days, human and agent.
+- Those counts give nvim, fish, uv, lazygit and claude as the most used in their categories.
+- `amp`, `crush`, `cursor-agent` and `grok` have zero atuin uses ever. `copilot` has 18 uses, none in the last 90 days.
+- The one thing I didn't expect: herdr has overtaken tmux in the last 90 days.
+
+**Weaker than it looks**
+- **Probes are circular.** I wrote the probes and the section from the same numbers. 12/12 only shows that a tool-less claude can read a file I wrote. The negative control does show the answers aren't guessable without the file. One run still flaked to UNKNOWN on the pacman count.
+- **Zero atuin uses is not proof of unused.** GUI launches, other machines and anything run outside a recorded shell don't show up. The section says "unused" where it should say "no recorded shell use".
+- **Not checked:** I called `lg` "an alias" for lazygit but never verified that. I also only checked mise and AI CLIs for unused tools, not the pacman packages, though the spec asks for installed-but-unused tools generally.
+- **Inferences stated as fact:** "herdr is overtaking tmux" and "zsh was the shell until recently" come from first-seen dates and counts, not from anything skogix said.
+- **Wrong wording in a probe source:** the multiplexer probe says "human uses" but the 1318 and 587 figures include agents. Human-only is herdr 1205 and tmux 561, so the answer is unchanged.
+- **Ordering proof not met:** the spec wants the probe file committed before the section. Nothing is committed yet.
+
+I can fix the `lg` claim, the "unused" wording and the probe source text if you want, then run the pacman unused check.
+

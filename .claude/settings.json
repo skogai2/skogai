@@ -8,6 +8,8 @@
   "permissions": {
     "allow": [
       "Bash(\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/*.sh*)",
+      "Bash(adb devices *)",
+      "Bash(adb devices)",
       "Bash(bash .harness/init.sh*)",
       "Bash(git *)",
       "Bash(git config user.email)",
@@ -17,9 +19,16 @@
       "Bash(git status*)",
       "Bash(gita *)",
       "Bash(herdr *)",
+      "Bash(lsusb *)",
+      "Bash(lsusb)",
+      "Bash(mise dot history *)",
+      "Bash(mise dot status *)",
+      "Bash(mise dot status)",
       "Bash(okn *)",
       "Bash(wt *)",
-      "Read(./.harness/**)"
+      "Read(./.harness/**)",
+      "mcp__atuin-mcp__atuin_history",
+      "mcp__atuin-mcp__atuin_output"
     ],
     "defaultMode": "auto"
   },
