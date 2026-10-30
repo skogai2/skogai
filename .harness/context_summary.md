@@ -4,14 +4,30 @@ Persistent record of architectural decisions, discovered patterns, gotchas, and 
 This file is referenced in CLAUDE.md and loaded every session.
 
 ## Active Context
-- Currently working on: harness initialized; F001 (check framework) is the first claimable feature
-- Next up: F001, then F002 dotfiles / F003 bootstrap in parallel; live-agent message tests to be designed with skogix and added via /harness-issue-prep
+- Currently working on: F001 (protocol + bin/probe) built; awaiting skogix's call on the coverage gate (83.05% raw, see Gotchas)
+- Next up: F002-F005 (tools, information, solutions, breaks) in parallel, then F006 (scale)
 
 ## Cross-Cutting Concerns
 - Stack: bash + mise (tasks/tools) + jq/yq + argc; tests in bats, coverage via kcov on bin/checks
 - Architecture: orchestration layer — the main interface where skogix and Claude plan and delegate; holds agents/skills (`.skogai/`, symlinked into `.claude/`), config, and `dash-skogai/`
 - Priority order for machine health: mise dotfiles, then bootstrap, then doctor ("no dotfiles, no backup and no future")
 - Delegation rule: checks only detect. A finding with `outside_repo: true` is never acted on directly by an agent; it becomes its own features.json feature that skogix approves
+
+## Domain: Protocol
+
+### Decisions
+- The old read-only check framework (fake mise, findings JSON) was rejected by skogix: it tested nothing real. Replaced by protocol/ (agent-facing knowledge, mostly UNKNOWN at first, grown on the job) tested by probes (2026-10-29)
+- A probe = question + expected regex + ground-truth source; bin/probe asks `claude -p --safe-mode --tools ''` from an empty dir with only protocol/*.md as system prompt. --safe-mode verified to block CLAUDE.md leakage (2026-10-29)
+- Probe files are committed before the protocol section they test; a probe criterion is met on two consecutive passing runs (haiku is not deterministic) (2026-10-29)
+- F006 maintenance cost is an UNKNOWN entry by design; no agreed measure yet (2026-10-29)
+
+### Gotchas
+- kcov does not trace bash scripts that bats launches as child processes; tests/helpers/probe-under-kcov wraps bin/probe in kcov per call, and `init.sh coverage` merges the runs
+- kcov's PS4 tracer never credits continuation lines of multi-line statements (multi-line strings, jq programs, `\`-wrapped commands, `done < <(...)`), so raw line coverage understates bash coverage
+- `trap '... $local_var' EXIT` inside a function fails under `set -u` once the function has returned; expand the value when setting the trap
+- Probe regexes should match meaning, not formatting: an anchored `^UNKNOWN$` failed the correct answer "The literal word `UNKNOWN`."
+- haiku twice wrote "skogix2/.dotfiles" for skogai2/.dotfiles when paraphrasing; probes that care about exact names must expect them literally
+- commit-gate hook rejects `git add` and `git commit` in one Bash call; when a rejected call also held the add, the next commit silently picks up only the earlier-staged files. Check `git show --stat` after any hook rejection
 
 ## Domain: Machine checks
 
