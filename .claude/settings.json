@@ -7,10 +7,8 @@
   },
   "permissions": {
     "allow": [
-      "Bash(\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/*.sh*)",
       "Bash(adb devices *)",
       "Bash(adb devices)",
-      "Bash(bash .harness/init.sh*)",
       "Bash(git *)",
       "Bash(git config user.email)",
       "Bash(git config user.name)",
@@ -26,7 +24,6 @@
       "Bash(mise dot status)",
       "Bash(okn *)",
       "Bash(wt *)",
-      "Read(./.harness/**)",
       "mcp__atuin-mcp__atuin_history",
       "mcp__atuin-mcp__atuin_output"
     ],
@@ -65,32 +62,6 @@
             "command": "atuin hook claude-code"
           }
         ]
-      },
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/enforce-scope.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/enforce-scope.sh"
-          },
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/verify-git-identity.sh"
-          },
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/commit-gate.sh"
-          }
-        ]
       }
     ],
     "SessionStart": [
@@ -104,32 +75,11 @@
           }
         ]
       }
-    ],
-    "TaskCompleted": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/verify-task-quality.sh"
-          }
-        ]
-      }
-    ],
-    "WorktreeCreate": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"/home/skogix/.claude/hooks/worktree-create.sh\"",
-            "timeout": 180
-          }
-        ]
-      }
     ]
   },
   "statusLine": {
     "type": "command",
-    "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/statusline.sh"
+    "command": "wt list statusline"
   },
   "enabledPlugins": {
     "nelson@synced": false,

@@ -27,3 +27,4 @@ or is forgotten.
 * [track-then-trim](track-then-trim.md) - dotfiles: unsure means track, trim noise within the hour; outside ~/.config too; agents start read-only.
 * [secrets-burned-on-contact](secrets-burned-on-contact.md) - secrets that touched git or an agent are already rotated; only history rewrite is open.
 * [claude-tool-allowlist](claude-tool-allowlist.md) - /skogai clean claude: tools allowlisted per surface (deny always wins), verify via stream-json init.
+* [probe-method-lessons](probe-method-lessons.md) - protocol probes, spec gates (testable is not worth) and herdr agents; harness removed 2026-10-31.

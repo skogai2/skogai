@@ -28,9 +28,9 @@ Where docs, configs and repos live. "Last commit" is a currency signal, as of 20
 - learned: 2026-10-30
 
 ### ~/skogai: what is it?
-- answer: Git repo (branch master, remote skogai2/skogai on GitHub, last commit 2026-10-30). The orchestration workspace: CLAUDE.md/SKOGAI.md entrypoints, docs/ (docs/skogix has the introduction), .skogai/ (rules, skills, memory, scripts, journal), .harness/, protocol/, tests/, config/, bin/ and mise.toml.
+- answer: Git repo (branch master, remote skogai2/skogai on GitHub, last commit 2026-10-30). The orchestration workspace: CLAUDE.md/SKOGAI.md entrypoints, docs/ (docs/skogix has the introduction), .skogai/ (rules, skills, memory, scripts), protocol/, tests/, config/, bin/ and mise.toml.
 - source: `git -C ~/skogai remote -v`; `git -C ~/skogai log -1`; `ls -la ~/skogai`
-- learned: 2026-10-30
+- learned: 2026-10-31
 
 ### ~/skogai/dash-skogai: is it its own repo?
 - answer: No. It is a tracked directory inside the ~/skogai repo (rev-parse gives /home/skogix/skogai). It holds the dash type system (type/, global/, local/, system/, workflows/, Argcfile.sh). Do not confuse it with /skogai, whose remote is the repo named dash-skogai.
@@ -58,14 +58,15 @@ Where docs, configs and repos live. "Last commit" is a currency signal, as of 20
 - learned: 2026-10-30
 
 ### Where is the ~/skogai/.skogai/ layout documented, and what does it hold?
-- answer: Contents: rules/ (10 rule files such as act-dont-ask, podman-quadlets), skills/, memory/, scripts/, logs/, journal.md and config/. It is tracked by the ~/skogai repo (last change 2026-10-29). The layout is also described in /skogai/knowledge/layout.md per the /skogai README.
+- answer: Contents: rules/ (10 rule files such as act-dont-ask, podman-quadlets), skills/, memory/, scripts/, logs/ and config/ (journal.md was removed 2026-10-31). It is tracked by the ~/skogai repo (last change 2026-10-29). The layout is also described in /skogai/knowledge/layout.md per the /skogai README.
 - source: `ls -la ~/skogai/.skogai`; `sed -n 1,12p /skogai/README.md`
 - learned: 2026-10-30
 
 ### What is ~/skogai/.ai/cactus for?
-- answer: UNKNOWN
-- source: `ls ~/skogai/.ai/cactus` shows only q-numbered files (e.g. q1-2-..., q10-12-...), no README. Tracked in ~/skogai, last change 2026-10-25.
-- learned: 2026-10-30
+- answer: It was removed on 2026-10-31 on skogix's call; its purpose was never established.
+  It held only q-numbered notes (q1-2-..., q10-12-...) with no README.
+- source: `git -C ~/skogai log -- .ai/cactus`; skogix
+- learned: 2026-10-31
 
 ### Does /skogai/knowledge exist on disk, and is the .skogai layout page current?
 - answer: UNKNOWN
