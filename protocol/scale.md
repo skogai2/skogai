@@ -68,7 +68,7 @@ rounded only where marked "about".
   `VAR=value`. Failure rules are those of breaks.md (exit not 0, 130 or -1; exit 1 from
   `grep`, `rg`, `diff`, `test` and `[` ignored). `git` in ~/.dotfiles and `git` elsewhere
   are not attributed to any layer.
-- source: F006 spec in .harness/features.json; protocol/breaks.md for the failure rule
+- source: F006 spec in `git show 593de0b:.harness/features.json`; protocol/breaks.md for the failure rule
 - learned: 2026-10-30
 
 ### What does each layer cost (failures) and give (usage)?
@@ -146,7 +146,7 @@ is `git log -1 --format=%cs -- <path>`, or `untracked` when git has no commit fo
   | Entry | Size | Last commit | Proposal | Reason |
   |---|---|---|---|---|
   | config | 0 | 2026-10-11 | delete | empty directory, no tracked files |
-  | journal.md | 348K | 2026-10-25 | keep | largest tracked file, in use this month |
+  | journal.md | 348K | 2026-10-25 | keep | removed 2026-10-31 on skogix's call |
   | memory | 84K | 2026-10-29 | keep | changed yesterday |
   | rules | 40K | 2026-10-25 | keep | read by agents (information.md) |
   | scripts | 44K | 2026-10-26 | keep | tracked and recent |

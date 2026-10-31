@@ -12,6 +12,6 @@
 {"id":"f006-highest-failure-rate","question":"Which layer has the highest failure rate (failures per run) all-time?","expect":"bootstrap","source":"same script: bootstrap 28.1% (1178/4192), dotfiles 25.3%, config repos 20.5%, agent CLIs 17.3%"}
 {"id":"f006-bootstrap-dominant-command","question":"Which command accounts for most of the bootstrap layer's failures?","expect":"systemctl","source":"same script split by command: systemctl 988 of 1178, mise bootstrap 122, pacman 68"}
 {"id":"f006-maintenance-cost","question":"What is the maintenance cost (effort to keep it working) of each layer?","expect":"UNKNOWN","source":"no agreed measure yet (F006 spec); no command establishes it"}
-{"id":"f006-tracked-journal-date","question":"What is the date of the last commit touching .skogai/journal.md?","expect":"2026-10-25","source":"git -C ~/skogai log -1 --format=%cs -- .skogai/journal.md"}
+{"id":"f006-tracked-journal-date","question":"What happened to .skogai/journal.md?","expect":"remov|delet","source":"git -C ~/skogai log -1 -- .skogai/journal.md: removed 2026-10-31 on skogix's call"}
 {"id":"f006-untracked-tmp","question":"Is the .skogai/tmp directory tracked by git or untracked?","expect":"untracked","source":"git -C ~/skogai log -1 -- .skogai/tmp prints nothing; git ls-files .skogai/tmp is empty"}
 {"id":"f006-layer-systemctl","question":"Under the scale layer attribution table, which layer does systemctl belong to?","expect":"bootstrap","source":"F006 spec attribution table (mise bootstrap, pacman, systemctl -> bootstrap)"}

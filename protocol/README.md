@@ -42,7 +42,8 @@ env var values or file contents.
 
 Each section has probes in `tests/probes/<feature>.jsonl`: a question and the expected
 answer, established from ground truth before the entry is written. `bin/probe` asks a
-fresh claude with no tools and only these files; `.harness/init.sh probe_test` runs all.
+fresh claude with no tools and only these files. Run all with
+`bin/probe $(printf -- '-c %s ' protocol/*.md) tests/probes/*.jsonl`.
 
 ## Open
 

@@ -12,7 +12,7 @@ Human = atuin author `$all-user`, agent = `$all-agent`.
   and `[` is not a failure either (it means "no match" or "differs"). Commands are grouped by
   first word after stripping `sudo`, `env` and `VAR=value`. Ranking is by raw count, with the
   failure rate (failures / runs of that command) shown alongside; ties rank alphabetically.
-- source: F005 spec in .harness/features.json
+- source: F005 spec in `git show 593de0b:.harness/features.json`
 - learned: 2026-10-30
 
 ### Which commands fail most for skogix (human)?
@@ -72,19 +72,19 @@ Human = atuin author `$all-user`, agent = `$all-agent`.
   prints a self-update warning), while `/usr/bin/mise` (owned by root, from pacman) reports
   2026.10.22. Updating via pacman changes nothing until the local copy is removed or
   updated with `mise self-update`.
-- source: .harness/context_summary.md Gotchas; `type -a mise`; `ls -l ~/.local/bin/mise /usr/bin/mise`; `mise --version` for each
+- source: `git show 593de0b:.harness/context_summary.md` Gotchas; `type -a mise`; `ls -l ~/.local/bin/mise /usr/bin/mise`; `mise --version` for each
 - learned: 2026-10-30
 
 ### What happens when `mise dot status` meets an invalid file entry?
 - answer: It warns `invalid file entry` and silently drops the entry from tracking, so
   the file is no longer synced or protected by its filters.
-- source: .harness/context_summary.md Gotchas
+- source: `git show 593de0b:.harness/context_summary.md` Gotchas
 - learned: 2026-10-29
 
-### Does verify-git-identity.sh say which account pushes?
-- answer: No. It checks the SSH identity, but pushes go over HTTPS, so the git credential
-  helper decides the account that actually pushes.
-- source: .harness/context_summary.md Gotchas
+### Does checking the SSH identity say which account pushes from ~/skogai?
+- answer: No. The remote is HTTPS, so the git credential helper decides the account that
+  actually pushes, whatever `ssh -T git@github.com` reports.
+- source: `git show 593de0b:.harness/context_summary.md` Gotchas
 - learned: 2026-10-29
 
 ### What other known gotchas are recorded?
@@ -92,5 +92,5 @@ Human = atuin author `$all-user`, agent = `$all-agent`.
   tooling gotchas: kcov does not trace bash that bats launches as child processes, and it
   misses continuation lines of multi-line statements, so raw coverage understates; a
   `trap` with a local variable inside a function fails under `set -u` after return.
-- source: .harness/context_summary.md Gotchas
+- source: `git show 593de0b:.harness/context_summary.md` Gotchas
 - learned: 2026-10-30
