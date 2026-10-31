@@ -5,6 +5,8 @@ yq = "latest"
 jq = "latest"
 "aqua:jdx/fnox" = "latest"
 watchexec = "latest"
+shellcheck = "latest"
+shfmt = "latest"
 
 [tasks."dash:check"]
 description = "agent runs skogai check on a dot (read-only)"

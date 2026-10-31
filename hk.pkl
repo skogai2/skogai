@@ -1,0 +1,18 @@
+amends "package://github.com/jdx/hk/releases/download/v2.10.0/hk@2.10.0#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v2.10.0/hk@2.10.0#/Builtins.pkl"
+// Using a coding agent? See https://hk.jdx.dev/agents
+
+local linters = new Mapping {
+    ["shellcheck"] = Builtins.shellcheck
+    ["shfmt"] = (Builtins.shfmt) {
+        check = "shfmt -i 2 -ci -d --apply-ignore {{files}}"
+        fix = "shfmt -i 2 -ci -w --apply-ignore {{files}}"
+    }
+    ["detect_private_key"] = Builtins.detect_private_key
+    ["check_merge_conflict"] = Builtins.check_merge_conflict
+}
+
+steps = linters
+
+// vendored upstream argc examples, not project code
+exclude = List("dash-skogai/tmp/docs/**")
