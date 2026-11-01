@@ -1,0 +1,24 @@
+# Claude Progress Log
+# Project: skogai
+# Created: 2026-10-29
+
+## Session 1 - Initialization
+- Created harness scaffolding via stamp.sh (mode=new)
+- Detected stack: bash (mise/jq/argc); no PostToolUse build hook available
+- Git identity: Emil Skogsund <emil@skogsund.se>, SSH authenticates as Skogix; remote is HTTPS
+- Moved prior .claude/settings.json aside and merged it back over the stamped one
+- Configured .harness/init.sh (bash -n, jq, bats)
+- Workflow sizing: large
+- Interrupted by mise config incident (12:41 rewrite, secret leak via sync); filters restored, skogix rotated secrets and reviewed the commented bootstrap blocks
+- init.sh split: full_test = tests/unit, machine_check = tests/machine
+- Spec gate run 1: BLOCK (30 questions); proposal restructured to F001-F006 and re-gated
+- Spec gate: PASS on run 3 (F001-F006); features.json written; live-agent tests deferred to /harness-issue-prep
+
+## Session 2 - 2026-10-29/30
+- Features: F001-F006 rewritten from "check framework" to "protocol + probes" at skogix's direction; all six passing
+- Status: complete
+- Tests: 22/22 bats (tests/unit/probe.bats); probe_test: f001 7/7, f002 12/12, f003 10/11, f004 12/12, f005 14/14, f006 17/17
+- Coverage: bin/probe 83.05% raw kcov line coverage (target 60 for F001-F005; continuation lines uncreditable)
+- Decisions: protocol/ + bin/probe; probes committed before sections; 60% pass rate F001-F005; F006 maintenance cost UNKNOWN
+- Next: skogix reviews scratch-dir proposals in protocol/scale.md (pruning = new feature); chase UNKNOWNs (sync exit 1, network-down contact, cactus purpose)
+- Blockers: none. herdr workspaces f002-f006 still open (created this session; close when skogix is done)
