@@ -1,7 +1,7 @@
-{"id":"f001-incident-what","question":"What happened to ~/.config/mise/config.toml on 2026-10-29?","expect":"rewr(ote|itten)","source":"git show 593de0b:.harness/context_summary.md Gotchas, 2026-10-29 incident entry"}
-{"id":"f001-incident-impact","question":"What was the impact of the 2026-10-29 mise config incident?","expect":"secret","source":"git show 593de0b:.harness/context_summary.md Gotchas, 2026-10-29 incident entry"}
-{"id":"f001-incident-done","question":"What was done about the secrets exposed in the 2026-10-29 incident?","expect":"rotat","source":"git show 593de0b:.harness/context_summary.md Gotchas, 2026-10-29 incident entry"}
-{"id":"f001-incident-open","question":"What is still open from the 2026-10-29 mise config incident?","expect":"histor|writer","source":"git show 593de0b:.harness/context_summary.md Gotchas, 2026-10-29 incident entry"}
+{"id":"f001-incident-what","question":"What happened to ~/.config/mise/config.toml on 2026-10-29?","expect":"rewr(ote|itten)","source":".harness/context_summary.md Gotchas, 2026-10-29 incident entry"}
+{"id":"f001-incident-impact","question":"What was the impact of the 2026-10-29 mise config incident?","expect":"secret","source":".harness/context_summary.md Gotchas, 2026-10-29 incident entry"}
+{"id":"f001-incident-done","question":"What was done about the secrets exposed in the 2026-10-29 incident?","expect":"rotat","source":".harness/context_summary.md Gotchas, 2026-10-29 incident entry"}
+{"id":"f001-incident-open","question":"What is still open from the 2026-10-29 mise config incident?","expect":"histor|writer","source":".harness/context_summary.md Gotchas, 2026-10-29 incident entry"}
 {"id":"f001-entry-fields","question":"Which fields does every protocol entry carry besides the answer?","expect":"source","source":"F001 spec: entry = situation, answer, source, date learned"}
 {"id":"f001-unknown-marker","question":"In this protocol, what word marks an answer that is not known yet?","expect":"UNKNOWN","source":"F001 spec: protocol/README.md design"}
 {"id":"f001-network-contact","question":"The network is down. Who should be contacted, and over which channel?","expect":"^UNKNOWN\\.?$","source":"skogix 2026-10-29: who to call is not known yet; that is why the protocol exists"}
