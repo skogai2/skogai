@@ -14,5 +14,6 @@ local linters = new Mapping {
 
 steps = linters
 
-// vendored upstream argc examples, not project code
-exclude = List("dash-skogai/tmp/docs/**")
+// vendored, not project code: upstream argc examples, and vv-harness hooks
+// that must stay byte-identical to the stamp so mode=upgrade can refresh them
+exclude = List("dash-skogai/tmp/docs/**", ".claude/hooks/**")

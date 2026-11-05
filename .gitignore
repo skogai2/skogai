@@ -4,3 +4,6 @@
 /.skogai/config/script_metadata.json
 /config/backups
 /config/tmp/skogai
+.harness/SESSION_INCOMPLETE
+.harness/features.json.lock
+.harness/last_gate.json
