@@ -11,13 +11,13 @@
   },
   "plugin_version": "6.2.1",
   "worker": {
-    "cli_version": "2.1.312",
+    "cli_version": "2.1.318",
     "models": {
       "lead": "opus",
       "implementer": "sonnet",
       "reviewer": "opus"
     },
-    "recorded_at": "2026-10-29T10:21:20Z"
+    "recorded_at": "2026-11-05T20:17:42Z"
   },
   "workflow": {
     "size_guideline": "large"

@@ -23,7 +23,7 @@ Orchestration layer: where skogix and Claude plan and delegate. Stack: bash + mi
 
 ## Harness
 
-`.harness/` is from the vv-harness sessions of 2026-10-29/30 and is being re-introduced. Its `context_summary.md` and `claude-progress.txt` still reference `.harness/init.sh` and `bin/checks/`, which no longer exist; treat those as history until re-init. `.skogai/memory/probe-method-lessons.md` holds the lessons from those sessions.
+vv-harness, re-initialised 2026-11-05. Features: `.harness/features.json`; decisions: `.harness/context_summary.md` (read at session start); handoff: `.harness/claude-progress.txt`; build/test: `.harness/init.sh [smoke_test|full_test|probe_test|focused_test <file>]`; gates: `.claude/hooks/`. No coverage target until the kcov probe wrapper is restored. `.skogai/memory/probe-method-lessons.md` holds the lessons from the Oct 29/30 sessions.
 
 ## Probe gotchas
 

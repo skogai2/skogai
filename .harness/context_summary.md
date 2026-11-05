@@ -4,11 +4,11 @@ Persistent record of architectural decisions, discovered patterns, gotchas, and 
 This file is referenced in CLAUDE.md and loaded every session.
 
 ## Active Context
-- Currently working on: all six features passing; protocol/ covers incidents, tools, information, solutions, breaks, scale
-- Next up: skogix decides on the scratch-dir proposals in protocol/scale.md (a pruning feature), and which UNKNOWNs to chase first (sync exit 1, network-down contact)
+- Currently working on: harness re-initialised 2026-11-05 (stamp upgrade); F001-F006 still passing; no new features yet
+- Next up: /harness-continue; skogix decides on the scratch-dir proposals in protocol/scale.md (a pruning feature), and which UNKNOWNs to chase first (sync exit 1, network-down contact)
 
 ## Cross-Cutting Concerns
-- Stack: bash + mise (tasks/tools) + jq/yq + argc; tests in bats, coverage via kcov on bin/checks
+- Stack: bash + mise (tasks/tools) + jq/yq + argc; tests in bats; no coverage measurement since 2026-10-31 (see Protocol gotchas)
 - Architecture: orchestration layer — the main interface where skogix and Claude plan and delegate; holds agents/skills (`.skogai/`, symlinked into `.claude/`), config, and `dash-skogai/`
 - Priority order for machine health: mise dotfiles, then bootstrap, then doctor ("no dotfiles, no backup and no future")
 - Delegation rule: checks only detect. A finding with `outside_repo: true` is never acted on directly by an agent; it becomes its own features.json feature that skogix approves
@@ -23,7 +23,7 @@ This file is referenced in CLAUDE.md and loaded every session.
 - F006 maintenance cost is an UNKNOWN entry by design; no agreed measure yet (2026-10-29)
 
 ### Gotchas
-- kcov does not trace bash scripts that bats launches as child processes; tests/helpers/probe-under-kcov wraps bin/probe in kcov per call, and `init.sh coverage` merges the runs
+- kcov does not trace bash scripts that bats launches as child processes; tests/helpers/probe-under-kcov wraps bin/probe in kcov per call, and `init.sh coverage` merged the runs. Both were removed on 2026-10-31 (a2bd3bf); init.sh has no coverage target until the wrapper is restored (2026-11-05)
 - kcov's PS4 tracer never credits continuation lines of multi-line statements (multi-line strings, jq programs, `\`-wrapped commands, `done < <(...)`), so raw line coverage understates bash coverage
 - `trap '... $local_var' EXIT` inside a function fails under `set -u` once the function has returned; expand the value when setting the trap
 - Probe regexes should match meaning, not formatting: an anchored `^UNKNOWN$` failed the correct answer "The literal word `UNKNOWN`."
@@ -42,7 +42,8 @@ This file is referenced in CLAUDE.md and loaded every session.
 - A feature passes on its tests/unit fixtures; a red tests/machine run is a finding to delegate, not a broken feature (2026-10-29)
 - No doctor baseline/ratchet: `mise doctor` reported 0 errors after cleanup (2026-10-29)
 - Remote stays HTTPS (`https://github.com/skogai2/skogai.git`); skogix declined switching to SSH (2026-10-29)
-- `.claude/settings.json` = harness stamp merged with skogix's prior settings (hooks concatenated, permissions unioned, `defaultMode: auto` kept); harness statusLine replaced `wt list statusline` (2026-10-29)
+- bin/checks/, tests/machine/ and the machine_check target were removed with the harness on 2026-10-31 (a2bd3bf) and not restored at re-init; the decisions above are history (2026-11-05)
+- `.claude/settings.json` = harness stamp merged with skogix's prior settings (hooks concatenated, permissions unioned, `defaultMode: auto` kept); harness statusLine replaced `wt list statusline` (2026-10-29); same merge redone at re-init, statusLine again the harness one by skogix's choice (2026-11-05)
 
 ### Patterns
 - Compare TOML semantically (python tomllib walk) against a known-good checkpoint from `~/.local/state/mise/history/repo.git` instead of reading text diffs
@@ -61,6 +62,13 @@ This file is referenced in CLAUDE.md and loaded every session.
 - A spec gate proves a spec is testable, not that it is worth building; before gating, state in one sentence what changes in the world if the feature works (watching)
 - When agents report history-derived claims, cross-check against anything the lead itself saw in-session; history sources have blind spots (backlog)
 - The spec gate earns its cost on the first proposal: it caught a test-layout contradiction (machine checks under a recursive full_test) before any code existed
+
+## Meta-Session 2026-11-05
+- Scope accuracy: re-init only; stamp mode=new would abort on existing files, so mode=upgrade wrote the 6 hooks and settings.json was merged by hand
+- Model calibration: n/a, no agents spawned
+- Discovery lineage: the coverage target depended on a test helper deleted with the harness; found by grepping for PROBE_KCOV_DIR before trusting the restored init.sh
+- Approach patterns: restoring the tailored init.sh from git history (a2bd3bf^) beat re-deriving it from the generic template
+- Plan approval: skogix approved upgrade mode and the harness status line
 
 ## Meta-Session 2026-10-30
 - Scope accuracy: planned to build F001 as a check framework; skogix rejected it as testing nothing, and all six specs were rewritten mid-session into protocol + probes. The real scope was "learn the system", not "guard the system"

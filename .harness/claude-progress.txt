@@ -22,3 +22,11 @@
 - Decisions: protocol/ + bin/probe; probes committed before sections; 60% pass rate F001-F005; F006 maintenance cost UNKNOWN
 - Next: skogix reviews scratch-dir proposals in protocol/scale.md (pruning = new feature); chase UNKNOWNs (sync exit 1, network-down contact, cactus purpose)
 - Blockers: none. herdr workspaces f002-f006 still open (created this session; close when skogix is done)
+
+## Session 3 - 2026-11-05 - Re-initialisation
+- Harness removed 2026-10-31 (a2bd3bf), state files returned 2026-11-01; re-init via stamp mode=upgrade
+- Wrote .claude/hooks/ (6 hooks); merged harness hooks/permissions/statusLine into skogix's settings.json
+- .harness/init.sh restored from a2bd3bf^ minus machine_check (tests/machine gone) and coverage (kcov wrapper gone)
+- Verified: smoke_test, full_test (22/22 bats), focused_test, all hooks exit 0, commit gate denies add+commit, statusline renders
+- worker block updated to CLI 2.1.318
+- Next: /harness-continue
