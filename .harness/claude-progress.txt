@@ -30,3 +30,10 @@
 - Verified: smoke_test, full_test (22/22 bats), focused_test, all hooks exit 0, commit gate denies add+commit, statusline renders
 - worker block updated to CLI 2.1.318
 - Next: /harness-continue
+
+## Session 4 - 2026-11-06 - Reset
+- skogix did not recognise protocol/ and does not want to pursue it; removed protocol/, bin/probe, tests/ (probes, bats, fake-claude)
+- features.json reset to empty; init.sh probe_test target and .jsonl focused_test arm removed; CLAUDE.md and context_summary.md updated
+- Doctor: healthy (with CLAUDE_PLUGIN_ROOT set; the Bash tool does not export it)
+- Tests: smoke_test and full_test pass (no bats tests exist)
+- Next: skogix names the real focus; add features and spec-gate them

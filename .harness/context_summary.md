@@ -4,34 +4,14 @@ Persistent record of architectural decisions, discovered patterns, gotchas, and 
 This file is referenced in CLAUDE.md and loaded every session.
 
 ## Active Context
-- Currently working on: harness re-initialised 2026-11-05 (stamp upgrade); F001-F006 still passing; no new features yet
-- Next up: /harness-continue; skogix decides on the scratch-dir proposals in protocol/scale.md (a pruning feature), and which UNKNOWNs to chase first (sync exit 1, network-down contact)
+- Currently working on: nothing; features list reset 2026-11-06 (protocol/, bin/probe, tests/ removed at skogix's request — skogix did not recognise the protocol work)
+- Next up: skogix names the real focus; add features for it and run them through the spec gate
 
 ## Cross-Cutting Concerns
-- Stack: bash + mise (tasks/tools) + jq/yq + argc; tests in bats; no coverage measurement since 2026-10-31 (see Protocol gotchas)
+- Stack: bash + mise (tasks/tools) + jq/yq + argc; tests in bats; no tests and no coverage measurement yet
 - Architecture: orchestration layer — the main interface where skogix and Claude plan and delegate; holds agents/skills (`.skogai/`, symlinked into `.claude/`), config, and `dash-skogai/`
 - Priority order for machine health: mise dotfiles, then bootstrap, then doctor ("no dotfiles, no backup and no future")
 - Delegation rule: checks only detect. A finding with `outside_repo: true` is never acted on directly by an agent; it becomes its own features.json feature that skogix approves
-
-## Domain: Protocol
-
-### Decisions
-- The old read-only check framework (fake mise, findings JSON) was rejected by skogix: it tested nothing real. Replaced by protocol/ (agent-facing knowledge, mostly UNKNOWN at first, grown on the job) tested by probes (2026-10-29)
-- A probe = question + expected regex + ground-truth source; bin/probe asks `claude -p --safe-mode --tools ''` from an empty dir with only protocol/*.md as system prompt. --safe-mode verified to block CLAUDE.md leakage (2026-10-29)
-- Probe files are committed before the protocol section they test; a probe criterion is met on two consecutive passing runs (haiku is not deterministic) (2026-10-29)
-- herdr workspaces (one Sonnet `claude` per feature, `herdr agent start` + `agent prompt` with a brief file) worked for parallel discovery features with disjoint files and no commits by agents; the lead commits probes before sections (2026-10-30)
-- F006 maintenance cost is an UNKNOWN entry by design; no agreed measure yet (2026-10-29)
-
-### Gotchas
-- kcov does not trace bash scripts that bats launches as child processes; tests/helpers/probe-under-kcov wraps bin/probe in kcov per call, and `init.sh coverage` merged the runs. Both were removed on 2026-10-31 (a2bd3bf); init.sh has no coverage target until the wrapper is restored (2026-11-05)
-- kcov's PS4 tracer never credits continuation lines of multi-line statements (multi-line strings, jq programs, `\`-wrapped commands, `done < <(...)`), so raw line coverage understates bash coverage
-- `trap '... $local_var' EXIT` inside a function fails under `set -u` once the function has returned; expand the value when setting the trap
-- Probe regexes should match meaning, not formatting: an anchored `^UNKNOWN$` failed the correct answer "The literal word `UNKNOWN`."
-- haiku twice wrote "skogix2/.dotfiles" for skogai2/.dotfiles when paraphrasing; probes that care about exact names must expect them literally
-- Commands run with Claude Code's `!` prefix are not recorded in atuin: the 2026-10-29 21:18 convergence run that succeeded is missing there, so atuin alone made the chain look always-failing
-- haiku sometimes answers UNKNOWN for a fact that is in the context (seen ~10% per probe at 25 KB of protocol, separators made no difference); a single failing probe is noise until it repeats. One fact per `###` heading still helps: facts buried in another entry's answer are missed more
-- `claude -p` reads stdin when it is not a TTY and waits 3s with a warning; bin/probe passes </dev/null
-- commit-gate hook rejects `git add` and `git commit` in one Bash call; when a rejected call also held the add, the next commit silently picks up only the earlier-staged files. Check `git show --stat` after any hook rejection
 
 ## Domain: Machine checks
 
@@ -53,6 +33,9 @@ This file is referenced in CLAUDE.md and loaded every session.
 - `mise dot status` warns `invalid file entry` and silently drops the entry from tracking; F002 turns that into a finding
 - `~/.local/bin/mise` (2026.10.17) shadows the pacman `/usr/bin/mise` (2026.10.21)
 - verify-git-identity.sh checks SSH identity, but pushes go over HTTPS — the credential helper decides the actual pushing account
+- `trap '... $local_var' EXIT` inside a function fails under `set -u` once the function has returned; expand the value when setting the trap
+- Commands run with Claude Code's `!` prefix are not recorded in atuin: the 2026-10-29 21:18 convergence run that succeeded is missing there, so atuin alone made the chain look always-failing
+- commit-gate hook rejects `git add` and `git commit` in one Bash call; when a rejected call also held the add, the next commit silently picks up only the earlier-staged files. Check `git show --stat` after any hook rejection
 
 ## Meta-Patterns
 <!-- Coordination insights that apply across features — NOT domain-specific.
@@ -85,4 +68,5 @@ This file is referenced in CLAUDE.md and loaded every session.
 - Plan approval: n/a, no features implemented yet
 
 ## Closed Work Streams
-- (none yet)
+- Machine checks (bin/checks, tests/machine): removed 2026-10-31 (a2bd3bf)
+- Protocol + probes (F001-F006: protocol/, bin/probe, tests/probes, tests/unit/probe.bats): removed 2026-11-06 at skogix's request; history in git before this commit and in .skogai/memory/probe-method-lessons.md
