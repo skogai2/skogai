@@ -73,14 +73,27 @@
       ],
       "depends_on": [],
       "assigned_to": "single-session",
-      "test_file": null,
+      "test_file": "tmp/f002/ (gitignored): registry.md, packets, reports, hk-check-3.txt",
       "coverage": null,
       "notes": "skogix 2026-11-06: real small task (hk shfmt debt), claude + codex workers, plan-first deferred to F003, controller never answers the imports dialog, delete herdr-workspaces first",
       "correction_cycles": 0,
-      "scope_expansions": [],
+      "scope_expansions": [
+        "hk.pkl: shfmt check_diff override (root cause of the lint debt; found when the pre-commit hook re-tabbed the worktree)",
+        ".skogai/scripts/claude/cloud-environment.sh: shebang moved to line 1 (SC1128), skogix approved",
+        "dash-skogai/Argcfile.sh, dash-skogai/bin/skogai-config, .skogai/scripts/whereami.sh: shellcheck directives for false positives (skogix: change what matters, ignore the rest)"
+      ],
       "approaches_tried": [
         "deviation (AC6): SKILL.md used lowercase $herdr_workspace_id/$pwd; herdr injects HERDR_WORKSPACE_ID/HERDR_TAB_ID/HERDR_PANE_ID and the shell has $PWD; fixed",
-        "deviation (AC6): launching a claude worker with --dangerously-skip-permissions was denied by the controller's own Claude Code auto-mode classifier (Create Unsafe Agents) before reaching herdr; skogix: launch both runtimes in auto mode (claude --permission-mode auto, codex --approve-for-me); SKILL.md and plan-mode.md flags updated"
+        "deviation (AC6): launching a claude worker with --dangerously-skip-permissions was denied by the controller's own Claude Code auto-mode classifier (Create Unsafe Agents) before reaching herdr; skogix: launch both runtimes in auto mode (claude --permission-mode auto, codex --approve-for-me); SKILL.md and plan-mode.md flags updated",
+        "deviation (AC6): multi-line launch packet rejected by agent start (invalid_agent_argument); packets must be one line; SKILL.md updated",
+        "deviation (AC6): agent start right after tab create -> agent_pane_busy (shell not up yet); retry worked; SKILL.md updated",
+        "deviation (AC6): claude agent start returned timeout (default) though the tui started and worked; name then unregistered (agent_not_found), tracked by pane id; SKILL.md: --timeout 120000, fall back to pane id",
+        "deviation (AC6/AC11): codex first start in ~/skogai blocked on its folder-trust dialog (agent_not_ready); skogix answered it after a herdr notification; claude imports dialog did NOT appear (WarningShown true, Approved false: asked once per project, then imports silently off); SKILL.md documents both as user trust decisions",
+        "deviation (AC6): codex worker settled idle, claude done; SKILL.md waits use --until done --until idle",
+        "unexplained: tab w8A:t4 vanished after the rejected multi-line launch; cause not established",
+        "AC5: diff -w non-empty because shfmt moves line breaks (;-split, continuations, case arms); controller proved formatting-only by shfmt -mn HEAD == working tree for all 10 changed files (4 of the 14 were already clean)",
+        "AC5 premise wrong: hk check failed on more than shfmt; SC1128 masked SC2154/SC1091 findings. Root cause of the shfmt debt: hk.pkl overrode shfmt check/fix but not check_diff, so pre-commit (fix mode) applied builtin shfmt -d (tabs) on every commit",
+        "worked: auto-mode workers (claude --permission-mode auto, codex --approve-for-me) ran unattended on a formatting slice with no stalls"
       ],
       "failure_reason": null,
       "discovered_via": null,
@@ -93,7 +106,13 @@
         "source": "conversation (AC3 amended by skogix; original gate PASS)"
       },
       "risk": "standard",
-      "require_plan_approval": false
+      "require_plan_approval": false,
+      "proof": {
+        "claim": "herdr-orchestration skill drove a claude and a codex worker through a real parallel slice to a verified, committed result; SKILL.md corrected where live herdr 0.9.5 differed",
+        "evidence_type": "manual",
+        "artifact": ".skogai/skills/herdr-orchestration/SKILL.md; commit 6c841a8; tmp/f002/ (gitignored)",
+        "not_established": "AC10 (skogix reading registry/tab bar) pending; plan-first (F003); cause of vanished tab w8A:t4"
+      }
     }
   ]
 }

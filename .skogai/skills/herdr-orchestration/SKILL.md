@@ -113,9 +113,27 @@ would not clear is a stop condition: read its screen and report, do not
 relaunch with bypass flags. plan-first claude runs use `--permission-mode plan`
 instead (one mode per launch; see plan-first delegation).
 
-`agent start` returns success only after herdr detects the agent ready, so a
-non-zero exit is the launch failure — read the tab's root pane
-(`rtk herdr pane read <pane_id> --source visible`) before retrying. confirm the
+`agent start` returns success only after herdr detects the agent ready. a
+non-zero exit is not proof the launch failed — always read the tab's root pane
+(`rtk herdr pane read <pane_id> --source visible`) and `agent list` before
+retrying. seen live (herdr 0.9.5, 2026-11-06):
+
+- `agent_pane_busy` right after `tab create`: the tab's shell is not up yet.
+  read the pane until a shell prompt shows, then retry the same `agent start`.
+- `timeout` while the tui did start and is working: pass `--timeout 120000` to
+  `agent start`. after a timeout herdr does not register the agent name
+  (`agent_not_found`), so address that worker by pane id for every `agent …`
+  verb and record that in the registry.
+- `agent_not_ready` ("blocked during startup"): the tui is on a first-run
+  trust prompt. codex asks "trust this folder?" once per directory; claude
+  asks about external CLAUDE.md imports once per project (after one answer it
+  does not ask again; declined imports then silently stay off). these are
+  trust decisions for the user: never answer them. notify
+  (`rtk herdr notification show "<worker> needs trust" --body "<tab label>"`),
+  then re-enter `agent wait <pane_id> --until idle --until done` — a plain
+  wait returns at once on the stale blocked state.
+- `invalid_agent_argument` ("cannot be encoded safely"): the packet has
+  newlines. launch packets must be a single line (`tr '\n' ' '`). confirm the
 label stuck with `rtk herdr tab list --workspace "$HERDR_WORKSPACE_ID"`; if the
 tab shows a default label, restore it:
 
@@ -202,13 +220,14 @@ status in **check-in intervals** of 3–5 minutes (sized to the slice — longer
 for heavier slices) instead of polling screens:
 
 ```bash
-rtk herdr agent wait fix-loops --until done --timeout 300000     # completion check-in
+rtk herdr agent wait fix-loops --until done --until idle --timeout 300000  # completion check-in
 rtk herdr agent wait fix-loops --until blocked --timeout 300000  # question or menu
 rtk herdr pane wait-output <pane_id> --match "<text>" --timeout 300000
 ```
 
-controller reads never mark a tab seen, so an unfocused worker settles as
-`done`, not `idle` — wait on `done`. `--timeout` is the check-in interval,
+controller reads never mark a tab seen, so an unfocused claude worker settles
+as `done`, not `idle`; a codex worker was seen settling as `idle`. wait with
+`--until done --until idle` (repeatable) so either runtime's finish matches. `--timeout` is the check-in interval,
 never a deadline on the worker. on expiry, read the screen
 (`rtk herdr agent read fix-loops --source recent-unwrapped --lines 120`) and
 re-enter the wait — loop until the worker reaches a terminal state, asks a
