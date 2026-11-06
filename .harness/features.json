@@ -1,7 +1,7 @@
 {
   "project": "skogai",
   "created": "2026-10-29T10:21:07Z",
-  "total_features": 1,
+  "total_features": 2,
   "passing": 1,
   "features": [
     {
@@ -47,6 +47,50 @@
         "artifact": "dash-skogai/type/tool/herdr.md; tmp/f001/ (gitignored)",
         "not_established": "AC9 accepted on skogix's report 2026-11-06 (\"it worked out as you expected\"); the journey pane w88:p7 showed no question and no transcript was found, so there is no recorded artifact of the run. null agent_session cause unconfirmed; non-claude agents not checked"
       }
+    },
+    {
+      "id": "F002",
+      "priority": 2,
+      "status": "in-progress",
+      "description": "herdr-orchestration skill, proven live. Makes the existing skill .skogai/skills/herdr-orchestration/ (reached via the .claude/skills -> .skogai/skills symlink; SKILL.md, references/plan-mode.md, agents/openai.yaml; currently untracked) tracked and true for herdr 0.9.5, by using it for one real orchestration: this Claude session is the controller, one claude worker and one codex worker fix the repo's shfmt lint debt in parallel on disjoint files. No new scripts, mise tasks, skills or agents (skogix 2026-11-06: use existing tools). Plan-first delegation (references/plan-mode.md) is out of scope (F003); the file is committed unchanged except for edits AC6 forces.\nThe real task: `hk check --all` fails only on shfmt (shellcheck passes) for exactly 15 files on 2026-11-06. One of them, .skogai/skills/orchestrate/bin/herdr-workspaces, is the last leftover of the orchestrate skill removed in 31c1a85; skogix 2026-11-06: delete it (and the empty .skogai/skills/orchestrate/ directory) in its own commit before the run, leaving these 14. Claude worker (agent name fmt-repo, tab label `claude: fmt repo`): .harness/init.sh, .skogai/scripts/check-claude-usage.sh, .skogai/scripts/claude-code-documentation.sh, .skogai/scripts/claude/cloud-environment.sh, .skogai/scripts/date.sh, .skogai/scripts/get-project-name.sh, .skogai/scripts/search.sh, .skogai/scripts/whereami.sh. Codex worker (agent name fmt-dash, tab label `codex: fmt dash`): dash-skogai/Argcfile.sh, dash-skogai/bin/skogai-config, dash-skogai/tmp/graph/types.sh, dash-skogai/tmp/routing/scripts/list-xml-tags.sh, dash-skogai/tmp/routing/scripts/parse-frontmatter.sh, dash-skogai/tmp/routing/scripts/validate-schema.sh. Each worker fixes only formatting (shfmt -i 2 -ci, as hk.pkl configures it) in its own files, edits nothing else, does not commit, and reports changed files plus the commands it ran and their results.\nAcceptance criteria:\n0. QA binding: manual (evidence_type manual: live command output, packets and registry under tmp/f002/, as in F001).\n1. The skill directory is committed to git as-is (its own commit, before any edit to it) so later edits show as diffs.\n2. Preflight from SKILL.md (herdr status, integration status, pane current --current, agent list) is run from inside herdr (HERDR_ENV=1) before launch; claude and codex integrations show current. Raw output saved under tmp/f002/ (gitignored).\n3. Both workers are launched exactly as SKILL.md \"launch workers\" says: tab create --label ... --no-focus in the caller workspace, then agent start <name> --kind claude|codex --pane <root_pane_id> with the delegation packet as launch argv (claude: --dangerously-skip-permissions; codex: --yolo). Each packet contains every item listed in SKILL.md \"delegation packets\". Packets are saved under tmp/f002/.\n4. The controller tracks both workers only with SKILL.md \"track workers\" verbs (agent wait --until ... --timeout in check-ins of at most 300000 ms, agent read --source recent-unwrapped) and keeps the registry SKILL.md describes in tmp/f002/registry.md, through final disposition.\n5. Verification by the controller, taken after both workers report and before the controller edits SKILL.md or any bookkeeping file: `git diff --name-only HEAD` shows changes only in the 14 files above; each file's diff is whitespace/formatting only (`git diff -w --ignore-blank-lines` on those files is empty, or every remaining hunk is listed and justified in approaches_tried); `hk check --all` exits 0; `.harness/init.sh smoke_test` passes; `bash -n` passes on every changed file. The formatting fixes are committed separately from skill edits.\n6. Every place where live behavior differs from SKILL.md (a flag, an output shape, a wait that misfires, the external CLAUDE.md imports dialog that blocks a claude started under ~/skogai as seen in F001, a hook that blocks a worker, anything a worker could not do unattended) is fixed in SKILL.md so the next controller would not hit it, and each difference is listed in F002's approaches_tried. If nothing differs, approaches_tried says so.\n7. On the passing path, both workers are retired per SKILL.md \"retire workers\" (tab close) after their disposition is recorded; at the end `herdr agent list` shows neither fmt-repo nor fmt-dash.\n8. Changed files are only: the 14 files above, the deletion of .skogai/skills/orchestrate/bin/herdr-workspaces, files under .skogai/skills/herdr-orchestration/ (SKILL.md for AC6; plan-mode.md only if AC6 requires), and F002's own bookkeeping in .harness/features.json plus the usual harness session files (.harness/claude-progress.txt, .harness/context_summary.md, .harness/mld/). tmp/ excluded.\n9. If a worker cannot be started or gets stuck on a stop condition from SKILL.md \"stop conditions\", the controller stops and reports per the skill instead of doing the worker's edits itself; F002 is then set to blocked with failure_reason, not passing; a stuck worker's tab may stay open as evidence, with the reason recorded in the registry (AC7 does not apply on this path).\n11. External CLAUDE.md imports dialog: if a claude worker started with herdr agent start stops on it (agent_not_ready, as in F001), the controller does not answer it; it sends `herdr notification show` to skogix, who approves it manually in the worker's pane, and then the controller re-enters the wait (agent wait --until idle --until done, since a plain wait returns at once on the stale blocked state per F001). This is not an AC9 failure. SKILL.md documents the case and that approval persists via hasClaudeMdExternalIncludesApproved in $CLAUDE_CONFIG_DIR/.claude.json.\n10. Manual check (skogix): reading tmp/f002/registry.md and the herdr tab bar during or after the run, skogix can tell which model did which slice and what each worker reported.",
+      "scope": [
+        ".skogai/skills/herdr-orchestration/",
+        ".skogai/skills/orchestrate/bin/herdr-workspaces",
+        ".harness/init.sh",
+        ".skogai/scripts/check-claude-usage.sh",
+        ".skogai/scripts/claude-code-documentation.sh",
+        ".skogai/scripts/claude/cloud-environment.sh",
+        ".skogai/scripts/date.sh",
+        ".skogai/scripts/get-project-name.sh",
+        ".skogai/scripts/search.sh",
+        ".skogai/scripts/whereami.sh",
+        "dash-skogai/Argcfile.sh",
+        "dash-skogai/bin/skogai-config",
+        "dash-skogai/tmp/graph/types.sh",
+        "dash-skogai/tmp/routing/scripts/list-xml-tags.sh",
+        "dash-skogai/tmp/routing/scripts/parse-frontmatter.sh",
+        "dash-skogai/tmp/routing/scripts/validate-schema.sh"
+      ],
+      "depends_on": [],
+      "assigned_to": "single-session",
+      "test_file": null,
+      "coverage": null,
+      "notes": "skogix 2026-11-06: real small task (hk shfmt debt), claude + codex workers, plan-first deferred to F003, controller never answers the imports dialog, delete herdr-workspaces first",
+      "correction_cycles": 0,
+      "scope_expansions": [],
+      "approaches_tried": [],
+      "failure_reason": null,
+      "discovered_via": null,
+      "qa_binding": "manual",
+      "spec": {
+        "hash": "4117e4c04c5b3ae8228d5c8910e4b78c9ec9c385d3aaba339718fd85cb4708e0",
+        "verdict": "PASS",
+        "sv_version": "1.0",
+        "verified_at": "2026-11-06T13:51:04Z",
+        "source": "conversation"
+      },
+      "risk": "standard",
+      "require_plan_approval": false
     }
   ]
 }
