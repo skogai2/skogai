@@ -55,8 +55,8 @@ and relaunch through `agent start`.
 
 - scope every action to the caller workspace unless the user names another
   target.
-- resolve caller context from `herdr_workspace_id`, `herdr_tab_id`, and
-  `herdr_pane_id` (injected into every herdr pane) before any focused-window
+- resolve caller context from `$HERDR_WORKSPACE_ID`, `$HERDR_TAB_ID`, and
+  `$HERDR_PANE_ID` (injected into every herdr pane) before any focused-window
   fallback.
 - address workers by ids parsed from command json — agent name for `agent …`
   verbs, `w2:t3` / `w2:p4` for tab and pane verbs — never by guessed position.
@@ -87,29 +87,36 @@ two commands: create the named tab, then start the tui in that tab's root pane.
 
 ```bash
 # 1. named tab — returns .result.tab.tab_id and .result.root_pane.pane_id
-rtk herdr tab create --workspace "$herdr_workspace_id" --cwd "$pwd" \
+rtk herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd "$PWD" \
   --label "opus: fix loops" --no-focus
 
 # 2. worker tui in that tab's root pane; native flags follow `--`
 rtk herdr agent start fix-loops --kind claude --pane <root_pane_id> -- \
-  --dangerously-skip-permissions "<packet>"
+  --permission-mode auto "<packet>"
 
 rtk herdr agent start audit-auth --kind codex --pane <root_pane_id> -- \
-  --yolo
+  --approve-for-me "<packet>"
 ```
 
 capture `tab_id`, `pane_id`, and the agent name in the registry — retiring and
 screen reads need all three.
 
-claude always launches with `--dangerously-skip-permissions` and codex with
-`--yolo` — workers run unattended and must not stall on permission prompts.
-plan-first runs add claude's `--permission-mode plan`; the flags compose (see
-plan-first delegation).
+workers launch in auto mode: claude with `--permission-mode auto`, codex with
+`--approve-for-me` (approval requests go to codex's automatic reviewer inside
+the workspace-write sandbox). workers run unattended without stalling on
+routine prompts, while each runtime's own safety review stays on. never launch
+with `--dangerously-skip-permissions`, `--permission-mode bypassPermissions`,
+`--yolo` or `--dangerously-bypass-approvals-and-sandbox`: a claude controller in
+auto mode refuses to start such a worker ("create unsafe agents"), and the
+worker would have no guard at all. a worker that blocks on a prompt auto mode
+would not clear is a stop condition: read its screen and report, do not
+relaunch with bypass flags. plan-first claude runs use `--permission-mode plan`
+instead (one mode per launch; see plan-first delegation).
 
 `agent start` returns success only after herdr detects the agent ready, so a
 non-zero exit is the launch failure — read the tab's root pane
 (`rtk herdr pane read <pane_id> --source visible`) before retrying. confirm the
-label stuck with `rtk herdr tab list --workspace "$herdr_workspace_id"`; if the
+label stuck with `rtk herdr tab list --workspace "$HERDR_WORKSPACE_ID"`; if the
 tab shows a default label, restore it:
 
 ```bash
@@ -180,7 +187,7 @@ when workers must edit overlapping files in parallel, give each an isolated
 worktree — herdr manages them natively, as its own labeled workspace:
 
 ```bash
-rtk herdr worktree create --workspace "$herdr_workspace_id" \
+rtk herdr worktree create --workspace "$HERDR_WORKSPACE_ID" \
   --branch <slug> --label "<slug>" --no-focus --json
 ```
 

@@ -49,9 +49,11 @@ workspace; never change focus.
 
 ## Claude Code: launch in plan mode
 
-`claude` has a first-class flag: `--permission-mode plan`. It composes with
-`--dangerously-skip-permissions` (which stays mandatory for workers), so the
-worker plans first and runs unattended after acceptance.
+`claude` has a first-class flag: `--permission-mode plan`. It replaces the
+default `--permission-mode auto` for this launch (one mode per launch; never
+add bypass flags, see SKILL.md launch workers). Acceptance then sets the mode
+the worker runs in. (F002 2026-11-06: changed from bypass flags; plan-first is
+not yet verified live, see F003.)
 
 Create the named tab, then pass the packet as launch argv — the session starts
 planning immediately and skips the TUI-ready race entirely:
@@ -61,7 +63,7 @@ rtk herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd "$PWD" \
   --label "opus: fix loops (plan)" --no-focus
 
 rtk herdr agent start fix-loops --kind claude --pane <root_pane_id> -- \
-  --dangerously-skip-permissions --permission-mode plan \
+  --permission-mode plan \
   "<packet, single block>"
 ```
 
@@ -116,7 +118,7 @@ rtk herdr tab create --workspace "$HERDR_WORKSPACE_ID" --cwd "$PWD" \
   --label "codex: audit auth (plan)" --no-focus
 
 rtk herdr agent start audit-auth --kind codex --pane <root_pane_id> -- \
-  --yolo
+  --approve-for-me
 ```
 
 `agent start` returns only once the TUI is ready for input. Then enter Plan
