@@ -4,8 +4,8 @@ Persistent record of architectural decisions, discovered patterns, gotchas, and 
 This file is referenced in CLAUDE.md and loaded every session.
 
 ## Active Context
-- Currently working on: nothing; F002 (herdr-orchestration skill proven live, .skogai/skills/herdr-orchestration/SKILL.md) passing 2026-11-06
-- Next up: F003 plan-first delegation (references/plan-mode.md) live, if skogix wants it; not yet in features.json
+- Currently working on: nothing; F002 (direct delegation) and F003 (plan-first delegation) of .skogai/skills/herdr-orchestration/ passing 2026-11-06
+- Next up: skogix names the next feature; open gaps: plan rejection path and claude plan-mode status/shift+tab order never observed live
 
 ## Cross-Cutting Concerns
 - Stack: bash + mise (tasks/tools) + jq/yq + argc; tests in bats; no tests and no coverage measurement yet
@@ -27,7 +27,9 @@ This file is referenced in CLAUDE.md and loaded every session.
 - a claude started under ~/skogai can block on the external CLAUDE.md imports dialog; after answering, plain `agent wait` returns at once on the stale blocked state. It is asked once per project: for ~/skogai WarningShown=true, Approved=false, so workers there now start without the dialog and without external imports
 - `agent start` rejects multi-line argv (invalid_agent_argument); returns agent_pane_busy right after `tab create`; may return timeout while the tui is fine, then the agent name is unregistered (use pane id)
 - a controller Claude Code in auto mode refuses to start a worker with --dangerously-skip-permissions ("Create Unsafe Agents")
-- unfocused codex workers settle `idle`, claude `done`: wait with --until done --until idle
+- unfocused codex workers settle `idle`, claude `done`: wait with --until done --until idle (seen twice: F002, F003)
+- a plan-first claude worker can reach its plan menu before herdr sees it ready: agent start returns agent_not_ready; read the screen. Full plan is in $CLAUDE_CONFIG_DIR/plans/<slug>.md; menu option 'Yes, and use auto mode' keeps it unattended (F003)
+- the vv-harness plugin agent types can drop out mid-session; the spec gate then runs as a general-purpose agent given /skogai/claude/plugins/cache/skogix/vv-harness/<ver>/agents/spec-verification.md (F003)
 
 ## Domain: lint (hk)
 
@@ -70,6 +72,13 @@ This file is referenced in CLAUDE.md and loaded every session.
 - A packet's verification step must be one the worker can pass when the work is right; diff -w made both workers stop on correct output (watching)
 - Read a lint tool's full output before writing its failures into a spec; summaries mask findings (backlog)
 - The spec gate earns its cost on the first proposal: it caught a test-layout contradiction (machine checks under a recursive full_test) before any code existed
+
+## Meta-Session 2026-11-06 (F003)
+- Scope accuracy: as planned; no scope expansions. The codex audit changed nothing (skogix kept all scripts), so half the run proved the flow but produced no diff
+- Model calibration: both workers planned in about 1 min and stayed in scope on the first round; plan review found nothing to reject
+- Discovery lineage: F003 came from F002's deferral; the herdr.md update reused F002's findings, so one live run fed three docs
+- Approach patterns: the spec gate ASKed 8 then 1; most answers were defaults the lead could set, and the user only needed to choose the deletions, which came up live at plan review
+- Plan approval: plan-first suits a slice whose outcome needs a human decision (deletions); for the doc slice it added a review without changing anything
 
 ## Meta-Session 2026-11-06 (F002)
 - Scope accuracy: planned a formatting-only slice of 15 files; actual also needed hk.pkl (root cause) and 3 shellcheck fixes. The spec premise "fails only on shfmt" came from a grep of hk's summary, which hid shellcheck findings; 3 scope expansions, all user-approved

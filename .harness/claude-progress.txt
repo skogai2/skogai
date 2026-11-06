@@ -54,3 +54,12 @@
 - Commits: e0ac12b spec, 7aa91fd delete leftover, 7ae5f98 auto mode, 6c841a8 formatting + hk.pkl check_diff fix, 5366125 skill lessons
 - Next: F003 plan-first delegation (references/plan-mode.md), if skogix wants it
 - Blockers: none
+
+## Session 5 (cont.) - 2026-11-06
+- Feature: F003 - herdr-orchestration plan-first delegation proven live
+- Status: complete (passing); AC11 accepted on skogix's report
+- Tests: smoke_test and hk check --all pass; no bats tests; evidence in tmp/f003/ (gitignored, local only)
+- Decisions: skogix kept all 7 .skogai/scripts; claude plan acceptance uses "Yes, and use auto mode"
+- Commits: 927b758 spec, 648ecec herdr.md runbook (worker), 9802c31 plan-mode.md/SKILL.md corrections
+- Next: skogix names the next feature; master is ahead of origin (not pushed)
+- Blockers: none

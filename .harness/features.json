@@ -2,7 +2,7 @@
   "project": "skogai",
   "created": "2026-10-29T10:21:07Z",
   "total_features": 3,
-  "passing": 2,
+  "passing": 3,
   "features": [
     {
       "id": "F001",
@@ -117,7 +117,7 @@
     {
       "id": "F003",
       "priority": 3,
-      "status": "in-progress",
+      "status": "passing",
       "description": "herdr-orchestration plan-first delegation, proven live. Makes .skogai/skills/herdr-orchestration/references/plan-mode.md (and the SKILL.md \"plan-first delegation\" section) true for herdr 0.9.5, claude 2.1.318 and codex-cli 0.165.0, by using it for one real repo cleanup: this Claude session is the controller, and one claude worker and one codex worker each plan, get their plan reviewed, then implement. No new scripts, mise tasks, skills or agents. Workers launch in auto mode per SKILL.md (claude: --permission-mode plan for the planning phase, never bypass flags; codex: --approve-for-me, then Plan mode via shift+tab). Trust prompts (codex folder trust, claude CLAUDE.md imports, any approval dialog) are never answered by the controller: it notifies skogix with `herdr notification show` and waits.\nThe real task (two disjoint slices):\n- Claude worker (agent name doc-herdr, tab label `claude: herdr runbook (plan)`): bring dash-skogai/type/tool/herdr.md (the F001 oversight runbook) in line with what F002 found live and with `herdr --skill` output for herdr 0.9.5: settled-state waits (claude settles done, codex idle; `--until done --until idle`), agent start failure modes (agent_pane_busy, timeout with unregistered name, agent_not_ready keeps the name, invalid_agent_argument on multi-line argv), the imports dialog being asked once per project, `agent get`, and one pointer line to .skogai/skills/herdr-orchestration/SKILL.md for orchestration. Then regenerate dash-skogai/README.md with `mise run dash:graph`. No content duplicated from SKILL.md beyond one-line facts.\n- Codex worker (agent name audit-scripts, tab label `codex: audit scripts (plan)`): audit the 7 tracked scripts under .skogai/scripts/ (check-claude-usage.sh, claude-code-documentation.sh, claude/cloud-environment.sh, date.sh, get-project-name.sh, search.sh, whereami.sh). For each, the plan states where it is referenced (git grep across the repo, mise.toml tasks, .claude/settings*.json hooks, CLAUDE.md, docs) and proposes keep or delete with a one-line reason. Implementation deletes only scripts skogix approved at plan review, and updates in-repo references to them (for example .skogai/memory/skogai-notation-runtime.md); references outside the repo (e.g. skogcli config) are only reported. If skogix approves none, the worker makes no change and reports the audit.\nAcceptance criteria:\n0. QA binding: manual (evidence_type manual: live command output, packets, plans and registry under tmp/f003/ (gitignored, local only), as in F001/F002).\n1. Preflight per SKILL.md is run from inside herdr (HERDR_ENV=1); output saved under tmp/f003/.\n2. Claude worker is launched exactly as plan-mode.md \"Claude Code: launch in plan mode\" says (named tab with --no-focus, agent start with --permission-mode plan and the one-line packet as argv); the controller confirms plan mode with agent read before anything else. Codex worker is launched bare as plan-mode.md \"Codex: launch and enter Plan mode\" says, Plan mode is entered with shift+tab and confirmed with agent read before the packet is submitted with agent prompt. Packets are saved under tmp/f003/ and contain every item of SKILL.md \"delegation packets\", with execution mode plan-first.\n3. Each worker's plan is captured to tmp/f003/plan-<agent>.txt before acceptance. The controller reviews it against the packet (scope, file claims, no out-of-scope edits). The codex plan's keep/delete list is shown to skogix before acceptance; skogix's keep/delete decision per script is recorded in a decisions table in tmp/f003/registry.md. If skogix's decision differs from the plan, the controller rejects via \"No, stay in Plan mode\" with feedback naming the approved list, and accepts only a plan that matches it (this approval round is not counted as a re-planning round; one approval round only: if the revised plan still does not match, AC8). A plan that is out of scope is rejected via the \"keep planning\" / \"stay in Plan mode\" option with feedback, at most one re-planning round, then AC8.\n4. Acceptance uses the menus plan-mode.md describes; the controller records the exact menu text and options seen live (both TUIs) in tmp/f003/ and confirms with agent read that the worker left plan mode and is working. For claude, the worker must run in auto mode after acceptance (accept-edits is not enough: it stops on shell commands); the option that leads there is chosen and its label recorded. If no option leaves the worker in auto mode, and it is not in auto mode after acceptance per agent read, that is an AC8 stop.\n5. After acceptance the controller only observes (agent wait in check-ins of at most 300000 ms, agent read) until each worker settles, except to answer a direct blocking question or a stop condition. Registry kept in tmp/f003/registry.md with the statuses planning, plan-review, plan-accepted, running, reported, verified, retired.\n6. Workers do not commit; the controller commits after verification. Verification by the controller, after both workers report and before any controller edit or commit: `git diff --name-only HEAD` (plus `git status -s` for deletions) shows changes only in dash-skogai/type/tool/herdr.md, dash-skogai/README.md, deletions of the scripts recorded as approved in the registry decisions table, and in-repo files whose only change removes or updates a reference to a deleted script; re-running `mise run dash:graph` produces no further diff; `yq --front-matter=extract '.type + \" \" + .title' dash-skogai/type/tool/herdr.md` prints `tool herdr`; every fact the claude worker added to herdr.md is traceable to F002's approaches_tried, tmp/f002/, or `herdr --skill` output (controller spot-checks each); `hk check --all` exits 0; `.harness/init.sh smoke_test` passes.\n7. Every place where live behavior differs from plan-mode.md or SKILL.md (flags, mode names in the status line, shift+tab cycle order, menu titles and options, what acceptance switches the mode to, waits) is fixed in those files so the next controller would not hit it, and each difference is listed in F003's approaches_tried; if nothing differs, approaches_tried says so. The \"not yet verified live, see F003\" note in plan-mode.md is removed.\n8. If a worker cannot be started, cannot be put in plan mode, or hits a SKILL.md stop condition, the controller stops and reports instead of doing the worker's work; F003 is then blocked with failure_reason, and a stuck tab may stay open as evidence with the reason in the registry.\n9. On the passing path both workers are retired with tab close after their disposition is recorded; `herdr agent list` then shows neither doc-herdr nor audit-scripts (nor their panes).\n10. Changed files are only: the files AC6 allows, files under .skogai/skills/herdr-orchestration/ for AC7, and F003's own bookkeeping in .harness/features.json plus the usual harness session files (.harness/claude-progress.txt, .harness/context_summary.md, .harness/mld/). tmp/ excluded.\n11. Manual check (skogix): from tmp/f003/registry.md and the plans, skogix can tell what each worker planned, what was accepted or rejected and why, and what it then did.",
       "scope": [
         ".skogai/skills/herdr-orchestration/",
@@ -135,13 +135,23 @@
       "depends_on": [
         "F002"
       ],
-      "assigned_to": "single-session",
-      "test_file": null,
+      "assigned_to": null,
+      "test_file": "tmp/f003/ (gitignored): registry.md, packets, plan-*.txt, menu/after-accept captures, reports",
       "coverage": null,
       "notes": "skogix 2026-11-06: repo doc cleanup task, informed by `herdr --skill`; spec gate run via general-purpose agent with the vv-harness spec-verification definition (plugin agent type not loaded). Gate: ASK 8 -> ASK 1 -> bound added by lead (one approval round, then AC8); defaults set by the lead and shown to skogix",
       "correction_cycles": 0,
       "scope_expansions": [],
-      "approaches_tried": [],
+      "approaches_tried": [
+        "AC1-AC9 run live 2026-11-06 (herdr 0.9.5, claude 2.1.318, codex-cli 0.165.0); evidence in tmp/f003/ (gitignored, local only)",
+        "deviation (AC7): claude agent start --permission-mode plan with packet argv returned agent_not_ready: the worker planned and reached the acceptance menu inside the 120000 ms start timeout, before herdr saw it ready; plan-mode.md + SKILL.md now say: read the screen, plan menu -> review",
+        "deviation (AC7): claude menu is 'Claude has written up a plan and is ready to execute. Would you like to proceed?' 1. Yes, and use auto mode / 2. Yes, manually approve edits / 3. Tell Claude what to change (not auto-accept edits / keep planning); option 1 left the worker in 'auto mode on'",
+        "deviation (AC7): the full claude plan is in $CLAUDE_CONFIG_DIR/plans/<slug>.md (named on the menu's last line); the screen truncates it; plan-mode.md says to read and copy that file",
+        "not verified (AC7): claude 'plan mode on' status text and shift+tab cycle order were never seen (worker was already at the menu); plan-mode.md marks the order as not verified",
+        "matched (AC7): codex bare start exit 0; one shift+tab -> 'Plan mode (shift+tab to cycle)'; menu 'Implement this plan?' 1/2/3 as documented; option 1 prints 'Model changed to ... for Default mode'",
+        "codex worker again settled idle after acceptance (second observation after F002)",
+        "codex audit: keep all 7 scripts (date.sh used via [@date:...] in config/config.json; check-claude-usage/whereami are notation actions in .skogai/memory); skogix: keep all; plan accepted unchanged, no file changes",
+        "worked: plan-first review caught nothing to reject; both plans were in scope on the first round"
+      ],
       "failure_reason": null,
       "discovered_via": "F002",
       "qa_binding": "manual",
@@ -153,7 +163,13 @@
         "source": "conversation (last ASK closed by lead with a bound, not re-gated)"
       },
       "risk": "standard",
-      "require_plan_approval": false
+      "require_plan_approval": false,
+      "proof": {
+        "claim": "plan-first delegation in .skogai/skills/herdr-orchestration/references/plan-mode.md ran live for a claude and a codex worker: plan, review, accept via real menus, hands-off run, verify, retire; doc corrected where live differed",
+        "evidence_type": "manual",
+        "artifact": "references/plan-mode.md; commits 648ecec, 9802c31; tmp/f003/ (gitignored)",
+        "not_established": "claude plan-mode status line and shift+tab cycle (not observed); plan rejection path (no plan needed rejecting). AC11 accepted on skogix's report 2026-11-06"
+      }
     }
   ]
 }
