@@ -1,2 +1,2 @@
-[_.skogai.config.system]
+[skogai.config.system]
 dir = "./system"

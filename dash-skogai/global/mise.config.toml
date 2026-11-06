@@ -1,2 +1,2 @@
-[_.skogai.config.global]
+[skogai.config.global]
 dir = "./global"

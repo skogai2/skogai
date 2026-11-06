@@ -1,4 +1,4 @@
-[_.skogai.config.local]
+[skogai.config.local]
 dir = "./local"
 
 [env]
