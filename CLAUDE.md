@@ -15,6 +15,7 @@ Orchestration layer: where skogix and Claude plan and delegate. Stack: bash + mi
 ## Layout
 
 - `dash-skogai/`: the skogai type system and `argc config` CLI. Has its own `CLAUDE.md`; read it before working there. Its `README.md` is generated from `type/*.md`, never hand-edited.
+- herdr oversight (what every agent is doing, its last answer, sending it text): `dash-skogai/type/tool/herdr.md`.
 - `.skogai/`: local rules, memory (index `.skogai/memory/MEMORY.md`), scripts, task templates. Check memory before re-deciding things.
 - `tmp/`, `.skogai/logs/`: throwaway, gitignored.
 
