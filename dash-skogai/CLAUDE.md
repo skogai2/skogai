@@ -1,2 +1,1 @@
-- @SKOGAI.md
-
+- @AGENTS.md
