@@ -9,7 +9,7 @@ title: herdr
 
 verified live with herdr 0.9.5 (preview channel), claude code 2.1.318, 2026-11-06. only inside herdr (`HERDR_ENV=1`). claude agents only; other agent kinds are UNKNOWN (not checked), except that a codex worker was seen settling `idle` (F002).
 
-orchestration (controller/worker delegation) lives in `.skogai/skills/herdr-orchestration/SKILL.md`.
+orchestration (controller/worker delegation) lives in the vv-harness plugin skill `/vv-harness:harness-orchestrate` (source: skogai2/skogharness `skills/harness-orchestrate/`).
 
 | question | command |
 |---|---|
