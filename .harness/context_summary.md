@@ -4,14 +4,25 @@ Persistent record of architectural decisions, discovered patterns, gotchas, and 
 This file is referenced in CLAUDE.md and loaded every session.
 
 ## Active Context
-- Currently working on: nothing; features list reset 2026-11-06 (protocol/, bin/probe, tests/ removed at skogix's request — skogix did not recognise the protocol work)
-- Next up: skogix names the real focus; add features for it and run them through the spec gate
+- Currently working on: nothing; F001 (herdr oversight runbook, dash-skogai/type/tool/herdr.md) passing 2026-11-06
+- Next up: skogix names the next feature
 
 ## Cross-Cutting Concerns
 - Stack: bash + mise (tasks/tools) + jq/yq + argc; tests in bats; no tests and no coverage measurement yet
 - Architecture: orchestration layer — the main interface where skogix and Claude plan and delegate; holds agents/skills (`.skogai/`, symlinked into `.claude/`), config, and `dash-skogai/`
 - Priority order for machine health: mise dotfiles, then bootstrap, then doctor ("no dotfiles, no backup and no future")
 - Delegation rule: checks only detect. A finding with `outside_repo: true` is never acted on directly by an agent; it becomes its own features.json feature that skogix approves
+
+## Domain: herdr
+
+### Decisions
+- Oversight and messaging use existing herdr commands only, documented in dash-skogai/type/tool/herdr.md; no scripts (skogix: the removed orchestrate skill wrote its own tools instead of using what exists) (2026-11-06)
+- Messaging goes through herdr (`agent prompt` default, `pane send-text` + `send-keys enter` tmux-style), not Claude Code's SendMessage (skogix 2026-11-06)
+
+### Gotchas
+- Claude transcripts are under $CLAUDE_CONFIG_DIR/projects = /skogai/claude/projects, not ~/.claude/projects
+- herdr's claude hook reports agent_session only on SessionStart; agents without one since show null
+- a claude started under ~/skogai can block on the external CLAUDE.md imports dialog; after answering, plain `agent wait` returns at once on the stale blocked state
 
 ## Domain: Machine checks
 
@@ -44,7 +55,15 @@ This file is referenced in CLAUDE.md and loaded every session.
 - Restoring a config "as it was" must restore its filters first: an entry without its excludes is worse than a missing entry
 - A spec gate proves a spec is testable, not that it is worth building; before gating, state in one sentence what changes in the world if the feature works (watching)
 - When agents report history-derived claims, cross-check against anything the lead itself saw in-session; history sources have blind spots (backlog)
+- Before building, ask why the previous attempt at the same thing was removed (backlog)
 - The spec gate earns its cost on the first proposal: it caught a test-layout contradiction (machine checks under a recursive full_test) before any code existed
+
+## Meta-Session 2026-11-06
+- Scope accuracy: planned "continue"; actual: reset (skogix did not recognise protocol/, removed), then F001 chosen fresh. Spec gate took 3 rounds (ASK 14 questions, ASK 2, PASS)
+- Model calibration: no implementer agents; lead did F001 directly. One throwaway haiku agent for the messaging check
+- Discovery lineage: transcript path and startup dialog found only by running commands live, not from the old gotcha line (which had the wrong path)
+- Approach patterns: asking "why was the last attempt removed" before speccing changed the feature from code to docs of existing tools
+- Plan approval: n/a
 
 ## Meta-Session 2026-11-05
 - Scope accuracy: re-init only; stamp mode=new would abort on existing files, so mode=upgrade wrote the 6 hooks and settings.json was merged by hand

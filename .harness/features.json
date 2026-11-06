@@ -2,12 +2,12 @@
   "project": "skogai",
   "created": "2026-10-29T10:21:07Z",
   "total_features": 1,
-  "passing": 0,
+  "passing": 1,
   "features": [
     {
       "id": "F001",
       "priority": 1,
-      "status": "in-progress",
+      "status": "passing",
       "description": "herdr oversight runbook. Lets the lead answer \"what is every agent doing, and what did it last say?\" and reach an agent, using only existing tools (herdr, jq), with no new scripts, mise tasks, skills or agents. Lives in the existing dash-skogai/type/tool/herdr.md (which already holds herdr gotchas); dash-skogai/README.md is regenerated with `mise run dash:graph`, never hand-edited. Scope is Claude agents (kind `claude`) running under herdr; other agent kinds get one UNKNOWN line. Out of scope: Claude Code's built-in ListAgents/SendMessage (skogix 2026-11-06: use herdr for messaging).\nAcceptance criteria:\n1. herdr.md has an oversight section that names, for each question, the exact existing command that answers it:\n   a. all agents with pane, cwd, state and task title: `herdr agent list` (or `herdr api snapshot`);\n   b. recent output of one agent: `herdr agent read <target> --source recent-unwrapped`;\n   c. wait for a state change: `herdr agent wait <target> --timeout <ms>`; notify skogix: `herdr notification show`;\n   d. full last answer: the transcript path `~/.claude/projects/<cwd-slug>/<agent_session.value>.jsonl` with the rule that derives <cwd-slug> from the agent's cwd, and a jq expression that prints the last assistant entry that has text content (tool_use-only entries skipped);\n   e. send text to an agent: `herdr pane send-text <pane> <text>` + `herdr pane send-keys <pane> enter` (the tmux-style primitive) and `herdr agent prompt <agent> <text> --wait --timeout <ms>` (the default for agents), with why the latter is the default: bracketed paste with Enter in one submission, refuses with agent_blocked at an approval dialog, confirms activity and waits.\n2. Every command in 1a-1d was run live from inside herdr (HERDR_ENV=1), read-only, against agents running on the verification day; `herdr agent wait` was run with `--timeout 30000`. Raw outputs are saved under tmp/f001/ (gitignored) and herdr.md records the herdr version and verification date. The jq expression in 1d returns the last text answer of at least one live agent whose agent_session is set.\n3. Commands in 1e were exercised only against a throwaway claude agent the implementer started for that purpose in a new pane (closed afterwards); no prompt, text or keys are sent to any pre-existing agent or pane.\n4. The case where `agent_session` is null (seen 2026-11-06 on w88:p2) is documented: either the cause (lead: `herdr pane report-agent --agent-session-id` is what sets it) and a way to find that agent's transcript, or an UNKNOWN entry stating what was checked.\n5. If a command named in 1 does not exist or behaves differently live, the runbook documents what actually works and the difference is listed in the feature's approaches_tried; this is not a failure.\n6. Changed files are only dash-skogai/type/tool/herdr.md, the regenerated dash-skogai/README.md, one pointer line to herdr.md in the Layout section of /home/skogix/skogai/CLAUDE.md, and F001's own bookkeeping fields in .harness/features.json (status, approaches_tried, proof, test_file, correction_cycles, scope_expansions, failure_reason). No other new or changed files (tmp/ excluded).\n7. `mise run dash:graph` regenerates dash-skogai/README.md and the regenerated README contains the herdr tool's section. `yq --front-matter=extract '.type + \" \" + .title' dash-skogai/type/tool/herdr.md` prints `tool herdr`. (`mise run dash:check` is not used: it takes a dot directory, defaults to `src`, and does not cover files under type/.)\n8. If no claude agent with agent_session set is running on the verification day, F001 is set to blocked rather than verified against fakes.\n9. Manual journey check (skogix): in a fresh Claude session in ~/skogai, skogix asks \"what are the herdr agents doing?\"; the session answers per agent (state, task title, last text answer) in at most 3 tool calls, and the answer matches a `herdr agent list` skogix runs at the same moment.",
       "scope": [
         "dash-skogai/type/tool/herdr.md",
@@ -15,13 +15,20 @@
         "CLAUDE.md"
       ],
       "depends_on": [],
-      "assigned_to": "single-session",
+      "assigned_to": null,
       "test_file": null,
       "coverage": null,
       "notes": "skogix 2026-11-06: first feature after reset; lesson from the removed orchestrate skill (31c1a85): use existing tools, do not write own scripts",
       "correction_cycles": 0,
       "scope_expansions": [],
-      "approaches_tried": [],
+      "approaches_tried": [
+        "AC1-AC8 verified live 2026-11-06 (herdr 0.9.5); raw outputs in tmp/f001/",
+        "deviation (AC5): transcripts are under $CLAUDE_CONFIG_DIR/projects (/skogai/claude), not ~/.claude/projects as the spec and old gotcha said",
+        "deviation (AC5): herdr agent read prints plain text, not json",
+        "deviation (AC5): a claude started under ~/skogai blocks on the external CLAUDE.md imports dialog; agent start returns agent_not_ready, and a plain agent wait then returns at once on the stale blocked state, so wait --until idle --until done",
+        "AC4: null agent_session traced to the claude integration hook reporting only on SessionStart; likely cause for w88:p2, unconfirmed",
+        "AC3: prompt and send-text/send-keys exercised only on throwaway agent f001-scratch (haiku, pane w88:p6, closed); agent prompt confirmed to refuse with agent_blocked"
+      ],
       "failure_reason": null,
       "discovered_via": null,
       "qa_binding": "manual",
@@ -33,7 +40,13 @@
         "source": "conversation"
       },
       "risk": "standard",
-      "require_plan_approval": false
+      "require_plan_approval": false,
+      "proof": {
+        "claim": "herdr.md oversight section answers what every claude agent is doing and last said using existing herdr/jq commands",
+        "evidence_type": "manual",
+        "artifact": "dash-skogai/type/tool/herdr.md; tmp/f001/ (gitignored)",
+        "not_established": "AC9 accepted on skogix's report 2026-11-06 (\"it worked out as you expected\"); the journey pane w88:p7 showed no question and no transcript was found, so there is no recorded artifact of the run. null agent_session cause unconfirmed; non-claude agents not checked"
+      }
     }
   ]
 }
