@@ -4,8 +4,8 @@ Persistent record of architectural decisions, discovered patterns, gotchas, and 
 This file is referenced in CLAUDE.md and loaded every session.
 
 ## Active Context
-- Currently working on: nothing; F001 (herdr oversight runbook, dash-skogai/type/tool/herdr.md) passing 2026-11-06
-- Next up: skogix names the next feature
+- Currently working on: nothing; F002 (herdr-orchestration skill proven live, .skogai/skills/herdr-orchestration/SKILL.md) passing 2026-11-06
+- Next up: F003 plan-first delegation (references/plan-mode.md) live, if skogix wants it; not yet in features.json
 
 ## Cross-Cutting Concerns
 - Stack: bash + mise (tasks/tools) + jq/yq + argc; tests in bats; no tests and no coverage measurement yet
@@ -18,11 +18,22 @@ This file is referenced in CLAUDE.md and loaded every session.
 ### Decisions
 - Oversight and messaging use existing herdr commands only, documented in dash-skogai/type/tool/herdr.md; no scripts (skogix: the removed orchestrate skill wrote its own tools instead of using what exists) (2026-11-06)
 - Messaging goes through herdr (`agent prompt` default, `pane send-text` + `send-keys enter` tmux-style), not Claude Code's SendMessage (skogix 2026-11-06)
+- Orchestration follows .skogai/skills/herdr-orchestration/SKILL.md; workers launch in auto mode (claude --permission-mode auto, codex --approve-for-me), never bypass flags (skogix 2026-11-06)
+- The controller never answers trust prompts (codex folder trust, claude CLAUDE.md imports); notify skogix (2026-11-06)
 
 ### Gotchas
 - Claude transcripts are under $CLAUDE_CONFIG_DIR/projects = /skogai/claude/projects, not ~/.claude/projects
 - herdr's claude hook reports agent_session only on SessionStart; agents without one since show null
-- a claude started under ~/skogai can block on the external CLAUDE.md imports dialog; after answering, plain `agent wait` returns at once on the stale blocked state
+- a claude started under ~/skogai can block on the external CLAUDE.md imports dialog; after answering, plain `agent wait` returns at once on the stale blocked state. It is asked once per project: for ~/skogai WarningShown=true, Approved=false, so workers there now start without the dialog and without external imports
+- `agent start` rejects multi-line argv (invalid_agent_argument); returns agent_pane_busy right after `tab create`; may return timeout while the tui is fine, then the agent name is unregistered (use pane id)
+- a controller Claude Code in auto mode refuses to start a worker with --dangerously-skip-permissions ("Create Unsafe Agents")
+- unfocused codex workers settle `idle`, claude `done`: wait with --until done --until idle
+
+## Domain: lint (hk)
+
+### Gotchas
+- hk fix-mode hooks (pre-commit) apply a step's `check_diff` patch; overriding only `check`/`fix` in hk.pkl leaves the builtin check_diff (for shfmt: tabs) in charge of every commit. hk.pkl now overrides shfmt check_diff (2026-11-06)
+- one shellcheck error (SC1128) can mask warnings in the same batch; re-run after fixing
 
 ## Domain: Machine checks
 
@@ -56,7 +67,16 @@ This file is referenced in CLAUDE.md and loaded every session.
 - A spec gate proves a spec is testable, not that it is worth building; before gating, state in one sentence what changes in the world if the feature works (watching)
 - When agents report history-derived claims, cross-check against anything the lead itself saw in-session; history sources have blind spots (backlog)
 - Before building, ask why the previous attempt at the same thing was removed (backlog)
+- A packet's verification step must be one the worker can pass when the work is right; diff -w made both workers stop on correct output (watching)
+- Read a lint tool's full output before writing its failures into a spec; summaries mask findings (backlog)
 - The spec gate earns its cost on the first proposal: it caught a test-layout contradiction (machine checks under a recursive full_test) before any code existed
+
+## Meta-Session 2026-11-06 (F002)
+- Scope accuracy: planned a formatting-only slice of 15 files; actual also needed hk.pkl (root cause) and 3 shellcheck fixes. The spec premise "fails only on shfmt" came from a grep of hk's summary, which hid shellcheck findings; 3 scope expansions, all user-approved
+- Model calibration: workers on default models did a mechanical slice in ~30s each; both correctly stopped at the packet's own over-strict check (diff -w) instead of improvising
+- Discovery lineage: every skill deviation surfaced only when a real launch was attempted; none was visible from --help
+- Approach patterns: verify formatting-only with `shfmt -mn` (minified AST compare), not `git diff -w`, which fails on moved line breaks
+- Plan approval: n/a (plan-first deferred to F003)
 
 ## Meta-Session 2026-11-06
 - Scope accuracy: planned "continue"; actual: reset (skogix did not recognise protocol/, removed), then F001 chosen fresh. Spec gate took 3 rounds (ASK 14 questions, ASK 2, PASS)

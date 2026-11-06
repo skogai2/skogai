@@ -45,3 +45,12 @@
 - Decisions: herdr for messaging; no new scripts; dash:check dropped from F001 (takes a dot dir, does not cover type/)
 - Next: skogix names the next feature
 - Blockers: none. Pre-existing: hk shfmt flags .harness/init.sh (tabs) and a hook file; not touched
+
+## Session 5 - 2026-11-06
+- Feature: F002 - herdr-orchestration skill proven live (claude + codex workers fixed the repo's shell lint debt)
+- Status: complete (passing); AC10 accepted on skogix's report
+- Tests: smoke_test passes; hk check --all passes (first time); no bats tests; evidence in tmp/f002/ (gitignored, local only)
+- Decisions: workers launch in auto mode (claude --permission-mode auto, codex --approve-for-me), never bypass flags; controller never answers trust prompts; herdr-workspaces deleted
+- Commits: e0ac12b spec, 7aa91fd delete leftover, 7ae5f98 auto mode, 6c841a8 formatting + hk.pkl check_diff fix, 5366125 skill lessons
+- Next: F003 plan-first delegation (references/plan-mode.md), if skogix wants it
+- Blockers: none
