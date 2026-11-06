@@ -1,6 +1,6 @@
 #!/bin/bash
 # Harness init.sh - bash/mise/jq orchestration layer
-# Usage: .harness/init.sh [smoke_test|full_test|probe_test|focused_test <test_file>]
+# Usage: .harness/init.sh [smoke_test|full_test|focused_test <test_file>]
 # Default: full_test
 #
 # smoke_test   — bash -n on tracked *.sh, jq parse on tracked *.json (<15s).
@@ -9,9 +9,6 @@
 #                is a real failure. A runner's own exit 3 is remapped to 1.
 # full_test    — smoke_test plus every bats file under tests/unit/ (fixture
 #                driven, machine independent).
-# probe_test   — bin/probe with every protocol/*.md as context over every
-#                tests/probes/*.jsonl. Live claude calls; never part of
-#                smoke_test or full_test.
 
 set -e
 
@@ -56,16 +53,6 @@ smoke() {
 	return $failed
 }
 
-# Fills PROTOCOL_ARGS with one `-c <file>` pair per protocol/*.md.
-protocol_context() {
-	local f
-	PROTOCOL_ARGS=()
-	for f in protocol/*.md; do
-		[ -f "$f" ] && PROTOCOL_ARGS+=(-c "$f")
-	done
-	return 0
-}
-
 run_focused() {
 	local rc=0
 	"$@" || rc=$?
@@ -86,10 +73,6 @@ focused_test)
 	fi
 	case "$FOCUS_FILE" in
 	*.bats) run_focused bats "$FOCUS_FILE" ;;
-	*.jsonl)
-		protocol_context
-		run_focused bin/probe "${PROTOCOL_ARGS[@]}" "$FOCUS_FILE"
-		;;
 	*)
 		echo "focused_test: no runner for '$FOCUS_FILE' -- skipped (exit 3)."
 		exit 3
@@ -104,11 +87,6 @@ full_test)
 	else
 		echo "no bats tests under tests/unit/ yet"
 	fi
-	;;
-probe_test)
-	echo "--- bin/probe protocol/ x tests/probes ---"
-	protocol_context
-	bin/probe "${PROTOCOL_ARGS[@]}" tests/probes/*.jsonl
 	;;
 *)
 	echo "unknown target: $TARGET" >&2
