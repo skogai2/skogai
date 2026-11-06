@@ -51,7 +51,7 @@ seen live with herdr 0.9.5, 2026-11-06 (F002), unless noted:
 
 - `agent_pane_busy` right after `tab create`: the tab's shell is not up yet. retry.
 - `timeout` while the tui actually started: herdr leaves the name unregistered (`agent_not_found`), so use the pane id. pass `--timeout 120000` (default is 30s).
-- `agent_not_ready`: blocked during startup (a trust dialog). the name stays available for `agent read` and `agent send-keys` (`herdr --skill`).
+- `agent_not_ready`: blocked during startup (a trust dialog, or a plan-mode worker already at its plan menu, F003). the name stays available for `agent read` and `agent send-keys` (`herdr --skill`).
 - `invalid_agent_argument`: multi-line argv is rejected. launch packets must be one line.
 
 ## gotchas

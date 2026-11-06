@@ -124,8 +124,9 @@ retrying. seen live (herdr 0.9.5, 2026-11-06):
   `agent start`. after a timeout herdr does not register the agent name
   (`agent_not_found`), so address that worker by pane id for every `agent …`
   verb and record that in the registry.
-- `agent_not_ready` ("blocked during startup"): the tui is on a first-run
-  trust prompt. codex asks "trust this folder?" once per directory; claude
+- `agent_not_ready` ("blocked during startup"): read the screen. a plan-first
+  worker may already be at its plan menu (see references/plan-mode.md);
+  otherwise the tui is on a first-run trust prompt. codex asks "trust this folder?" once per directory; claude
   asks about external CLAUDE.md imports once per project (after one answer it
   does not ask again; declined imports then silently stay off). these are
   trust decisions for the user: never answer them. notify

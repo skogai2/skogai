@@ -52,8 +52,8 @@ workspace; never change focus.
 `claude` has a first-class flag: `--permission-mode plan`. It replaces the
 default `--permission-mode auto` for this launch (one mode per launch; never
 add bypass flags, see SKILL.md launch workers). Acceptance then sets the mode
-the worker runs in. (F002 2026-11-06: changed from bypass flags; plan-first is
-not yet verified live, see F003.)
+the worker runs in. Verified live with claude 2.1.318 and codex-cli 0.165.0,
+herdr 0.9.5 (F003, 2026-11-06).
 
 Create the named tab, then pass the packet as launch argv — the session starts
 planning immediately and skips the TUI-ready race entirely:
@@ -67,14 +67,22 @@ rtk herdr agent start fix-loops --kind claude --pane <root_pane_id> -- \
   "<packet, single block>"
 ```
 
+The packet must be one line (SKILL.md launch workers). Expect `agent start` to
+return `agent_not_ready` ("blocked during startup") on a small slice: the
+worker can finish planning and reach the acceptance menu before herdr sees it
+ready (seen live, F003: plan menu up within the 120000 ms start timeout). The
+name stays usable; `agent read <name> --source visible` — if the screen shows
+the acceptance menu, go straight to review. Any other blocking screen is a
+trust prompt for the user (SKILL.md).
+
 To launch without an initial prompt, drop the packet argument and submit with
 `agent prompt` once `agent start` returns.
 
-Confirm plan mode via `agent read <name> --source visible`: the input-box
-status area must indicate plan mode (current builds show `plan mode on`). If a
+If the worker is not yet at the menu, confirm plan mode via `agent read <name>
+--source visible`: the input-box status area must indicate plan mode. If a
 session is already running outside plan mode, **shift+tab** cycles the
-permission modes (default → accept edits → plan → bypass) — press and re-check
-until plan mode shows:
+permission modes (the order is build-specific; not verified live) — press and
+re-check until plan mode shows:
 
 ```bash
 rtk herdr agent send-keys fix-loops shift+tab
@@ -82,27 +90,34 @@ rtk herdr agent send-keys fix-loops shift+tab
 
 ## Claude Code: accept the plan
 
-When the worker finishes planning it presents an acceptance menu (current
-builds title it `Would you like to proceed?`), typically:
+When the worker finishes planning it presents an acceptance menu. Live with
+claude 2.1.318 (F003):
 
 ```
-> 1. Yes, and auto-accept edits
-  2. Yes, and manually approve edits
-  3. No, keep planning
+Claude has written up a plan and is ready to execute. Would you like to proceed?
+❯ 1. Yes, and use auto mode
+  2. Yes, manually approve edits
+  3. Tell Claude what to change
+     shift+tab to approve with this feedback
+ctrl+g to edit in Nvim · /skogai/claude/plans/<slug>.md
 ```
 
 Catch it with `rtk herdr pane wait-output <pane_id> --match "Would you like to
-proceed?"` (or the `blocked` status wait). Review the plan first, then select
-the **auto-accept** option — workers run unattended, and manual approval would
-stall the tab waiting for per-edit confirmations. Press Enter while the
-auto-accept option is highlighted (move with `agent send-keys <name> down` /
-`up` if another option is selected):
+proceed?"` (or the `blocked` status wait). Read the full plan from the file
+the menu's last line names (`$CLAUDE_CONFIG_DIR/plans/<slug>.md`) — the screen
+truncates it — and copy it to the registry's evidence before accepting.
+Review it, then select **Yes, and use auto mode** — workers run unattended in
+auto mode; accept-edits ("manually approve edits") stalls on per-edit and
+shell confirmations. Press Enter while it is highlighted (move with
+`agent send-keys <name> down` / `up` if another option is selected):
 
 ```bash
 rtk herdr agent send-keys fix-loops enter
 ```
 
-Confirm via `agent read` that plan mode is off and the worker is working. To
+Confirm via `agent read` that the status line shows `auto mode on` and the
+worker is working (`agent get <name>` → `working`). If it is not in auto mode
+after acceptance, stop and report — never switch to bypass. To
 reject and keep planning, select the "keep planning" option and send feedback
 via `agent prompt`.
 
@@ -156,8 +171,11 @@ highlighted:
 rtk herdr agent send-keys audit-auth enter
 ```
 
-Confirm the status line no longer shows `Plan mode` and the worker is
-`Working`. To reject, select option 3 and send feedback via `agent prompt`.
+Confirm the status line no longer shows `Plan mode` (live, codex-cli 0.165.0:
+one shift+tab from the default mode showed `Plan mode (shift+tab to cycle)`;
+after option 1 codex prints "Model changed to … for Default mode" and the
+status line drops `Plan mode`). A small run may settle before you read it:
+check `agent get` / the transcript rather than waiting to see `Working`. To reject, select option 3 and send feedback via `agent prompt`.
 
 ## Watch plan mode & answer questions
 
@@ -176,7 +194,7 @@ check-in intervals — implementation, validation, and any QA regularly span
 many intervals, and the worker is never cut off because a wait expired:
 
 ```bash
-rtk herdr agent wait fix-loops --until done --timeout 300000
+rtk herdr agent wait fix-loops --until done --until idle --timeout 300000
 rtk herdr agent wait fix-loops --until blocked --timeout 300000
 ```
 
