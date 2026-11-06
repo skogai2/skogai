@@ -1,7 +1,7 @@
 # Context Summary
 
 Persistent record of architectural decisions, discovered patterns, gotchas, and active context.
-This file is referenced in CLAUDE.md and loaded every session.
+This file is referenced in AGENTS.md and loaded every session.
 
 ## Active Context
 - Currently working on: nothing; F002 (direct delegation) and F003 (plan-first delegation) of .skogai/skills/herdr-orchestration/ passing 2026-11-06
@@ -60,6 +60,20 @@ This file is referenced in CLAUDE.md and loaded every session.
 - `trap '... $local_var' EXIT` inside a function fails under `set -u` once the function has returned; expand the value when setting the trap
 - Commands run with Claude Code's `!` prefix are not recorded in atuin: the 2026-10-29 21:18 convergence run that succeeded is missing there, so atuin alone made the chain look always-failing
 - commit-gate hook rejects `git add` and `git commit` in one Bash call; when a rejected call also held the add, the next commit silently picks up only the earlier-staged files. Check `git show --stat` after any hook rejection
+
+## Domain: auto mode
+
+### Gotchas
+- `rtk hook claude` (PreToolUse Bash, user settings /skogai/claude/settings.json) rewrites commands (cat→rtk read, grep→rtk grep). Auto mode then returns "no verdict, a hook changed the input" and allows one identical retry. Calls matched by an allow rule (`git *`) went through. `rtk hook claude` has no flag to skip the rewrite (2026-11-06)
+
+## Improve-Harness Result: read-only Bash under auto mode (2026-11-06)
+- Outcome: pending (rerun not done yet)
+- Proof: baseline: in session 5bf125a1, all 4 rewritten Bash calls without an allow rule got "no verdict"; the `git add`/`git commit` calls (allowed by `Bash(git *)`) passed
+- Hypothesis: if read-only rtk subcommands (diff, grep, json, ls, read, recall, rg, tree, wc) are allowlisted in .claude/settings.json, then a fresh session's `cat`/`grep`/`ls` calls run without the classifier error, because the allow rule matches the rewritten command. Weakened if the error still appears, meaning rules match the command before the rewrite. `rtk find` is left out because find can `-exec`/`-delete`
+- Relay/latency: hypothesis and change in the same session; a fresh-session rerun is still needed
+- Risk vs. carrying cost: 9 allow rules; they bypass auto-mode review only for rtk's read-only proxies
+- Decision: retain if the fresh session shows no "no verdict" error on a plain `cat`/`grep`; remove the rules if the error persists
+- Known limits: covers only Bash reads in this repo, on CLI 2.1.318 with rtk's current rewrite table
 
 ## Meta-Patterns
 <!-- Coordination insights that apply across features — NOT domain-specific.
