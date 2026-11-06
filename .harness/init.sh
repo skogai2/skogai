@@ -16,8 +16,8 @@ TARGET=${1:-full_test}
 FOCUS_FILE="${2:-}"
 
 if [ "$TARGET" = "focused_test" ] && [ -z "$FOCUS_FILE" ]; then
-	echo "focused_test requires a test file argument" >&2
-	exit 2
+  echo "focused_test requires a test file argument" >&2
+  exit 2
 fi
 
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -29,69 +29,69 @@ echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 echo ""
 
 tracked() {
-	git ls-files -- "$@" | grep -v -e '^tmp/' -e '/tmp/' -e '^\.claude/hooks/' || true
+  git ls-files -- "$@" | grep -v -e '^tmp/' -e '/tmp/' -e '^\.claude/hooks/' || true
 }
 
 smoke() {
-	local failed=0 f
-	echo "--- bash -n ---"
-	while IFS= read -r f; do
-		[ -f "$f" ] || continue
-		bash -n "$f" || {
-			echo "syntax error: $f"
-			failed=1
-		}
-	done < <(tracked '*.sh')
-	echo "--- jq parse ---"
-	while IFS= read -r f; do
-		[ -f "$f" ] || continue
-		jq empty "$f" >/dev/null 2>&1 || {
-			echo "invalid json: $f"
-			failed=1
-		}
-	done < <(tracked '*.json')
-	return $failed
+  local failed=0 f
+  echo "--- bash -n ---"
+  while IFS= read -r f; do
+    [ -f "$f" ] || continue
+    bash -n "$f" || {
+      echo "syntax error: $f"
+      failed=1
+    }
+  done < <(tracked '*.sh')
+  echo "--- jq parse ---"
+  while IFS= read -r f; do
+    [ -f "$f" ] || continue
+    jq empty "$f" >/dev/null 2>&1 || {
+      echo "invalid json: $f"
+      failed=1
+    }
+  done < <(tracked '*.json')
+  return $failed
 }
 
 run_focused() {
-	local rc=0
-	"$@" || rc=$?
-	if [ "$rc" -eq 3 ]; then
-		rc=1
-	fi
-	return $rc
+  local rc=0
+  "$@" || rc=$?
+  if [ "$rc" -eq 3 ]; then
+    rc=1
+  fi
+  return $rc
 }
 
 case "$TARGET" in
-smoke_test)
-	smoke
-	;;
-focused_test)
-	if [ ! -f "$FOCUS_FILE" ]; then
-		echo "focused_test: test file '$FOCUS_FILE' does not exist -- skipped (exit 3)."
-		exit 3
-	fi
-	case "$FOCUS_FILE" in
-	*.bats) run_focused bats "$FOCUS_FILE" ;;
-	*)
-		echo "focused_test: no runner for '$FOCUS_FILE' -- skipped (exit 3)."
-		exit 3
-		;;
-	esac
-	;;
-full_test)
-	smoke
-	echo "--- bats tests/unit ---"
-	if [ -d tests/unit ] && [ -n "$(find tests/unit -name '*.bats' -print -quit)" ]; then
-		bats -r tests/unit
-	else
-		echo "no bats tests under tests/unit/ yet"
-	fi
-	;;
-*)
-	echo "unknown target: $TARGET" >&2
-	exit 2
-	;;
+  smoke_test)
+    smoke
+    ;;
+  focused_test)
+    if [ ! -f "$FOCUS_FILE" ]; then
+      echo "focused_test: test file '$FOCUS_FILE' does not exist -- skipped (exit 3)."
+      exit 3
+    fi
+    case "$FOCUS_FILE" in
+      *.bats) run_focused bats "$FOCUS_FILE" ;;
+      *)
+        echo "focused_test: no runner for '$FOCUS_FILE' -- skipped (exit 3)."
+        exit 3
+        ;;
+    esac
+    ;;
+  full_test)
+    smoke
+    echo "--- bats tests/unit ---"
+    if [ -d tests/unit ] && [ -n "$(find tests/unit -name '*.bats' -print -quit)" ]; then
+      bats -r tests/unit
+    else
+      echo "no bats tests under tests/unit/ yet"
+    fi
+    ;;
+  *)
+    echo "unknown target: $TARGET" >&2
+    exit 2
+    ;;
 esac
 
 echo ""

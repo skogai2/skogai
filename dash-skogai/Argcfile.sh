@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2154 # argc_* variables are injected by argc at runtime
 set -e
-
 
 # @cmd skogai-config
 # @arg args~[?`_choice_script`]

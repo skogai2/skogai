@@ -32,28 +32,31 @@ export PATH="$HOME/.local/bin:$PATH"
 MODE=""
 NO_CACHE=false
 for arg in "$@"; do
-    case "$arg" in
-        --json) MODE="json" ;;
-        --raw) MODE="raw" ;;
-        --no-cache) NO_CACHE=true ;;
-        *) echo "Unknown arg: $arg" >&2; exit 1 ;;
-    esac
+  case "$arg" in
+    --json) MODE="json" ;;
+    --raw) MODE="raw" ;;
+    --no-cache) NO_CACHE=true ;;
+    *)
+      echo "Unknown arg: $arg" >&2
+      exit 1
+      ;;
+  esac
 done
 
 CACHE_FILE="/tmp/claude-usage-cache.json"
-CACHE_TTL="${CLAUDE_USAGE_CACHE_TTL:-600}"  # 10 minutes default
+CACHE_TTL="${CLAUDE_USAGE_CACHE_TTL:-600}" # 10 minutes default
 
 # --- Cache check (JSON and human-readable modes only, not --raw) ---
 if [ "$MODE" != "raw" ] && [ "$NO_CACHE" = false ] && [ -f "$CACHE_FILE" ]; then
-    # stat mtime: -c %Y on Linux, -f %m on macOS/BSD
-    CACHE_AGE=$(( $(date +%s) - $(stat -c %Y "$CACHE_FILE" 2>/dev/null || stat -f %m "$CACHE_FILE" 2>/dev/null || echo 0) ))
-    if [ "$CACHE_AGE" -lt "$CACHE_TTL" ]; then
-        if [ "$MODE" = "json" ]; then
-            cat "$CACHE_FILE"
-            exit 0
-        else
-            # Render human-readable from cached JSON
-            python3 -c "
+  # stat mtime: -c %Y on Linux, -f %m on macOS/BSD
+  CACHE_AGE=$(($(date +%s) - $(stat -c %Y "$CACHE_FILE" 2>/dev/null || stat -f %m "$CACHE_FILE" 2>/dev/null || echo 0)))
+  if [ "$CACHE_AGE" -lt "$CACHE_TTL" ]; then
+    if [ "$MODE" = "json" ]; then
+      cat "$CACHE_FILE"
+      exit 0
+    else
+      # Render human-readable from cached JSON
+      python3 -c "
 import json, sys
 with open('$CACHE_FILE') as f:
     result = json.load(f)
@@ -76,48 +79,48 @@ for key, label in [('five_hour', 'Session (5h)'), ('seven_day', 'Weekly (all)'),
         print(f'  {label:20s} N/A')
 print()
 "
-            exit 0
-        fi
+      exit 0
     fi
+  fi
 fi
 
 SESSION_NAME="claude-usage-check-$$"
 TIMEOUT=25
 
 cleanup() {
-    # Try graceful exit first
-    tmux send-keys -t "$SESSION_NAME" Escape 2>/dev/null || true
-    sleep 0.5
-    tmux send-keys -t "$SESSION_NAME" "/exit" Enter 2>/dev/null || true
-    sleep 1
-    tmux kill-session -t "$SESSION_NAME" 2>/dev/null || true
+  # Try graceful exit first
+  tmux send-keys -t "$SESSION_NAME" Escape 2>/dev/null || true
+  sleep 0.5
+  tmux send-keys -t "$SESSION_NAME" "/exit" Enter 2>/dev/null || true
+  sleep 1
+  tmux kill-session -t "$SESSION_NAME" 2>/dev/null || true
 }
 trap cleanup EXIT
 
 # Check prerequisites
 if ! command -v tmux &>/dev/null; then
-    echo "Error: tmux is required" >&2
-    exit 1
+  echo "Error: tmux is required" >&2
+  exit 1
 fi
 
 # If ANTHROPIC_API_KEY is in the env, CC uses API-key mode (no subscription quotas).
 # The script unsets it for the CC subprocess, but warn in case something is unexpected.
 if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
-    echo "Note: ANTHROPIC_API_KEY found in env, will be unset for CC subprocess." >&2
+  echo "Note: ANTHROPIC_API_KEY found in env, will be unset for CC subprocess." >&2
 fi
 
 # Start CC in a headless tmux session
 # Unset CLAUDECODE (nested protection) and ANTHROPIC_API_KEY (force OAuth)
 tmux new-session -d -s "$SESSION_NAME" -x 120 -y 50 \
-    "env -u ANTHROPIC_API_KEY -u CLAUDECODE claude 2>&1; sleep 2"
+  "env -u ANTHROPIC_API_KEY -u CLAUDECODE claude 2>&1; sleep 2"
 
 # Wait for CC to initialize
 for _ in $(seq 1 "$TIMEOUT"); do
-    content=$(tmux capture-pane -t "$SESSION_NAME" -p 2>/dev/null || true)
-    if echo "$content" | grep -qE '(❯|shortcuts)'; then
-        break
-    fi
-    sleep 1
+  content=$(tmux capture-pane -t "$SESSION_NAME" -p 2>/dev/null || true)
+  if echo "$content" | grep -qE '(❯|shortcuts)'; then
+    break
+  fi
+  sleep 1
 done
 
 # Send /usage command (type it, then Enter to select from autocomplete)
@@ -127,20 +130,20 @@ tmux send-keys -t "$SESSION_NAME" Enter
 
 # Wait for usage data to render
 for _ in $(seq 1 "$TIMEOUT"); do
-    content=$(tmux capture-pane -t "$SESSION_NAME" -p -S -80 2>/dev/null || true)
-    if echo "$content" | grep -qiE '(%\s*used|not enabled|Extra usage|Resets)'; then
-        break
-    fi
-    sleep 1
+  content=$(tmux capture-pane -t "$SESSION_NAME" -p -S -80 2>/dev/null || true)
+  if echo "$content" | grep -qiE '(%\s*used|not enabled|Extra usage|Resets)'; then
+    break
+  fi
+  sleep 1
 done
-sleep 1  # extra settle time for full render
+sleep 1 # extra settle time for full render
 
 # Capture output
 OUTPUT=$(tmux capture-pane -t "$SESSION_NAME" -p -S -80 2>/dev/null || true)
 
 if [ "$MODE" = "raw" ]; then
-    echo "$OUTPUT"
-    exit 0
+  echo "$OUTPUT"
+  exit 0
 fi
 
 # Parse the TUI output

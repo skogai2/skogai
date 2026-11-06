@@ -36,7 +36,8 @@ printf "  %-35s %s\n" "schema" "maps to type"
 printf "  %-35s %s\n" "------" "------------"
 for f in "$SCHEMA_DIR"/*.schema.json; do
   name="$(basename "$f")"
-  type_val="$(python3 - "$f" << 'PY'
+  type_val="$(
+    python3 - "$f" <<'PY'
 import json, sys, warnings
 warnings.filterwarnings("ignore")
 s = json.load(open(sys.argv[1]))
@@ -55,7 +56,7 @@ def find_type(obj):
 t = find_type(s)
 print(t if t else '(shared defs)')
 PY
-)"
+  )"
   printf "  %-35s %s\n" "$name" "$type_val"
 done
 

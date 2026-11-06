@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 ###
 ###
 ###
@@ -29,10 +30,9 @@
 ###
 ###
 
-#!/usr/bin/env bash
 set -euo pipefail
 mkdir -p /workspace/.cloud-setup/bin
-cat > /workspace/.cloud-setup/env.sh <<'CLOUD_SETUP_FILE'
+cat >/workspace/.cloud-setup/env.sh <<'CLOUD_SETUP_FILE'
 export CLOUD_SETUP_ROOT=/workspace/.cloud-setup
 export PATH="$CLOUD_SETUP_ROOT/bin:$CLOUD_SETUP_ROOT/tools/node/node_modules/.bin:$CLOUD_SETUP_ROOT/tools/go/bin:$CLOUD_SETUP_ROOT/tools/cargo/bin:$CLOUD_SETUP_ROOT/tools/mise/bin:$CLOUD_SETUP_ROOT/tools/bats/bin:$CLOUD_SETUP_ROOT/tools/dotnet:$PATH"
 export UV_CACHE_DIR="$CLOUD_SETUP_ROOT/cache/uv"
@@ -62,13 +62,13 @@ export NUGET_PACKAGES="$CLOUD_SETUP_ROOT/cache/nuget"
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
 CLOUD_SETUP_FILE
-cat > /workspace/.cloud-setup/bin/uv <<'CLOUD_SETUP_FILE'
+cat >/workspace/.cloud-setup/bin/uv <<'CLOUD_SETUP_FILE'
 #!/bin/sh
 export UV_CACHE_DIR=/workspace/.cloud-setup/cache/uv
 exec /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv "$@"
 
 CLOUD_SETUP_FILE
-cat > /workspace/.cloud-setup/install.sh <<'CLOUD_SETUP_FILE'
+cat >/workspace/.cloud-setup/install.sh <<'CLOUD_SETUP_FILE'
 #!/usr/bin/env bash
 set -euo pipefail
 root=/workspace/.cloud-setup

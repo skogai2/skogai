@@ -6,6 +6,9 @@ local linters = new Mapping {
     ["shellcheck"] = Builtins.shellcheck
     ["shfmt"] = (Builtins.shfmt) {
         check = "shfmt -i 2 -ci -d --apply-ignore {{files}}"
+        // fix-mode hooks (pre-commit) run check_diff and apply its patch;
+        // without this override they used the builtin `shfmt -d` (tabs)
+        check_diff = "shfmt -i 2 -ci -d --apply-ignore {{files}}"
         fix = "shfmt -i 2 -ci -w --apply-ignore {{files}}"
     }
     ["detect_private_key"] = Builtins.detect_private_key
