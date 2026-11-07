@@ -1,6 +1,6 @@
 # skogai
 
-how an agent runs [skogai](../type/tool/skogai.md) until the cli has the command. only `config` exists so far, as `argc config` ([skogai-config](../bin/skogai-config.md)). each section is one command, written as a prompt: hand an agent this file and the command name.
+how an agent runs [skogai](../type/tool/skogai.md) until the cli has the command. none exists yet; config is plain `mise config` ([mise](../type/tool/mise.md)). each section is one command, written as a prompt: hand an agent this file and the command name.
 
 paths are relative to the dash root, the folder holding `type/`. `<dot>` is the dot to check. in this repo it is `src`, later `./.skogai`.
 
@@ -23,7 +23,7 @@ run each command exactly as written, one per shell call, from the dash root: no 
    - no `type`: `untagged`.
    - a `type` that is not a case: `unknown tag`.
    - a field from the case's `fields` missing: `missing field`.
-7. **derived**: skip. how a type declares a derived file is still open (see [TODO](../TODO.md)). say it was skipped.
+7. **derived**: skip. how a type declares a derived file is still open (see `~/skogai-runner/TODO.md`). say it was skipped.
 
 ### output
 
@@ -42,7 +42,7 @@ result  errors=<n> warnings=<n>
 
 ## plan
 
-not written yet. depends on where a dot records its dash ref and how layers merge (see [TODO](../TODO.md)).
+not written yet. depends on where a dot records its dash ref and how layers merge (see `~/skogai-runner/TODO.md`).
 
 ## apply
 

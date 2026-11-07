@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2154 # argc_* variables are injected by argc at runtime
+# the cli, run as `argc <cmd>`. no commands yet: config is plain `mise config`
+# (see type/tool/mise.md). a command is `# @cmd` + a function calling
+# `_run_script`, which runs `bin/skogai-<function name>`.
 set -e
-
-# @cmd skogai-config
-# @arg args~[?`_choice_script`]
-config() { _run_script "$@"; }
 
 _run_script() {
   bash "./bin/skogai-${FUNCNAME[1]}" "$@"
