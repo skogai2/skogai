@@ -1,2 +1,2 @@
-[skogai.config.local]
-dir = "./local"
+# [env.skogai.config.local]
+# dir = "./local"

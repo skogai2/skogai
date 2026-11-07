@@ -1,2 +1,2 @@
-[skogai.config.system]
-dir = "./system"
+# [env.skogai.config.system]
+# dir = "./system"

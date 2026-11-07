@@ -7,3 +7,5 @@
 .harness/SESSION_INCOMPLETE
 .harness/features.json.lock
 .harness/last_gate.json
+/.skogai/logs/skogai-core/log.jsonl
+/dash-skogai/tmp/routing/scripts/__pycache__
