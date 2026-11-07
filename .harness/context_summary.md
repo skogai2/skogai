@@ -4,7 +4,7 @@ Persistent record of architectural decisions, discovered patterns, gotchas, and 
 This file is referenced in AGENTS.md and loaded every session.
 
 ## Active Context
-- Currently working on: nothing; F002 (direct delegation) and F003 (plan-first delegation) of .skogai/skills/herdr-orchestration/ passing 2026-11-06
+- Currently working on: nothing; F002 (direct delegation) and F003 (plan-first delegation) of .skogai/skills/herdr-orchestration/ passing 2026-11-06; that skill was retired 2026-11-06 (PR #13) in favor of /vv-harness:harness-orchestrate
 - Next up: skogix names the next feature; open gaps: plan rejection path and claude plan-mode status/shift+tab order never observed live
 
 ## Cross-Cutting Concerns
@@ -86,6 +86,13 @@ This file is referenced in AGENTS.md and loaded every session.
 - A packet's verification step must be one the worker can pass when the work is right; diff -w made both workers stop on correct output (watching)
 - Read a lint tool's full output before writing its failures into a spec; summaries mask findings (backlog)
 - The spec gate earns its cost on the first proposal: it caught a test-layout contradiction (machine checks under a recursive full_test) before any code existed
+
+## Meta-Session 2026-11-07
+- Scope accuracy: no feature work; chores only. Retired .skogai/skills/herdr-orchestration (PR #13, findings merged upstream into vv-harness harness-orchestrate) and repointed the orchestration directive (PR #14, Greptile P2)
+- Model calibration: n/a, no agents spawned
+- Discovery lineage: PR review caught a stale pointer to the deleted skill; a repo-wide grep for the removed path before merging would have caught it first
+- Approach patterns: when deleting a skill or doc, grep for its path across AGENTS.md, context_summary.md and type/*.md in the same commit
+- Plan approval: n/a
 
 ## Meta-Session 2026-11-06 (F003)
 - Scope accuracy: as planned; no scope expansions. The codex audit changed nothing (skogix kept all scripts), so half the run proved the flow but produced no diff
