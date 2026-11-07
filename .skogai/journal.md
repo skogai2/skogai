@@ -111,3 +111,45 @@ result  errors=2 warnings=6
 - Read `dash-skogai/type/trigger.md`
 - Read `dash-skogai/type/event.md`
 
+## 2026-11-07 08:22 · turn b908be53
+
+**User**
+
+> the changes are from me. we are moving dash-skogai into skogai-runner slowly. now did we have any implementation for the dash-skogai/type/-setup yet or anything else related to the argc-runner?
+
+**Assistant**
+
+Only one argc command is actually implemented: `argc config`. Everything else for the `type/` setup is still spec, docs, or a script that generates the README.
+
+**Implemented**
+- **The runner itself** is `Argcfile.sh`. It has a single `@cmd config` that hands off to `bin/skogai-<cmd>`, so each future command is just another `bin/skogai-<name>` file plus one `@cmd` line.
+- **`bin/skogai-config`** is a working CLI with `get`, `set`, `unset`, `list`, `env` and `files`.
+  - It reads three layers, system → global → local, from `*/mise.config.toml`, and the later layer wins.
+  - `--file` adds a markdown file's frontmatter as an extra layer, followed by its `.local.md`.
+  - A `SKOGAI_*` environment variable overrides every layer.
+  - It is documented in `bin/skogai-config.md`, and its history runs from `0842aad` to `8ad605c`. It has no bats tests.
+- **The README generator** is `tmp/graph/types.sh` + `types.jq`, run by `mise run dash:graph`. It builds `README.md` from the frontmatter in `type/*.md`.
+
+**Spec only, no code**
+- **`type/`** holds definitions only:
+  - `type.md` and `type.schema.json`, with the ownership rules (one owner per file).
+  - `router`, `event` with schemas for 13 hook events, and the tool docs.
+  - `task`, `spec`, `repo`, `memory` and `knowledge` are empty stubs of 7–12 bytes.
+- **`skogai check/resolve/plan/apply`** are specified in `type/tool/skogai.md` but none of them is built.
+  - `check` exists only as an agent prompt (`workflows/skogai.md`, run via `mise run dash:check`), not as code.
+  - `plan` and `apply` haven't been written; their open questions were tracked in `TODO.md`.
+- **`tmp/routing/`** has Python validators (`validate_router.py`, `list_routers.py` and others). They are the source the `router` type was based on, not part of the argc CLI.
+
+Two of your changes affect this:
+- `type/tool/skogai.md` and `workflows/skogai.md` still link to the `TODO.md` you deleted, which is where those open questions lived.
+- With `local/` and `system/mise.config.toml` commented out, `argc config` now only sees the global layer.
+
+The obvious next piece of argc code is `bin/skogai-check`, which would turn the check prompt in `workflows/skogai.md` into a real script. Should that go into `skogai-runner` rather than here?
+
+**Actions**
+
+- Bash: `cd /home/skogix/skogai/dash-skogai && rtk ls && rtk ls type | head -50 && cat AGENTS.md | head -80`
+- Bash: `rtk read SKOGAI.md Argcfile.sh config mise.config.toml && find bin src workflows global local system type -type f | grep…`
+- Bash: `rtk read bin/skogai-config type/type.md type/tool/skogai.md type/router.md workflows/skogai.md; rtk ls tmp/routing tmp/g…`
+- Bash: `rtk git log --oneline -- Argcfile.sh bin/ workflows/ tmp/graph | head -15; rtk read tmp/graph/types.sh; rtk ls /home/sko…`
+
