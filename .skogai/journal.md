@@ -187,3 +187,67 @@ If you pick A, I'll do the cleanup now. For routing, my picks are 1, 2 and 4: th
 - Bash: `grep -rn "config" --exclude-dir=tmp --exclude-dir=.git . | grep -v "^./bin/skogai-config:" | head -40; grep -rln "config…`
 - Bash: `rtk read bin/skogai-config.md global/mise.config.toml; rtk read tmp/routing/references/router-file-convention.md tmp/rou…`
 
+## 2026-11-07 14:01 · turn 8f463901
+
+**User**
+
+> please clean it up.
+>
+> and the goal is now to create a skogai-routing documentation and spec which can be remade into the new generalized implementation
+
+**Assistant**
+
+The config wrapper is gone and the routing spec is written, both committed. Lint passes and stale-reference greps are clean; the new spec has not been reviewed beyond my own read.
+
+**Config cleanup (`da33214`)**
+- I deleted `bin/skogai-config` and its doc, and removed the `config` command. `Argcfile.sh` is now an empty dispatcher with a comment explaining how to add a command.
+- The useful parts of the old doc moved to `type/tool/mise.md`: the layers, how to read and write with `mise config`, and a note on why the script was removed. The old script is still in history at `80e3e9b` if you need it.
+- I fixed the stale links in `SKOGAI.md`, `type/tool/skogai.md` and `workflows/skogai.md`, which now point to `~/skogai-runner/TODO.md`. I regenerated `README.md`.
+
+**Routing spec (`3e35df2`)**, in `dash-skogai/tmp/routing/`. I put it under `tmp/` because the old TODO cites a "decision 0006" (no file for it exists) that keeps routing out of dash's type layer for now.
+- **`README.md`** explains the idea in one page and how it fits skogai: markdown+, the chain as a fold, reachability next to ownership, and `CLAUDE.md`/`AGENTS.md` as generated pointer files.
+- **`SPEC.md`** is the contract, with no implementation details:
+  - document shape and the grammar for entries
+  - router versus content-loader
+  - the loading rules: no transitive bloat, one step per level, no eager cycles
+  - the pointer files and the entrypoint
+  - reachability and permalinks
+  - a section on how Claude Code itself does the loading
+  - four operations (discover, check, graph, scaffold) and a table of check findings with exit codes
+- Each rule ("MUST") is written so it can become a check. The generalizations are marked **(proposed)** and listed under **open**, with six decisions for you.
+- §13 lists what the old version got wrong, so it isn't carried over.
+
+One conflict surfaced: dash's draft `type/router.md` says `CLAUDE.md` is `@SKOGAI.md`, but your 2026-11-06 rule makes it `@AGENTS.md`. The spec follows your rule. It proposes `AGENTS.md` → `SKOGAI.md`, which matches dash-skogai but not the repo root.
+
+I didn't touch the last item in `~/skogai-runner/TODO.md`, "port skogai-config to mise". It's now obsolete and you can drop it. Your own uncommitted changes are untouched.
+
+**Actions**
+
+- Bash: `rtk read type/tool/mise.md type/index.md type/spec.md tmp/routing/references/at-linking.md tmp/routing/examples/SKOGAI.m…`
+- Bash: `rtk read /home/skogix/skogai-runner/README.md /home/skogix/skogai-runner/TODO.md; rtk ls /home/skogix/skogai-runner/docs…`
+- Bash: `rtk read /home/skogix/skogai-runner/docs/README.md /home/skogix/skogai-runner/docs/markdown-plus.md /home/skogix/skogai-…`
+- Bash: `grep -rl "0006" /home/skogix/skogai/dash-skogai /home/skogix/skogai/.skogai /home/skogix/skogai-runner/.skogai 2>/dev/nu…`
+- Read `dash-skogai/tmp/definitions.md`
+- Bash: `git rm -q bin/skogai-config bin/skogai-config.md`
+- Write `dash-skogai/Argcfile.sh`
+- Write `dash-skogai/type/tool/mise.md`
+- Read `dash-skogai/SKOGAI.md`
+- Read `dash-skogai/type/tool/skogai.md`
+- Read `dash-skogai/workflows/skogai.md`
+- Edit `dash-skogai/SKOGAI.md`
+- Edit `dash-skogai/type/tool/skogai.md`
+- Edit `dash-skogai/type/tool/skogai.md`
+- Edit `dash-skogai/type/tool/skogai.md`
+- Edit `dash-skogai/workflows/skogai.md`
+- Edit `dash-skogai/workflows/skogai.md`
+- Bash: `cd /home/skogix/skogai && mise run dash:graph 2>&1 | tail -3; rtk grep -rn "skogai-config\|argc config" dash-skogai --ex…`
+- Bash: `hk check --all 2>&1 | tail -5`
+- Bash: `rtk git add dash-skogai/Argcfile.sh dash-skogai/SKOGAI.md dash-skogai/README.md dash-skogai/type/tool/mise.md dash-skoga…`
+- Bash: `rtk git commit -m "dash: remove skogai-config, config is plain mise config`
+- Read `.skogai/rules/agents-md.md`
+- Write `dash-skogai/tmp/routing/SPEC.md`
+- Write `dash-skogai/tmp/routing/README.md`
+- Edit `dash-skogai/tmp/routing/SPEC.md`
+- Bash: `rtk git add dash-skogai/tmp/routing/SPEC.md dash-skogai/tmp/routing/README.md`
+- Bash: `rtk git commit -m "dash: skogai-routing concept doc and implementation-free spec`
+
