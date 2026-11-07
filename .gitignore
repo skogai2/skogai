@@ -9,3 +9,4 @@
 .harness/last_gate.json
 /.skogai/logs/skogai-core/log.jsonl
 /dash-skogai/tmp/routing/scripts/__pycache__
+/.skogai/logs/skogai-core/log.jsonl
