@@ -18,7 +18,7 @@ This file is referenced in AGENTS.md and loaded every session.
 ### Decisions
 - Oversight and messaging use existing herdr commands only, documented in dash-skogai/type/tool/herdr.md; no scripts (skogix: the removed orchestrate skill wrote its own tools instead of using what exists) (2026-11-06)
 - Messaging goes through herdr (`agent prompt` default, `pane send-text` + `send-keys enter` tmux-style), not Claude Code's SendMessage (skogix 2026-11-06)
-- Orchestration follows .skogai/skills/herdr-orchestration/SKILL.md; workers launch in auto mode (claude --permission-mode auto, codex --approve-for-me), never bypass flags (skogix 2026-11-06)
+- Orchestration follows the vv-harness plugin skill /vv-harness:harness-orchestrate (source skogai2/skogharness skills/harness-orchestrate/; the local .skogai/skills/herdr-orchestration copy was retired in PR #13, 2026-11-06); workers launch in auto mode (claude --permission-mode auto, codex --approve-for-me), never bypass flags (skogix 2026-11-06)
 - The controller never answers trust prompts (codex folder trust, claude CLAUDE.md imports); notify skogix (2026-11-06)
 
 ### Gotchas
