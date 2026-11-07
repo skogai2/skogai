@@ -36,3 +36,39 @@ Harness is green and nothing is ready to build: all 3 features (F001–F003) pas
 - Edit `.harness/context_summary.md`
 - Bash: `cd /home/skogix/skogai; rtk git diff --stat; rtk git diff dash-skogai/local/mise.config.toml dash-skogai/system/mise.con…`
 
+## 2026-11-07 07:20 · turn 3e808520
+
+**User**
+
+> /vv-harness:harness-continue
+
+**Assistant**
+
+I'm oriented. The previous session left its harness notes uncommitted, so I committed them as `80e3e9b`. The smoke test passes and the SSH identity is Skogix. All 3 features are passing, so there's nothing to pick up: you need to name the next feature.
+
+Things to decide on:
+
+- **Uncommitted changes I didn't make:**
+  - `dash-skogai/TODO.md` is deleted.
+  - The config sections in `dash-skogai/local/mise.config.toml` and `dash-skogai/system/mise.config.toml` are commented out.
+  - `dash-skogai/tmp/routing/scripts/__pycache__/` is untracked. Should I gitignore it, delete it, or leave it?
+  - `.skogai/logs/skogai-core/log.jsonl` has changes.
+
+  Should I commit these, leave them, or revert them?
+- **Feature records out of date:**
+  - F001's description changed after it was verified.
+  - F002 and F003 point at test files that don't exist. Their evidence was in `tmp/`, which is gitignored and only on this machine.
+
+  I can update the `test_file`/`proof` fields to say that, or re-run the spec check on F001.
+- **Not pushed:** master is ahead of origin.
+
+Open gaps from last time: the plan-rejection path and the order of Claude's plan-mode status / shift+tab were never seen working live.
+
+**Actions**
+
+- Bash: `rtk git status -s && rtk git diff --stat .harness/ && rtk ssh -T git@github.com 2>&1 || true`
+- Bash: `./.harness/init.sh smoke_test 2>&1 | tail -15`
+- Bash: `rtk git diff .harness/context_summary.md dash-skogai/local/mise.config.toml dash-skogai/system/mise.config.toml`
+- Bash: `rtk git add .harness/context_summary.md`
+- Bash: `rtk git commit -m "docs(harness): record skill retirement and 2026-11-07 meta-session`
+
