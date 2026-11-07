@@ -153,3 +153,37 @@ The obvious next piece of argc code is `bin/skogai-check`, which would turn the 
 - Bash: `rtk read bin/skogai-config type/type.md type/tool/skogai.md type/router.md workflows/skogai.md; rtk ls tmp/routing tmp/g…`
 - Bash: `rtk git log --oneline -- Argcfile.sh bin/ workflows/ tmp/graph | head -15; rtk read tmp/graph/types.sh; rtk ls /home/sko…`
 
+## 2026-11-07 08:40 · turn 579a16a3
+
+**User**
+
+> we can clean up the config-part of the argc implementation then and start to look at what skogai-routing would add to the mix if only the actual "concept" was added without the implementation details
+
+**Assistant**
+
+Before I touch the config code, there's one choice to make.
+
+**Config cleanup.** `bin/skogai-config.md` already concludes that mise does the work. The script's `get`/`set`/`unset`/`list`/`env` still read and write git-config format, so they fail on the toml layers. Two ways to clean it up:
+
+- **A, delete it (my recommendation):** remove `bin/skogai-config` and the `config` command in `Argcfile.sh`. The doc's "mise does the work" section moves into `type/tool/mise.md`, and the stale links in `SKOGAI.md`, `type/tool/skogai.md` and `workflows/skogai.md` get fixed. `skogai-runner` would then start with no config code.
+- **B, thin wrapper:** rewrite it as a small fold over `mise config get/set --file` for each layer. That only pays off if `--file x.md` frontmatter layers or `--show-origin` are still wanted next to `mise env --json-extended`.
+
+**What skogai-routing would add as concept only.** `type/router.md` already covers the document shape, `@` versus plain paths, no transitive bloat, one step per level, and `CLAUDE.md` being generated. What it doesn't cover yet:
+
+1. **Permalink, a stable logical id.** It has the form `reponame/filename` and points to whichever copy exists: `~/repo`, `~/.local/src/repo` or `./projects/repo`. This bears directly on moving dash into skogai-runner, because names survive the move. It also overlaps with "refs resolve to commits" (dash is named by ref). It conflicts with dash using `title` as the name, so one of them has to win.
+2. **Type tag = XML root tag, as a general rule.** In dash this exists only for `router`/`<routes>`. Generalized, the body's shape becomes part of the type, so `check` validates the body as well as the frontmatter. That makes the closed union stricter.
+3. **Router versus content-loader as two distinct cases.** A loader is a leaf that pulls in all its content with `@`; a router only lists it. Dash has the no-bloat rule but no loader case for it to point at.
+4. **Reachability as a check rule.** Next to "every file has exactly one owner" you'd add "every file is listed by some router". The first is about ownership, the second about discoverability, and they're independent.
+5. **The link chain mirrors the layers.** Routing's chain (`~/.claude` → workspace → area → leaf) has the same shape as base → global → local. Context loading would then be a fold just like config.
+6. **A normalized document record** (`path`, `sections`, `headings`, `links`). `tmp/graph/types.sh` already builds half of this (frontmatter + body), and it's what `check` would run on.
+
+I'd leave out the other types in its schemas (`lesson`, `workflow`, `template`, `reference`); the convention itself says not to invent types speculatively. I'd also leave out the `!`cmd`` blocks, which are skill mechanics, not concept.
+
+If you pick A, I'll do the cleanup now. For routing, my picks are 1, 2 and 4: they change what `check` means. The others are refinements.
+
+**Actions**
+
+- Bash: `rtk read tmp/routing/README.md tmp/routing/SKILL.md; rtk ls tmp/routing/references tmp/routing/examples tmp/routing/sche…`
+- Bash: `grep -rn "config" --exclude-dir=tmp --exclude-dir=.git . | grep -v "^./bin/skogai-config:" | head -40; grep -rln "config…`
+- Bash: `rtk read bin/skogai-config.md global/mise.config.toml; rtk read tmp/routing/references/router-file-convention.md tmp/rou…`
+
