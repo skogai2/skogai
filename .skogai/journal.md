@@ -251,3 +251,39 @@ I didn't touch the last item in `~/skogai-runner/TODO.md`, "port skogai-config t
 - Bash: `rtk git add dash-skogai/tmp/routing/SPEC.md dash-skogai/tmp/routing/README.md`
 - Bash: `rtk git commit -m "dash: skogai-routing concept doc and implementation-free spec`
 
+## 2026-11-07 14:13 · turn bb9b14fc
+
+**User**
+
+> /vv-harness:harness-continue
+
+**Assistant**
+
+I updated the routing spec with your answers and committed it (`28634d3`). The smoke test passes. Running single-session, but there's still nothing to claim.
+
+**What changed in `SPEC.md`**
+- **Links:** a link is any line starting with `- @`. Nothing else is parsed, there's no `<routes>` block, and a bullet without `@` is just prose.
+- **Permalink:** `repo/name` is now required on every router as its identity. Two new errors: `permalink unresolved` when it points nowhere, and `permalink mismatch` when it points at a different file or two documents claim the same one.
+- **Links stay real paths.** Claude Code only expands real paths, so a link can't be a permalink.
+- **Loader and the bloat rule are gone.** In their place, §4 says links are transitive, so everything a router links gets loaded with it. What limits that is left open for your redefinition of roles.
+- **Removed:** reachability, lazy entries, and the per-type root block. They're listed as out of scope.
+- **Findings** are down to eight: `untagged`, `no permalink`, `dangling`, `no description`, `cycle`, `permalink unresolved`, `permalink mismatch` and `shim drift`.
+
+**Still open (5):**
+1. Roles: what kinds of routing document exist, and what limits how much a router pulls in.
+2. When more than one location matches a permalink, does the first one win or is it an error?
+3. Does `title` stay as the display name next to `permalink`?
+4. Should `AGENTS.md` be a pointer to `SKOGAI.md` everywhere, including the repo root?
+5. Does routing become a type in skogai-runner, or stay a separate tool?
+
+Roles are the blocker for an implementation feature. Once you've redefined them, I can turn the spec into F004 and send it through `harness-issue-prep`. If you'd rather end the session here, I'll write the handoff, retrospective and session log.
+
+**Actions**
+
+- Bash: `./.harness/init.sh smoke_test 2>&1 | tail -2; rtk git status -s; rtk jq '.features[] | {id, status, description: (.descr…`
+- AskUserQuestion
+- Write `dash-skogai/tmp/routing/SPEC.md`
+- Write `dash-skogai/tmp/routing/README.md`
+- Bash: `rtk git add dash-skogai/tmp/routing/SPEC.md dash-skogai/tmp/routing/README.md`
+- Bash: `rtk git commit -m "dash: narrow routing spec to skogix's 2026-11-07 answers`
+
