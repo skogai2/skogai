@@ -72,3 +72,42 @@ Open gaps from last time: the plan-rejection path and the order of Claude's plan
 - Bash: `rtk git add .harness/context_summary.md`
 - Bash: `rtk git commit -m "docs(harness): record skill retirement and 2026-11-07 meta-session`
 
+## 2026-11-07 08:17 · turn 749661a4
+
+**User**
+
+> Read workflows/skogai.md and run its check section with <dot> = src.
+
+**Assistant**
+
+```text
+error   index.md: untyped
+error   index.md: untagged
+warning type/index.md: stub, no frontmatter
+warning type/knowledge.md: stub, no frontmatter
+warning type/memory.md: stub, no frontmatter
+warning type/repo.md: stub, no frontmatter
+warning type/spec.md: stub, no frontmatter
+warning type/task.md: stub, no frontmatter
+skipped derived files: not specified
+dash    67774552373d986fc4fbb439372cb087deda6a86
+result  errors=2 warnings=6
+```
+
+**Actions**
+
+- Read `dash-skogai/workflows/skogai.md`
+- Bash: `git rev-parse HEAD`
+- Bash: `rtk git status --porcelain type/`
+- Bash: `okn validate src`
+- Bash: `git ls-files --cached --others --exclude-standard src`
+- Glob: type/*.md
+- Grep `dash-skogai/type`
+- Read `dash-skogai/type/type.md`
+- Read `dash-skogai/type/tool.md`
+- Read `dash-skogai/type/router.md`
+- Read `dash-skogai/type/rule.md`
+- Read `dash-skogai/type/decision.md`
+- Read `dash-skogai/type/trigger.md`
+- Read `dash-skogai/type/event.md`
+
