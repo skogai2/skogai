@@ -45,17 +45,17 @@ folder      := path ending in "/"
 4. **minimal default.** if the entrypoint already surfaces every route, the shim needs nothing else. links to things that don't exist yet MUST NOT be added.
 5. loading is a request to the host, not a guarantee. the host may truncate or drop content under its own limits (§6).
 
-how to keep a closure bounded (v1's "router vs content-loader" and its no-bloat rule) is not part of this spec: the roles are being redefined (see [open](#open)).
+a closure has no bound and routers have no roles: any document may link anything (v1's "router vs content-loader" split and its no-bloat rule are dropped).
 
 ## 5. permalinks
 
 1. a document's identity is its `permalink`: `repo/name`, a logical id, not a filesystem path. `repo` names a logical repo, project or concept.
-2. it resolves to the first of these that exists:
+2. it resolves to the one of these that exists:
    1. `$HOME/<repo>/<name>.md`
    2. `$HOME/.local/src/<repo>/<name>.md`
    3. `./projects/<repo>/<name>.md` (a project inside a monorepo, treated as its own future repo)
 3. a permalink MUST stay the same when the repo moves between these places. this is what keeps a document's identity through moves like dash-skogai → skogai-runner.
-4. a permalink that resolves to nothing is an error.
+4. a permalink that resolves to nothing is an error. one that matches more than one location is an error too: no location wins by order.
 5. a permalink MUST resolve back to the document that declares it. a mismatch (two documents claiming one permalink, or a permalink resolving to another file) is an error.
 6. a permalink names a location, not a version. to reproduce a result, the check MUST also report the commit each permalink resolved to (skogai's "refs resolve to commits").
 
@@ -72,8 +72,9 @@ routing does not implement loading. this is what the claude code host does with 
 ## 7. shims and the entrypoint
 
 1. a shim MUST contain exactly one link and nothing else. it is derived, never hand-edited.
-2. current convention (decided 2026-11-06, `.skogai/rules/agents-md.md`): `CLAUDE.md` is `- @AGENTS.md`, and instructions live in `AGENTS.md`.
-3. the check regenerates every shim and compares (same as any derived file).
+2. `CLAUDE.md` is `- @AGENTS.md` (decided 2026-11-06, `.skogai/rules/agents-md.md`).
+3. `AGENTS.md` is `- @SKOGAI.md`, for hosts that load `AGENTS.md` natively (decided 2026-11-07). `SKOGAI.md` is the entrypoint. so every folder with instructions has the chain `CLAUDE.md` → `AGENTS.md` → `SKOGAI.md`.
+4. the check regenerates every shim and compares (same as any derived file).
 
 ## 8. operations
 
@@ -102,6 +103,7 @@ a finding is `{ level, path, kind }`, the same shape as the dash `check`. `level
 | `no description` | warning | §3.6 |
 | `cycle` | error | §4.3 |
 | `permalink unresolved` | error | §5.4 |
+| `permalink ambiguous` | error | §5.4 |
 | `permalink mismatch` | error | §5.5 |
 | `shim drift` | error | §7.1 |
 
@@ -112,7 +114,8 @@ exit codes follow skogai: `0` clean, `1` findings at error level, `2` usage or i
 - loading. the host loads; routing only defines and checks.
 - a root xml block per type (v1's `<routes>`, and "the tag names the block" for every type). links are found by the `- @` prefix alone for now.
 - lazy entries: listing a path without `@` is prose, not a route.
-- roles and closure bounds (router vs loader, no-bloat). being redefined.
+- roles and closure bounds (router vs loader, no-bloat).
+- where routing lives (a markdown+ type in skogai-runner, or a separate tool). decision 0006 kept it out of dash until the type layer works.
 - reachability ("every file is listed by some router").
 - other document types from the v1 schemas (`lesson`, `workflow`, `template`, `reference`).
 - skill mechanics (`!`command`` output blocks, `allowed-tools`).
@@ -127,13 +130,8 @@ exit codes follow skogai: `0` clean, `1` findings at error level, `2` usage or i
 
 - a link is a line beginning with `- @`; no root block.
 - identity is `permalink` (`repo/name`).
-- loader is not a defined concept; roles get redefined.
+- no roles, no closure bound.
 - reachability is out of scope.
-
-## open
-
-1. roles: what kinds of routing document exist, and what bounds a closure? (replaces v1's router/loader split.)
-2. permalinks: when more than one location matches, first wins or ambiguity error?
-3. permalink and dash `title`: does `title` stay as the display name, or go?
-4. `AGENTS.md` as a shim to `SKOGAI.md` (as in dash-skogai), with the repo root brought in line?
-5. home: does routing become a type in skogai-runner's markdown+, or stay a separate tool? (decision 0006 kept it out of dash until the type layer works.)
+- a permalink matching more than one location is an error.
+- `AGENTS.md` is a shim to `SKOGAI.md` everywhere.
+- where routing lives is out of scope.
