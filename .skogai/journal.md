@@ -287,3 +287,31 @@ Roles are the blocker for an implementation feature. Once you've redefined them,
 - Bash: `rtk git add dash-skogai/tmp/routing/SPEC.md dash-skogai/tmp/routing/README.md`
 - Bash: `rtk git commit -m "dash: narrow routing spec to skogix's 2026-11-07 answers`
 
+## 2026-11-07 20:29 · turn 083634c9
+
+**User**
+
+> /graft:memory-audit
+
+**Assistant**
+
+skogix, I couldn't run the memory audit because the graft memory CLI it needs isn't installed on this machine.
+
+The `graft` on your PATH is a different program: `@nanonets/graft`, the code-graph tool (version 0.28.1 under the npm install, 0.29.0 under node; it's the tool trail is based on). It has no `maintain`, `insert` or `query` commands, so the skill's first step failed with `unknown command 'maintain'`. The memory CLI would normally live in `~/.graft/bin`, which doesn't exist. `~/.graft` only holds the code-graph tool's `rename-notice.json` and `update-check.json`.
+
+Nothing was audited, resolved or changed.
+
+To fix it:
+1. **Install the memory CLI** by running `/graft:graft-init`. It asks before installing anything and uses `curl … AEndrix03/Graft/master/install.sh | sh`, which also downloads a ~600 MB embedding model. One problem: both tools are called `graft`, so whichever comes first on PATH wins. The memory CLI would need to come before the mise shims, or be called by its full path, `~/.graft/bin/graft`.
+2. **Remove the graft plugin** if you don't actually use graph memory. Trail already covers the repo context.
+
+Separately, a hook keeps rewriting my Bash calls to add `rtk`, so auto mode can't review them and I have to send each command twice. That's harmless but noisy.
+
+**Actions**
+
+- Bash: `graft maintain status` (failed)
+- Bash: `graft --version; graft --help 2>&1 | head -50; which -a graft`
+- Bash: `for g in /home/skogix/.local/share/mise/installs/node/latest/bin/graft; do echo "== $g"; readlink -f $g; $g --version 2>…` (failed)
+- Bash: `rtk grep -rniE "install|npm|cargo|pip|brew|github" /skogai/claude/plugins/cache/graft/graft/0.2.0/skills/graft-init/SKIL…`
+- Bash: `rtk ls -la ~/.graft ~/.graft/bin 2>&1 | head`
+
