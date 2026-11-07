@@ -5,6 +5,7 @@ Guidance for coding agents working in this repository. `CLAUDE.md` only links he
 - @SKOGAI.md
 
 Orchestration layer: where skogix and Claude plan and delegate. Stack: bash + mise + jq/yq + argc (tools pinned in `mise.toml`).
+Delegation to sub-agents across isolated worktrees and panes is governed by native `herdr` CLI rules documented in `orchestration/README.md`.
 
 ## Commands
 
@@ -14,6 +15,7 @@ Orchestration layer: where skogix and Claude plan and delegate. Stack: bash + mi
 
 ## Layout
 
+- `orchestration/`: the Herdr agent orchestration hub and work order management system. Read `orchestration/AGENTS.md` and `orchestration/README.md`. Orchestrators plan, delegate, and supervise sub-agents here using native `herdr` CLI commands.
 - `dash-skogai/`: the skogai type system and `argc config` CLI. Has its own `AGENTS.md`; read it before working there. Its `README.md` is generated from `type/*.md`, never hand-edited.
 - herdr oversight (what every agent is doing, its last answer, sending it text): `dash-skogai/type/tool/herdr.md`.
 - `.skogai/`: local rules, memory (index `.skogai/memory/MEMORY.md`), scripts, task templates. Check memory before re-deciding things.

@@ -1,0 +1,21 @@
+---
+description: Mandate Herdr agent delegation, pure work orders, and native CLI procedures
+priority: 10
+---
+- Agents operating in `/home/skogix/skogai` act as orchestrators: plan, author work orders, and delegate.
+- Never implement code changes or multi-file edits directly in the orchestrator session.
+- Always delegate implementation to sub-agents spawned in dedicated worktrees via `herdr worktree create` and `herdr agent start`.
+- Always pass `--no-focus` when creating workspaces, tabs, or panes to avoid disrupting the operator's UI.
+- Use native `herdr` CLI commands (`herdr agent`, `herdr pane`, `herdr worktree`) directly; never create or use custom wrapper scripts.
+- All delegated tasks must be defined using pure work orders in `orchestration/work-orders/open/` conforming to `orchestration/work-orders/SPECIFICATION.md`.
+- Work orders must NEVER define runtime execution targets (`workspace`, `pane`, `tab`, `machine`, `worktree`, `agent`, `model`, `socket`, `branch`, `pr`, `base`). Execution targets are dynamically bound at dispatch time.
+- Every work order must declare `name`, `description`, `reads`, and `owns`.
+- Two open work orders must never own the same file path (disjoint `owns` invariant).
+- Sub-agents must operate strictly within their declared `owns` boundary. Changes outside `owns` trigger immediate task rejection.
+- Dispatch prompts using `herdr agent prompt <target> "<prompt>" --wait --timeout <ms>`.
+- Wait on workers using settled-state gates (`herdr agent wait <target> --until done --until idle`).
+- Read transcripts using `herdr agent read <target> --source recent-unwrapped --lines <N>`.
+- Adjudicate worker results using git diffs and independent test runs, never worker self-reports.
+- Retire completed workers and checkouts using `herdr pane close` or `herdr worktree remove`.
+- Write throwaway or scratch output to `./tmp/` (repo-local), never to global `/tmp/`.
+- Authoritative documentation: `/home/skogix/skogai/orchestration/README.md` and `/home/skogix/skogai/orchestration/work-orders/SPECIFICATION.md`.
