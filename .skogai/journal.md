@@ -315,3 +315,37 @@ Separately, a hook keeps rewriting my Bash calls to add `rtk`, so auto mode can'
 - Bash: `rtk grep -rniE "install|npm|cargo|pip|brew|github" /skogai/claude/plugins/cache/graft/graft/0.2.0/skills/graft-init/SKIL…`
 - Bash: `rtk ls -la ~/.graft ~/.graft/bin 2>&1 | head`
 
+## 2026-11-07 22:41 · turn f871e97a
+
+**User**
+
+> 1. unlimited and nothing
+> 2. they are 
+> 3. does not matter. stop wasting time...
+> 4. correct
+> 5. dont know yet/out of scope
+
+**Assistant**
+
+The routing spec now has no open questions, committed as `fa33df1`.
+
+- **1.** Routers have no roles, and nothing limits how much one router pulls in.
+- **2.** I read "they are" as "they are an error": a permalink that matches more than one location is the error `permalink ambiguous`, and the first location does not win. Tell me if you meant the opposite.
+- **3.** Dropped.
+- **4.** Every folder with instructions has `CLAUDE.md` → `AGENTS.md` → `SKOGAI.md`. The repo root doesn't follow this yet, because its `AGENTS.md` holds the content. I haven't moved that content into `SKOGAI.md`; say if you want me to.
+- **5.** Out of scope.
+
+The spec is ready to become F004, the routing check implementation, through `harness-issue-prep`.
+
+**Actions**
+
+- Edit `dash-skogai/tmp/routing/SPEC.md`
+- Edit `dash-skogai/tmp/routing/SPEC.md`
+- Edit `dash-skogai/tmp/routing/SPEC.md`
+- Edit `dash-skogai/tmp/routing/SPEC.md`
+- Edit `dash-skogai/tmp/routing/SPEC.md`
+- Edit `dash-skogai/tmp/routing/SPEC.md`
+- Edit `dash-skogai/tmp/routing/SPEC.md`
+- Bash: `rtk git add dash-skogai/tmp/routing/SPEC.md`
+- Bash: `rtk git commit -m "dash: routing spec has no open items`
+
