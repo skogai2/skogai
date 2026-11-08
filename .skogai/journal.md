@@ -349,3 +349,15 @@ The spec is ready to become F004, the routing check implementation, through `har
 - Bash: `rtk git add dash-skogai/tmp/routing/SPEC.md`
 - Bash: `rtk git commit -m "dash: routing spec has no open items`
 
+## 2026-11-08 09:18 · turn 18c052a0
+
+**User**
+
+> /caveman:caveman
+
+**Assistant**
+
+Caveman mode on, skogix. Short talk now.
+
+Harness warn: last session miss `## Meta-Session 2026-11-08` note in `context_summary.md`. Also F002, F003 test_file missing. What we do first?
+
