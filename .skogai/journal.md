@@ -464,3 +464,30 @@ The earlier retrospective edit to `.harness/context_summary.md` is still uncommi
 - Bash: `for f in /skogai/claude/CLAUDE.md ~/.codex/AGENTS.md ~/.config/opencode/AGENTS.md /skogai/claude/rules/graft.md; do echo…`
 - Bash: `set -e`
 
+## 2026-11-08 09:30 · turn 1e45529a
+
+**User**
+
+> /graft:memory-audit
+
+**Assistant**
+
+I couldn't run the audit, skogix: the graft memory CLI the skill needs isn't installed.
+
+Every `graft` on PATH (the mise npm install and the node global) is `@nanonets/graft` 0.29.0. That's a separate tool that builds a repo context graph. It has no `maintain`, `insert`, `classify` or `analytics` commands, so `graft maintain status` fails with "unknown command 'maintain'". The graft plugin at `/skogai/claude/plugins/cache/graft/graft/0.2.0/` only contains `assets/`, `hooks/` and `skills/`, with no CLI binary. That also explains the "graft — repo map" header in this session's context: it came from the nanonets tool.
+
+Your global `CLAUDE.md` now imports `/skogai/claude/rules/graft.md`, which assumes the memory CLI is installed. Until that's fixed, every graft skill (`/memoryze`, `/recall`, `/memory-audit`) will fail the same way.
+
+Two ways forward:
+1. **Install the memory CLI** with `/graft:graft-init`, which asks before installing. Both packages use the binary name `graft`, so whichever comes first on PATH wins. One of them needs to be removed or aliased.
+2. **Remove `@nanonets/graft`** if you don't use it. Trail already covers the repo-graph role here.
+
+I'd go with option 2, then option 1. Should I do that?
+
+**Actions**
+
+- Bash: `graft maintain status` (failed)
+- Bash: `graft --version; graft --help`
+- Bash: `which -a graft; rtk ls /skogai/claude/plugins/cache/graft/graft/0.2.0/; rtk ls /skogai/claude/plugins/cache/graft/graft/…` (failed)
+- Bash: `/home/skogix/.local/share/mise/installs/node/latest/bin/graft --version; readlink -f /home/skogix/.local/share/mise/inst…`
+
