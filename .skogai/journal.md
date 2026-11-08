@@ -361,3 +361,18 @@ Caveman mode on, skogix. Short talk now.
 
 Harness warn: last session miss `## Meta-Session 2026-11-08` note in `context_summary.md`. Also F002, F003 test_file missing. What we do first?
 
+## 2026-11-08 09:28 · turn 1b84b18c
+
+**User**
+
+> /graft:memoryze
+
+**Assistant**
+
+There's nothing to save from this session yet, skogix. `/memoryze` was the first thing you sent, so I haven't solved or decided anything here.
+
+What should I memoryze? Some options:
+- Paste or describe what you want saved, ideally with a count and a focus (for example: "the herdr plan-first delegation findings, 2 nodes, focus on the gotchas").
+- Name a file or doc to distill. I'd attach it with `--source file:<path>`.
+- Point me at an earlier session. I can find it through atuin threads and save from there.
+
