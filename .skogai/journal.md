@@ -437,3 +437,30 @@ graft: not used. The memory CLI isn't installed and `graft` points to the npm pa
 - Bash: `type -a graft; rtk ls ~/.graft 2>&1 | head; rtk ls /skogai/claude/plugins/cache/graft/graft/0.2.0/ 2>&1; rtk ls /skogai/…` (failed)
 - Bash: `rtk read ~/.graft/rename-notice.json ~/.graft/update-check.json; echo; /home/skogix/.local/share/mise/installs/node/late…`
 
+## 2026-11-08 09:29 · turn 728f309c
+
+**User**
+
+> /graft:graft-init
+
+**Assistant**
+
+graft is now wired in globally, skogix. Files written:
+- `/skogai/claude/rules/graft.md` (the full rule)
+- `/skogai/claude/CLAUDE.md` (a marked block that imports the rule)
+- `~/.codex/AGENTS.md` (the full rule in a marked block)
+- `~/.config/opencode/AGENTS.md` (the full rule in a marked block)
+
+From now on agents run graft by themselves (setup, search, fixing stale notes, saving and cleanup), within limits and without asking you.
+
+Your Claude config dir is `/skogai/claude`, so I didn't write `~/.claude/CLAUDE.md`, which Claude wouldn't load. graft 0.29.0 was already installed, and there were no duplicate skill copies to clean up.
+
+The earlier retrospective edit to `.harness/context_summary.md` is still uncommitted on `master`.
+
+**Actions**
+
+- Bash: `graft --version 2>&1 || ~/.graft/bin/graft --version 2>&1; rtk ls -d ~/.claude ~/.codex ~/.config/opencode 2>&1; echo "C…` (failed)
+- AskUserQuestion
+- Bash: `for f in /skogai/claude/CLAUDE.md ~/.codex/AGENTS.md ~/.config/opencode/AGENTS.md /skogai/claude/rules/graft.md; do echo…`
+- Bash: `set -e`
+
