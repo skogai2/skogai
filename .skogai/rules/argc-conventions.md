@@ -7,6 +7,10 @@ paths:
 
 # argc
 
+> [!WARNING]
+> Superseded by `usage + mise` (2026-11-06 / skogix). `argc` is no longer extended.
+> See `.skogai/rules/runner-conventions.md`.
+
 argc already validates, defaults, requires, and dispatches everything declared in `@arg`/`@option`/`@flag`/`@env`/`@meta` _before_ a function body runs. a function body re-implementing any of that in bash is a bug, not a style choice. there should be a strong, specific reason to write more than ~5 lines of bash in a command function — validation/defaulting/dispatch is never that reason.
 
 ## do not

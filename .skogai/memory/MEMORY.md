@@ -28,3 +28,4 @@ or is forgotten.
 * [secrets-burned-on-contact](secrets-burned-on-contact.md) - secrets that touched git or an agent are already rotated; only history rewrite is open.
 * [claude-tool-allowlist](claude-tool-allowlist.md) - /skogai clean claude: tools allowlisted per surface (deny always wins), verify via stream-json init.
 * [probe-method-lessons](probe-method-lessons.md) - protocol probes, spec gates (testable is not worth) and herdr agents; harness removed 2026-10-31.
+* [runner-and-mise-boundaries](runner-and-mise-boundaries.md) - mise is the modular environment/config engine; runner orchestrates relationships, templates, and dynamic context.
