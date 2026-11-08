@@ -406,3 +406,34 @@ graft: not usable, because `graft` on PATH is `@nanonets/graft` and not the memo
 - Bash: `rtk ls ~/.graft 2>&1; type -a graft graftd 2>&1; ls ~/.local/bin | rtk grep -i graft` (failed)
 - Bash: `rtk read ~/.graft/rename-notice.json; echo; /home/skogix/.local/share/mise/installs/node/latest/bin/graft --version; rea…`
 
+## 2026-11-08 09:29 · turn a1cd683d
+
+**User**
+
+> /graft
+
+**Assistant**
+
+skogix, I couldn't use graft this session: the memory CLI the skill needs isn't installed, and a different program is using the `graft` name.
+
+- Every `graft` on PATH is `@nanonets/graft` 0.29.0, an npm package for repo context graphs. That's the older name of the tool now called **trail**: `~/.graft/rename-notice.json` exists, and trail's `INDEX.md` still says "graft — repo map".
+- That binary has no `status`, `query`, `insert` or `maintain` commands, and there's no `~/.graft/models/bge-m3.gguf`. The memory CLI and its daemon have never been set up on this machine.
+- The plugin at `/skogai/claude/plugins/cache/graft/graft/0.2.0/` only ships skills and hooks, with no binary.
+
+Two ways forward:
+1. **Run `/graft:graft-init`.** It asks before installing the memory CLI. The npm package (installed through mise) owns the `graft` name, so you'd have to remove it or rename one of them first. Otherwise every command and the session hooks will keep reaching the wrong tool.
+2. **Drop the graft plugin.** trail already covers repo context here and holds 6 learnings, so a second memory system may be redundant.
+
+I'd go with option 2 unless you want memory that works across projects, which trail doesn't do. Which one?
+
+Separately, the harness flagged an open item from last session: `context_summary.md` is missing the `## Meta-Session 2026-11-08` retrospective.
+
+graft: not used. The memory CLI isn't installed and `graft` points to the npm package that became trail.
+
+**Actions**
+
+- Bash: `graft status` (failed)
+- Bash: `which graft; graft --version; graft --help 2>&1 | head -40`
+- Bash: `type -a graft; rtk ls ~/.graft 2>&1 | head; rtk ls /skogai/claude/plugins/cache/graft/graft/0.2.0/ 2>&1; rtk ls /skogai/…` (failed)
+- Bash: `rtk read ~/.graft/rename-notice.json ~/.graft/update-check.json; echo; /home/skogix/.local/share/mise/installs/node/late…`
+
