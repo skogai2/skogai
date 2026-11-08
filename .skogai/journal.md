@@ -376,3 +376,33 @@ What should I memoryze? Some options:
 - Name a file or doc to distill. I'd attach it with `--source file:<path>`.
 - Point me at an earlier session. I can find it through atuin threads and save from there.
 
+## 2026-11-08 09:29 · turn 7c4f78a2
+
+**User**
+
+> /graft
+
+**Assistant**
+
+skogix, I can't run the graft memory skill here: the memory-graph `graft` it expects isn't installed. Every `graft` on PATH is a different tool with the same name.
+
+- `type -a graft` finds three entries, and all of them are `@nanonets/graft` 0.29.0. That's a repo-context-graph CLI with `build`, `ask`, `skeleton` and `check`, the same kind of tool as trail. It also produced the "graft — repo map" heading in `.trail/cache/INDEX.md`.
+- The memory graft isn't there at all: no `status`, `query`, `insert` or `maintain` commands, no `graftd`, and no `~/.graft/models/bge-m3.gguf`. The only things in `~/.graft/` are nanonets' rename and update-check files.
+
+I didn't install or change anything. Ways forward:
+
+1. **Install the memory graft** with `/graft:graft-init`, which asks before it installs. Its `graft` binary would clash with the nanonets one on PATH, though. One of them has to be renamed, aliased, or put earlier in PATH, or the skill and hooks will hit the wrong binary.
+2. **Remove `@nanonets/graft`** if it's leftover. Trail already covers the repo-graph job here, and removing it frees the name.
+3. **Disable the graft plugin's hooks** with `GRAFT_HOOKS=0` if you don't want the memory skill. Otherwise its hooks will keep calling the wrong binary.
+
+I'd go with 2 then 1, if you want graft's memory alongside trail. Which one?
+
+graft: not usable, because `graft` on PATH is `@nanonets/graft` and not the memory-graph CLI. No queries or inserts were run.
+
+**Actions**
+
+- Bash: `graft status` (failed)
+- Bash: `which graft; graft --version; graft --help 2>&1 | head -40`
+- Bash: `rtk ls ~/.graft 2>&1; type -a graft graftd 2>&1; ls ~/.local/bin | rtk grep -i graft` (failed)
+- Bash: `rtk read ~/.graft/rename-notice.json; echo; /home/skogix/.local/share/mise/installs/node/latest/bin/graft --version; rea…`
+
