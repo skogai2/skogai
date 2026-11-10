@@ -1,9 +1,15 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "syncClaudeAiSkills": false,
   "env": {
     "ENABLE_CLAUDEAI_MCP_SERVERS": "false",
     "CLAUDE_CODE_DISABLE_POLICY_SKILLS": "1",
-    "CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL": "1"
+    "CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL": "1",
+    "CAVEMAN_DEFAULT_MODE": "ultra",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-5-5",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-5-5",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-5-5",
+    "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "1"
   },
   "permissions": {
     "allow": [
@@ -37,9 +43,40 @@
       "Bash(wt *)",
       "Read(./.harness/**)",
       "mcp__atuin-mcp__atuin_history",
-      "mcp__atuin-mcp__atuin_output"
+      "mcp__atuin-mcp__atuin_output",
+      "Bash(git add:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git commit:*)",
+      "Bash(git diff:*)",
+      "Bash(git fetch:*)",
+      "Bash(git log:*)",
+      "Bash(git merge:*)",
+      "Bash(git pull:*)",
+      "Bash(git push:*)",
+      "Bash(git rebase:*)",
+      "Bash(git reset:*)",
+      "Bash(git stash:*)",
+      "Bash(git status:*)",
+      "Bash(git switch:*)",
+      "Bash(git tag:*)",
+      "Edit(//private/tmp/**)",
+      "Edit(//tmp/**)",
+      "Write(//private/tmp/**)",
+      "Write(//tmp/**)"
     ],
-    "defaultMode": "auto"
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./**/.env)",
+      "Read(./**/.env.*)",
+      "Read(./secrets/**)"
+    ],
+    "defaultMode": "auto",
+    "additionalDirectories": [
+      "/tmp",
+      "/private/tmp"
+    ]
   },
   "model": "opus",
   "hooks": {
@@ -50,6 +87,64 @@
           {
             "type": "command",
             "command": "atuin hook claude-code"
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/gh-scope-guard.mjs"
+            ],
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/format-on-edit.mjs"
+            ],
+            "timeout": 60
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/set-files-changed.mjs"
+            ],
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/sql-idempotent-review.mjs"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-settings-schema.mjs"
+            ],
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "EnterWorktree",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/worktree-create.mjs"
+            ],
+            "timeout": 20
           }
         ]
       }
@@ -72,6 +167,22 @@
           {
             "type": "command",
             "command": "atuin hook claude-code"
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/guard-main-branch.mjs"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/rtk-hook.mjs"
+            ],
+            "timeout": 15
           }
         ]
       },
@@ -81,6 +192,22 @@
           {
             "type": "command",
             "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/enforce-scope.sh"
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/secret-scan.mjs"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/worktree-write-guard.mjs"
+            ],
+            "timeout": 10
           }
         ]
       },
@@ -98,6 +225,32 @@
           {
             "type": "command",
             "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/commit-gate.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/subagent-model-guard.mjs"
+            ],
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Read|Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/graphify-orient.mjs"
+            ],
+            "timeout": 10
           }
         ]
       }
@@ -119,6 +272,30 @@
             "type": "command",
             "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.trail/hook.cjs\" session-start || exit 0",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/check-deps-on-start.mjs"
+            ],
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/worktree-session-ctx.mjs"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/graphify-session-ctx.mjs"
+            ],
+            "timeout": 10
           }
         ]
       }
@@ -132,7 +309,120 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/worktree-prompt-ctx.mjs"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/orchestration-mode.mjs"
+            ],
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/worktree-subagent-ctx.mjs"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/graphify-session-ctx.mjs"
+            ],
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/verify-on-stop.mjs"
+            ],
+            "timeout": 300
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/memory-stop.mjs"
+            ],
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/sql-idempotent-review.mjs"
+            ],
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/large-file-warning.mjs"
+            ],
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/worktree-create.mjs"
+            ],
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "WorktreeRemove": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/worktree-remove.mjs"
+            ],
+            "timeout": 15
+          }
+        ]
+      }
     ]
+  },
+  "worktree": {
+    "baseRef": "head"
   },
   "statusLine": {
     "type": "command",
@@ -142,7 +432,8 @@
     "nelson@synced": false,
     "cc-plugin-you-should-know@builtin": false,
     "cc-plugin-diff@builtin": false,
-    "cc-plugin-telemetry@builtin": false
+    "cc-plugin-telemetry@builtin": false,
+    "aia-harness@leandro-plugins-registry": true
   },
   "extraKnownMarketplaces": {
     "skogai-marketplace": {
@@ -151,10 +442,25 @@
         "url": "https://github.com/skogai2/marketplace.git"
       },
       "autoUpdate": true
+    },
+    "leandro-plugins-registry": {
+      "source": {
+        "source": "github",
+        "repo": "leandrosilvaferreira/claude-plugins-registry"
+      }
     }
   },
   "outputStyle": "Concise",
   "feedbackDrafts": "notify",
+  "modelSettings": {
+    "claude-sonnet-5-5": {
+      "maxEffortLevel": "high"
+    },
+    "claude-haiku-5-5": {
+      "maxEffortLevel": "high"
+    }
+  },
+  "showClearContextOnPlanAccept": true,
   "dialogExpiry": "never",
   "pluginConfigs": {
     "cc-plugin-agents-md@builtin": {
@@ -166,6 +472,7 @@
   "timeFormat": "24-hour",
   "autoMemoryEnabled": false,
   "autoMemoryDirectory": "/home/skogix/claude/.skogai/memory",
+  "skipDangerousModePermissionPrompt": true,
   "theme": "dark-daltonized",
   "editorMode": "vim",
   "preferredNotifChannel": "auto",

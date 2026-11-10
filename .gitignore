@@ -13,3 +13,11 @@
 /.skogai/logs/skogai-core/log.jsonl
 /.skogai/logs/skogai-core/log.jsonl
 /.skogai/logs/skogai-core/log.jsonl
+# aia-harness
+.claude/settings.local.json
+.claude/*.local.*
+.claude/.aia-harness-pending/
+graphify-out/
+graphify-out/cost.json
+graphify-out/cache/
+/node_modules
